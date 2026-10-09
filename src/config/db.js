@@ -1,7 +1,21 @@
+const fs = require("fs");
 const mysql = require("mysql2/promise");
 require("dotenv").config();
 
-const pool = mysql.createPool({
+// Las bases de datos en la nube (Aiven, PlanetScale…) exigen conexión cifrada
+// con TLS. DB_SSL=true activa TLS; DB_SSL_CA apunta al archivo ca.pem que
+// entrega el proveedor; DB_SSL_VERIFY=false omite verificar el certificado
+// solo si el proveedor lo pide y no tienes el ca.pem.
+function construirSSL() {
+  if (process.env.DB_SSL !== "true") return undefined;
+  const ssl = { rejectUnauthorized: process.env.DB_SSL_VERIFY !== "false" };
+  if (process.env.DB_SSL_CA && fs.existsSync(process.env.DB_SSL_CA)) {
+    ssl.ca = fs.readFileSync(process.env.DB_SSL_CA);
+  }
+  return ssl;
+}
+
+const opciones = {
   host: process.env.DB_HOST || "localhost",
   port: process.env.DB_PORT || 3306,
   user: process.env.DB_USER || "root",
@@ -9,6 +23,11 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || "pixel_galletas_api",
   waitForConnections: true,
   connectionLimit: 10,
-});
+};
+
+const ssl = construirSSL();
+if (ssl) opciones.ssl = ssl;
+
+const pool = mysql.createPool(opciones);
 
 module.exports = pool;
