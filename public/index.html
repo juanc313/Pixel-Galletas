@@ -5,9 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pixel Galletas — De la pantalla a tu paladar</title>
   <meta name="description" content="Galletas tipo Nueva York inspiradas en personajes de videojuegos. Pide online y recíbelo por WhatsApp. Cúcuta, Colombia.">
+  <meta name="theme-color" content="#15094F">
+  <link rel="icon" type="image/png" href="/img/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
+  <a class="saltar" href="#catalogo">Saltar al contenido</a>
+
   <header class="barra">
     <div class="marca">
       <img src="/img/logo.png" alt="Logo de Pixel Galletas" width="48" height="48">
@@ -16,28 +23,18 @@
         <small>De la pantalla a tu paladar</small>
       </div>
     </div>
-    <nav class="menu">
+    <nav class="menu" aria-label="Principal">
       <a href="#catalogo">Galletas</a>
       <a href="#pedido">Pedir</a>
       <a href="#contacto">Contacto</a>
-      <a class="carrito-icono" href="#pedido" title="Ver mi carrito">🛒 <span id="carrito-contador">0</span></a>
+      <a class="carrito-icono" href="#pedido" title="Ver mi carrito">Carrito <span id="carrito-contador">0</span></a>
       <button type="button" id="btn-acceso" aria-expanded="false" aria-controls="acceso">Acceso</button>
     </nav>
   </header>
 
   <main class="contenido">
-    <!-- Portada -->
-    <section class="tarjeta ancha hero">
-      <img class="hero-img" src="/img/hero.jpg" alt="Amantes de los videojuegos disfrutando Pixel Galletas">
-      <div class="hero-texto">
-        <h2>Galletas Nueva York de tus personajes favoritos</h2>
-        <p>Elaboradas con ingredientes de alta calidad, sabores únicos y empaque coleccionable.
-           Del diseño pixelado al detalle de cada bocado, hechas con amor para gamers.</p>
-        <a class="boton-grande" href="#pedido">Hacer mi pedido</a>
-      </div>
-    </section>
-
-    <section class="tarjeta" id="acceso" hidden>
+    <!-- Acceso: aparece arriba para que se vea al abrirlo -->
+    <section class="tarjeta" id="acceso" aria-label="Acceso a tu cuenta" hidden>
       <section id="vista-acceso">
         <div class="pestanas">
           <button type="button" id="tab-login" class="activa">Iniciar sesión</button>
@@ -67,10 +64,29 @@
       <p id="mensaje" role="alert"></p>
     </section>
 
-    <!-- Catálogo público -->
-    <section class="tarjeta ancha" id="catalogo">
-      <h2>Nuestras galletas</h2>
-      <p class="subtitulo">Pide desde 1 galleta · los precios aparecen en cada sabor del catálogo</p>
+    <!-- Portada: pantalla de título -->
+    <section class="hero" aria-labelledby="hero-titulo">
+      <div class="hero-texto">
+        <p class="vidas" role="img" aria-label="Cinco corazones llenos">
+          <span style="--i:0"></span><span style="--i:1"></span><span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span>
+        </p>
+        <h2 id="hero-titulo">Galletas Nueva York de tus personajes favoritos</h2>
+        <p>Elaboradas con ingredientes de alta calidad, sabores únicos y empaque coleccionable.
+           Del diseño pixelado al detalle de cada bocado, hechas con amor para gamers.</p>
+        <div class="hero-acciones">
+          <a class="boton-grande" href="#pedido">Hacer mi pedido</a>
+          <a class="enlace-secundario" href="#catalogo">Ver los sabores</a>
+        </div>
+      </div>
+      <figure class="hero-pantalla">
+        <img class="hero-img" src="/img/hero.jpg" alt="Amantes de los videojuegos disfrutando Pixel Galletas" width="1200" height="801">
+      </figure>
+    </section>
+
+    <!-- Catálogo público: elige tu sabor -->
+    <section id="catalogo">
+      <h2>Elige tu sabor</h2>
+      <p class="subtitulo">Pide desde una sola galleta. El precio de cada sabor aparece en su tarjeta.</p>
       <ul id="lista-productos" class="productos"></ul>
 
       <div id="admin-productos" hidden>
@@ -79,23 +95,25 @@
           <label>Sabor <input type="text" name="nombre" required maxlength="100"></label>
           <label>Descripción <textarea name="descripcion" rows="2" maxlength="300"></textarea></label>
           <label>Precio (COP) <input type="number" name="precio" required min="1" step="1"></label>
-          <button type="submit" id="btn-guardar">Agregar galleta</button>
-          <button type="button" id="btn-cancelar" class="secundario" hidden>Cancelar edición</button>
+          <div>
+            <button type="submit" id="btn-guardar">Agregar galleta</button>
+            <button type="button" id="btn-cancelar" class="secundario" hidden>Cancelar edición</button>
+          </div>
         </form>
       </div>
       <p id="mensaje-productos" role="alert"></p>
     </section>
 
     <!-- Carrito + formulario de pedido -->
-    <section class="tarjeta ancha" id="pedido">
+    <section class="tarjeta" id="pedido">
       <h2>Tu pedido</h2>
 
       <div class="pedido-cols">
         <div>
-          <h3>🛒 Carrito</h3>
+          <h3>Carrito</h3>
           <ul id="lista-carrito" class="productos"></ul>
           <p id="vacio">Tu carrito está vacío. Agrega galletas desde el catálogo.</p>
-          <p class="total-linea">Total: <strong id="carrito-total">$ 0</strong></p>
+          <p class="total-linea">Total <strong id="carrito-total">$ 0</strong></p>
           <button type="button" id="btn-vaciar-carrito" class="secundario">Vaciar carrito</button>
         </div>
 
@@ -111,7 +129,7 @@
           <p id="mensaje-pedido" role="alert"></p>
 
           <div id="confirmacion" class="confirmacion" hidden>
-            <p>✅ Tu pedido quedó registrado. Ahora envíanoslo por WhatsApp para coordinar el pago y la entrega:</p>
+            <p><svg class="icono" viewBox="0 0 9 7" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><path fill="currentColor" d="M8 0h1v1h-1zM7 1h2v1h-2zM6 2h2v1h-2zM0 3h1v1h-1zM5 3h2v1h-2zM0 4h2v1h-2zM4 4h2v1h-2zM1 5h4v1h-4zM2 6h2v1h-2z"/></svg> <span>Tu pedido quedó registrado. Ahora envíanoslo por WhatsApp para coordinar el pago y la entrega:</span></p>
             <a id="btn-whatsapp-pedido" class="boton-whatsapp" target="_blank" rel="noopener" href="#">Enviar por WhatsApp</a>
           </div>
         </div>
@@ -119,33 +137,33 @@
     </section>
 
     <!-- Gestión de pedidos (solo admin) -->
-    <section class="tarjeta ancha" id="seccion-pedidos-admin" hidden>
+    <section class="tarjeta" id="seccion-pedidos-admin" hidden>
       <h2>Pedidos recibidos</h2>
       <ul id="lista-pedidos" class="productos"></ul>
       <p id="mensaje-pedidos" role="alert"></p>
     </section>
 
     <!-- Usuarios (solo admin) -->
-    <section class="tarjeta ancha" id="seccion-usuarios" hidden>
+    <section class="tarjeta" id="seccion-usuarios" hidden>
       <h2>Usuarios</h2>
       <ul id="lista-usuarios" class="productos"></ul>
       <p id="mensaje-usuarios" role="alert"></p>
     </section>
 
     <!-- Contacto -->
-    <section class="tarjeta ancha" id="contacto">
+    <section class="tarjeta" id="contacto">
       <h2>Contacto</h2>
       <div class="contacto-cols">
-        <div class="contacto-item">
-          <img src="/img/galletas.jpg" alt="Galletas Pixel Galletas surtidas" width="420" height="420">
-        </div>
-        <div class="contacto-item">
+        <figure class="pantalla-negra">
+          <img src="/img/galletas.jpg" alt="Un control de videojuego y una galleta con un mordisco, en pixel art" width="512" height="512">
+        </figure>
+        <div>
           <ul class="contacto-lista">
-            <li>💬 <strong>WhatsApp:</strong>
+            <li><svg class="icono" viewBox="0 0 9 8" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><path fill="currentColor" d="M1 0h7v1h-7zM0 1h9v1h-9zM0 2h9v1h-9zM0 3h9v1h-9zM0 4h9v1h-9zM1 5h7v1h-7zM2 6h3v1h-3zM2 7h1v1h-1z"/></svg> <strong>WhatsApp</strong>
               <a id="link-whatsapp" href="#" target="_blank" rel="noopener">313 783 9935</a></li>
-            <li>📸 <strong>Instagram:</strong>
+            <li><svg class="icono" viewBox="0 0 9 8" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><path fill="currentColor" d="M1 0h7v1h-7zM0 1h1v1h-1zM8 1h1v1h-1zM0 2h1v1h-1zM3 2h3v1h-3zM8 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM0 5h1v1h-1zM3 5h3v1h-3zM8 5h1v1h-1zM0 6h1v1h-1zM8 6h1v1h-1zM1 7h7v1h-7z"/></svg> <strong>Instagram</strong>
               <a id="link-instagram" href="#" target="_blank" rel="noopener">@pixel_galletas</a></li>
-            <li>📍 <strong>Ubicación:</strong>
+            <li><svg class="icono" viewBox="0 0 9 8" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><path fill="currentColor" d="M2 0h5v1h-5zM1 1h7v1h-7zM1 2h2v1h-2zM6 2h2v1h-2zM1 3h2v1h-2zM6 3h2v1h-2zM1 4h7v1h-7zM2 5h5v1h-5zM3 6h3v1h-3zM4 7h1v1h-1z"/></svg> <strong>Ubicación</strong>
               <a id="link-ubicacion" href="#" target="_blank" rel="noopener">Ceiba 2, Cúcuta</a></li>
           </ul>
           <p class="subtitulo">Galletas Nueva York gamer hechas en Cúcuta con amor y pasión por los videojuegos.</p>
@@ -157,7 +175,7 @@
 
   <footer class="pie">
     <img src="/img/logo.png" alt="" width="36" height="36">
-    <p>© 2026 Pixel Galletas · De la pantalla a tu paladar · Cúcuta, Colombia</p>
+    <p>© 2026 Pixel Galletas. De la pantalla a tu paladar, desde Cúcuta, Colombia.</p>
   </footer>
 
   <script type="module" src="/js/auth.js"></script>

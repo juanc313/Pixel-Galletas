@@ -22,6 +22,10 @@ export class ProductoServicio {
   eliminar(id) { return this.api.eliminar(`/productos/${id}`); }
 }
 
+// Identificador del sabor para colorear su galleta en la hoja de estilos ("Pixel Red Velvet" pasa a "red-velvet").
+const idSabor = (nombre) => nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+  .replace(/^pixel\s+/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
 // Vista: dibuja el catálogo (público) y el panel de administración (solo admin).
 class ProductosVista {
   constructor(servicio) {
@@ -57,6 +61,7 @@ class ProductosVista {
     for (const p of this.productos) {
       const li = document.createElement("li");
       li.className = "producto";
+      li.dataset.sabor = idSabor(p.nombre);
       const info = document.createElement("div");
       const nombre = document.createElement("strong");
       nombre.textContent = p.nombre;
