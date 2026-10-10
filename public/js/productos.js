@@ -26,6 +26,10 @@ export class ProductoServicio {
 const idSabor = (nombre) => nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
   .replace(/^pixel\s+/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
+// Fotos reales de cada sabor (scripts/prepararFotos.py). Los sabores que no
+// estén aquí (galletas creadas por el admin) usan el sprite pixelado del CSS.
+const FOTOS = new Set(["monster", "red-velvet", "chocolate", "arequipe", "klim", "special-edition"]);
+
 // Vista: dibuja el catálogo (público) y el panel de administración (solo admin).
 class ProductosVista {
   constructor(servicio) {
@@ -62,6 +66,17 @@ class ProductosVista {
       const li = document.createElement("li");
       li.className = "producto";
       li.dataset.sabor = idSabor(p.nombre);
+      if (FOTOS.has(li.dataset.sabor)) {
+        li.dataset.foto = "si";
+        const foto = document.createElement("img");
+        foto.className = "foto-sabor";
+        foto.src = `/img/sabores/${li.dataset.sabor}.webp`;
+        foto.alt = `Galleta real ${p.nombre}`;
+        foto.width = 480;
+        foto.height = 480;
+        foto.loading = "lazy";
+        li.append(foto);
+      }
       const info = document.createElement("div");
       const nombre = document.createElement("strong");
       nombre.textContent = p.nombre;

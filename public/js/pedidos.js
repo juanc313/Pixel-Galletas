@@ -176,11 +176,13 @@ class PedidoVista {
       precio.textContent = pesos(item.precio * item.cantidad);
       const controles = document.createElement("div");
       controles.className = "controles";
-      const menos = this.#boton("−", "Quitar uno", item.producto_id, "menos");
+      const menos = this.#boton("−", `Quitar uno de ${item.nombre}`, item.producto_id, "menos");
       const cantidad = document.createElement("span");
       cantidad.textContent = item.cantidad;
-      const mas = this.#boton("+", "Agregar uno", item.producto_id, "mas");
-      const fuera = this.#boton("×", "Quitar del carrito", item.producto_id, "quitar");
+      // Para que un lector de pantalla diga "cantidad" y no un número suelto.
+      cantidad.setAttribute("aria-label", `Cantidad: ${item.cantidad}`);
+      const mas = this.#boton("+", `Agregar uno de ${item.nombre}`, item.producto_id, "mas");
+      const fuera = this.#boton("×", `Quitar ${item.nombre} del carrito`, item.producto_id, "quitar");
       controles.append(menos, cantidad, mas, fuera);
       li.append(nombre, precio, controles);
       lista.append(li);

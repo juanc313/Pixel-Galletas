@@ -35,6 +35,9 @@ class AuthVista {
     this.$("form-registro").hidden = esLogin;
     this.$("tab-login").classList.toggle("activa", esLogin);
     this.$("tab-registro").classList.toggle("activa", !esLogin);
+    // role="tab": el estado activo se comunica con aria-selected, no solo con el color.
+    this.$("tab-login").setAttribute("aria-selected", String(esLogin));
+    this.$("tab-registro").setAttribute("aria-selected", String(!esLogin));
     this.mensaje("");
   }
 

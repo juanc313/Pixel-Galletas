@@ -70,15 +70,20 @@ CREATE TABLE IF NOT EXISTS pedido_detalles (
 ) ENGINE=InnoDB;
 
 -- Los seis sabores de la marca con su precio de venta real
--- (Precio de venta definido en el modelo DYME: $6.000 por galleta).
+-- (Modelo DYME: $6.000 por galleta; la Special Edition es de $7.500).
 INSERT IGNORE INTO productos (nombre_sabor, descripcion, precio_venta) VALUES
   ('Pixel Monster',      'Galleta con cobertura de chocolate blanco y toque azul monstruo.', 6000.00),
   ('Pixel Red Velvet',   'Galleta red velvet con cobertura de chocolate blanco.',            6000.00),
   ('Pixel Chocolate',    'Galleta de chocolate con chips de cacao y galleta Biscolata.',     6000.00),
   ('Pixel Arequipe',     'Galleta con arequipe y cobertura de chocolate blanco.',            6000.00),
   ('Pixel Klim',         'Galleta con leche Klim, M&M y cobertura de chocolate blanco.',     6000.00),
-  ('Pixel Special Edition', 'Edición especial: todos nuestros sabores combinados.',          6000.00);
+  ('Pixel Special Edition', 'Edición especial: todos nuestros sabores combinados.',          7500.00);
 
 -- Las bases de datos creadas con la versión anterior traían $4.500 como
 -- precio de referencia; se corrigen solo si siguen con ese valor exacto.
 UPDATE productos SET precio_venta = 6000.00 WHERE precio_venta = 4500.00;
+
+-- La Special Edition pasó a $7.500: se corrige solo si sigue en el precio anterior,
+-- para no pisar un cambio que el administrador haya hecho desde la página.
+UPDATE productos SET precio_venta = 7500.00
+  WHERE nombre_sabor = 'Pixel Special Edition' AND precio_venta = 6000.00;

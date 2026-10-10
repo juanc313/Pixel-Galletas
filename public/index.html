@@ -6,11 +6,26 @@
   <title>Pixel Galletas — De la pantalla a tu paladar</title>
   <meta name="description" content="Galletas tipo Nueva York inspiradas en personajes de videojuegos. Pide online y recíbelo por WhatsApp. Cúcuta, Colombia.">
   <meta name="theme-color" content="#15094F">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Pixel Galletas — De la pantalla a tu paladar">
+  <meta property="og:description" content="Galletas Nueva York gamer hechas en Cúcuta. Elige tus sabores y pide por WhatsApp.">
+  <meta property="og:image" content="/img/contacto.jpg">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="/img/logo.png">
+  <link rel="preload" as="image" href="/img/hero.webp" type="image/webp" imagesrcset="/img/hero.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <script>
+    // Activa las animaciones solo si efectos.js se carga (si falla, todo se ve).
+    document.documentElement.classList.add("js-anim");
+    setTimeout(function () {
+      if (!window.__efectosListo) document.documentElement.classList.remove("js-anim");
+    }, 4000);
+  </script>
 </head>
 <body>
   <a class="saltar" href="#catalogo">Saltar al contenido</a>
@@ -27,18 +42,20 @@
       <a href="#catalogo">Galletas</a>
       <a href="#pedido">Pedir</a>
       <a href="#contacto">Contacto</a>
-      <a class="carrito-icono" href="#pedido" title="Ver mi carrito">Carrito <span id="carrito-contador">0</span></a>
+      <a class="carrito-icono" href="#pedido" title="Ver mi carrito">Carrito <span id="carrito-contador" aria-live="polite" aria-atomic="true">0</span></a>
       <button type="button" id="btn-acceso" aria-expanded="false" aria-controls="acceso">Acceso</button>
     </nav>
+    <!-- Barra de progreso de lectura (la mueve efectos.js) -->
+    <span class="progreso-lectura" aria-hidden="true"></span>
   </header>
 
   <main class="contenido">
     <!-- Acceso: aparece arriba para que se vea al abrirlo -->
     <section class="tarjeta" id="acceso" aria-label="Acceso a tu cuenta" hidden>
       <section id="vista-acceso">
-        <div class="pestanas">
-          <button type="button" id="tab-login" class="activa">Iniciar sesión</button>
-          <button type="button" id="tab-registro">Crear cuenta</button>
+        <div class="pestanas" role="tablist" aria-label="Acceso o registro">
+          <button type="button" id="tab-login" class="activa" role="tab" aria-selected="true" aria-controls="form-login">Iniciar sesión</button>
+          <button type="button" id="tab-registro" role="tab" aria-selected="false" aria-controls="form-registro">Crear cuenta</button>
         </div>
 
         <form id="form-login">
@@ -65,26 +82,43 @@
     </section>
 
     <!-- Portada: pantalla de título -->
-    <section class="hero" aria-labelledby="hero-titulo">
+    <section class="hero" aria-labelledby="hero-titulo" data-reveal>
+      <span class="chispa chispa-1" aria-hidden="true"><img src="/img/sabores/klim.webp" alt="" width="480" height="480"></span>
+      <span class="chispa chispa-2" aria-hidden="true"><img src="/img/sabores/monster.webp" alt="" width="480" height="480"></span>
+      <span class="chispa chispa-3" aria-hidden="true"><img src="/img/sabores/red-velvet.webp" alt="" width="480" height="480"></span>
       <div class="hero-texto">
         <p class="vidas" role="img" aria-label="Cinco corazones llenos">
           <span style="--i:0"></span><span style="--i:1"></span><span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span>
         </p>
-        <h2 id="hero-titulo">Galletas Nueva York de tus personajes favoritos</h2>
+        <p class="gancho">Cúcuta · Colombia · <strong>Hechas a mano</strong></p>
+        <h2 id="hero-titulo">Galletas Nueva York de tus personajes <em>favoritos</em></h2>
         <p>Elaboradas con ingredientes de alta calidad, sabores únicos y empaque coleccionable.
            Del diseño pixelado al detalle de cada bocado, hechas con amor para gamers.</p>
         <div class="hero-acciones">
           <a class="boton-grande" href="#pedido">Hacer mi pedido</a>
           <a class="enlace-secundario" href="#catalogo">Ver los sabores</a>
         </div>
+        <ul class="confianza">
+          <li>Pide en menos de un minuto por WhatsApp</li>
+          <li>Coordinas el pago en efectivo o Nequi y la entrega con nosotros</li>
+          <li>Empaque coleccionable listo para regalar</li>
+        </ul>
       </div>
       <figure class="hero-pantalla">
-        <img class="hero-img" src="/img/hero.jpg" alt="Amantes de los videojuegos disfrutando Pixel Galletas" width="1200" height="801">
+        <picture>
+          <source srcset="/img/hero.webp" type="image/webp">
+          <img class="hero-img" src="/img/hero.jpg" alt="Amantes de los videojuegos disfrutando Pixel Galletas" width="1200" height="801" fetchpriority="high">
+        </picture>
+        <figcaption class="hero-pegatina">Hecho en Cúcuta</figcaption>
       </figure>
     </section>
 
+    <!-- Cinta de sabores (la rellena y anima efectos.js) -->
+    <div class="cinta" aria-hidden="true"><div class="cinta-pista"></div></div>
+
     <!-- Catálogo público: elige tu sabor -->
-    <section id="catalogo">
+    <section id="catalogo" data-reveal>
+      <p class="etiqueta">Nivel 01 · Catálogo</p>
       <h2>Elige tu sabor</h2>
       <p class="subtitulo">Pide desde una sola galleta. El precio de cada sabor aparece en su tarjeta.</p>
       <ul id="lista-productos" class="productos"></ul>
@@ -104,8 +138,77 @@
       <p id="mensaje-productos" role="alert"></p>
     </section>
 
+    <!-- Cajas Pixel: regalo, compartir y eventos -->
+    <section id="cajas" data-reveal aria-labelledby="titulo-cajas">
+      <p class="etiqueta">Nivel 02 · Cajas Pixel</p>
+      <h2 id="titulo-cajas">Cajas para regalar, compartir y celebrar</h2>
+      <p class="subtitulo">Eliges los sabores y añades un mensaje personalizado. Toda caja viene en presentación gamer.</p>
+      <ul class="cajas">
+        <li class="caja">
+          <h3>Caja Pixel x4</h3>
+          <p class="caja-para">Regalo</p>
+          <p class="caja-precio">$ 24.000</p>
+          <p class="caja-detalle">Cuatro galletas a tu elección en presentación de regalo, con mensaje personalizado.</p>
+        </li>
+        <li class="caja caja-destacada">
+          <span class="caja-insignia">La más pedida</span>
+          <h3>Caja Pixel x6</h3>
+          <p class="caja-para">Para compartir</p>
+          <p class="caja-precio">$ 36.000</p>
+          <p class="caja-detalle">Seis galletas surtidas o a tu elección, listas para compartir en casa o en la oficina.</p>
+        </li>
+        <li class="caja">
+          <h3>Caja Pixel x12</h3>
+          <p class="caja-para">Eventos y celebraciones</p>
+          <p class="caja-precio">$ 72.000</p>
+          <p class="caja-detalle">Doce galletas para reuniones, cumpleaños y equipos. Preparación con anticipo y plazo acordado.</p>
+        </li>
+      </ul>
+      <div class="volumen">
+        <h3>Descuentos por volumen</h3>
+        <ul>
+          <li><b>12 galletas</b> <span>5% de descuento</span></li>
+          <li><b>24 galletas</b> <span>8% de descuento</span></li>
+          <li><b>48 o más</b> <span>10% de descuento</span></li>
+        </ul>
+        <p>Para pedidos de 24 unidades o más coordinamos un anticipo y el plazo de preparación. Los descuentos se ajustan a cada pedido según empaque, entrega y preparación.</p>
+      </div>
+      <div class="mensual">
+        <div>
+          <h3>Caja mensual</h3>
+          <p>Cada mes recibes 4 o 6 galletas con sabores seleccionados, novedades del obrador y acceso anticipado a las ediciones especiales.</p>
+        </div>
+        <a class="boton-grande" id="link-caja-mensual" href="#" target="_blank" rel="noopener">Suscribirme por WhatsApp</a>
+      </div>
+    </section>
+
+    <!-- Cómo funciona: los tres pasos del pedido -->
+    <section id="como-funciona" data-reveal aria-labelledby="titulo-como">
+      <p class="etiqueta">Nivel 03 · Cómo funciona</p>
+      <h2 id="titulo-como">Pedir es tan fácil como un botón</h2>
+      <p class="subtitulo">Sin apps ni registros eternos: tres pasos y tus galletas van en camino.</p>
+      <ol class="pasos">
+        <li class="paso">
+          <span class="paso-num" aria-hidden="true">1</span>
+          <h3>Elige tus sabores</h3>
+          <p>Agrega desde una sola galleta hasta una caja completa. El total se actualiza al instante.</p>
+        </li>
+        <li class="paso">
+          <span class="paso-num" aria-hidden="true">2</span>
+          <h3>Confirma por WhatsApp</h3>
+          <p>Tu pedido llega listo al chat: solo confirmas el pago y la entrega con nosotros.</p>
+        </li>
+        <li class="paso">
+          <span class="paso-num" aria-hidden="true">3</span>
+          <h3>Recíbelas en Cúcuta</h3>
+          <p>Empacadas con cuidado, listas para comer, compartir o coleccionar.</p>
+        </li>
+      </ol>
+    </section>
+
     <!-- Carrito + formulario de pedido -->
-    <section class="tarjeta" id="pedido">
+    <section class="tarjeta" id="pedido" data-reveal>
+      <p class="etiqueta">Nivel 04 · Tu pedido</p>
       <h2>Tu pedido</h2>
 
       <div class="pedido-cols">
@@ -115,11 +218,23 @@
           <p id="vacio">Tu carrito está vacío. Agrega galletas desde el catálogo.</p>
           <p class="total-linea">Total <strong id="carrito-total">$ 0</strong></p>
           <button type="button" id="btn-vaciar-carrito" class="secundario">Vaciar carrito</button>
+
+          <div class="detalles" role="region" aria-labelledby="titulo-entrega-pago">
+            <h3 id="titulo-entrega-pago">Cómo se entrega y se paga</h3>
+            <ul class="detalles-lista">
+              <li><span class="icono icono-ubi" aria-hidden="true"><svg viewBox="0 0 384 512"><path fill="currentColor" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg></span>
+                <span><b>Solo Cúcuta</b><br>Entregamos en la ciudad. Si estás en otra zona, escríbenos y vemos qué podemos hacer.</span></li>
+              <li><span class="icono icono-wa" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 3.9A11.9 11.9 0 0 0 3.5 17.7L2 22l4.4-1.5A11.9 11.9 0 1 0 20 3.9Zm-8 19.6a9.9 9.9 0 0 1-5-1.4l-.4-.2-2.6.9.9-2.5-.2-.4a9.9 9.9 0 1 1 7.3 3.6Zm5.4-7.4c-.3-.1-1.7-.8-2-1s-.5-.1-.7.1-.8 1-1 1.2-.4.2-.7.1a8 8 0 0 1-2.4-1.5 9 9 0 0 1-1.6-2.1c-.2-.3 0-.5.1-.6l.5-.6.3-.5c.1-.2 0-.4 0-.5l-.9-2.2c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.8.4 3.5 3.5 0 0 0-1.1 2.6 6.2 6.2 0 0 0 1.3 3.3 14.2 14.2 0 0 0 5.4 4.8c2.1.9 2.9 1 3.9.8a3 3 0 0 0 2-1.4 2.5 2.5 0 0 0 .2-1.4c-.1-.2-.3-.2-.6-.3Z"/></svg></span>
+                <span><b>Efectivo o Nequi</b><br>Pagas en efectivo o por transferencia Nequi al coordinar la entrega.</span></li>
+              <li><span class="icono icono-ig" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1Zm0 6.8a3.9 3.9 0 1 0 0 7.8 3.9 3.9 0 0 0 0-7.8Zm0 6.4a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Zm5-6.6a.9.9 0 1 1-1.8 0 .9.9 0 0 1 1.8 0Z"/></svg></span>
+                <span><b>Pedidos grandes</b><br>Para 24 unidades o más pedimos anticipo y acordamos el plazo de preparación.</span></li>
+            </ul>
+          </div>
         </div>
 
         <div>
-          <h3>Datos de entrega</h3>
-          <form id="form-pedido">
+          <h3 id="titulo-entrega">Datos de entrega</h3>
+          <form id="form-pedido" aria-labelledby="titulo-entrega">
             <label>Nombre <input type="text" id="pedido-nombre" name="nombre" required maxlength="100" autocomplete="name"></label>
             <label>Teléfono / WhatsApp <input type="tel" id="pedido-telefono" name="telefono" required pattern="[0-9+\s\-]{7,20}" autocomplete="tel"></label>
             <label>Dirección (opcional) <input type="text" name="direccion" maxlength="255" autocomplete="street-address"></label>
@@ -129,7 +244,7 @@
           <p id="mensaje-pedido" role="alert"></p>
 
           <div id="confirmacion" class="confirmacion" hidden>
-            <p><svg class="icono" viewBox="0 0 9 7" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><path fill="currentColor" d="M8 0h1v1h-1zM7 1h2v1h-2zM6 2h2v1h-2zM0 3h1v1h-1zM5 3h2v1h-2zM0 4h2v1h-2zM4 4h2v1h-2zM1 5h4v1h-4zM2 6h2v1h-2z"/></svg> <span>Tu pedido quedó registrado. Ahora envíanoslo por WhatsApp para coordinar el pago y la entrega:</span></p>
+            <p><svg class="icono" viewBox="0 0 9 7" aria-hidden="true"  shape-rendering="crispEdges"><path fill="currentColor" d="M8 0h1v1h-1zM7 1h2v1h-2zM6 2h2v1h-2zM0 3h1v1h-1zM5 3h2v1h-2zM0 4h2v1h-2zM4 4h2v1h-2zM1 5h4v1h-4zM2 6h2v1h-2z"/></svg> <span>Tu pedido quedó registrado. Ahora envíanoslo por WhatsApp para coordinar el pago y la entrega:</span></p>
             <a id="btn-whatsapp-pedido" class="boton-whatsapp" target="_blank" rel="noopener" href="#">Enviar por WhatsApp</a>
           </div>
         </div>
@@ -137,33 +252,37 @@
     </section>
 
     <!-- Gestión de pedidos (solo admin) -->
-    <section class="tarjeta" id="seccion-pedidos-admin" hidden>
+    <section class="tarjeta" id="seccion-pedidos-admin" data-reveal hidden>
       <h2>Pedidos recibidos</h2>
       <ul id="lista-pedidos" class="productos"></ul>
       <p id="mensaje-pedidos" role="alert"></p>
     </section>
 
     <!-- Usuarios (solo admin) -->
-    <section class="tarjeta" id="seccion-usuarios" hidden>
+    <section class="tarjeta" id="seccion-usuarios" data-reveal hidden>
       <h2>Usuarios</h2>
       <ul id="lista-usuarios" class="productos"></ul>
       <p id="mensaje-usuarios" role="alert"></p>
     </section>
 
     <!-- Contacto -->
-    <section class="tarjeta" id="contacto">
+    <section class="tarjeta" id="contacto" data-reveal>
+      <p class="etiqueta">Nivel 05 · Contacto</p>
       <h2>Contacto</h2>
       <div class="contacto-cols">
         <figure class="pantalla-negra">
-          <img src="/img/galletas.jpg" alt="Un control de videojuego y una galleta con un mordisco, en pixel art" width="512" height="512">
+          <picture>
+            <source srcset="/img/contacto.webp" type="image/webp">
+            <img src="/img/contacto.jpg" alt="Las cinco galletas de Pixel Galletas junto a su logo" width="1080" height="1080" loading="lazy" decoding="async">
+          </picture>
         </figure>
         <div>
           <ul class="contacto-lista">
-            <li><svg class="icono" viewBox="0 0 9 8" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><path fill="currentColor" d="M1 0h7v1h-7zM0 1h9v1h-9zM0 2h9v1h-9zM0 3h9v1h-9zM0 4h9v1h-9zM1 5h7v1h-7zM2 6h3v1h-3zM2 7h1v1h-1z"/></svg> <strong>WhatsApp</strong>
+            <li><span class="icono icono-wa" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></span> <strong>WhatsApp</strong>
               <a id="link-whatsapp" href="#" target="_blank" rel="noopener">313 783 9935</a></li>
-            <li><svg class="icono" viewBox="0 0 9 8" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><path fill="currentColor" d="M1 0h7v1h-7zM0 1h1v1h-1zM8 1h1v1h-1zM0 2h1v1h-1zM3 2h3v1h-3zM8 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM0 5h1v1h-1zM3 5h3v1h-3zM8 5h1v1h-1zM0 6h1v1h-1zM8 6h1v1h-1zM1 7h7v1h-7z"/></svg> <strong>Instagram</strong>
+            <li><span class="icono icono-ig" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg></span> <strong>Instagram</strong>
               <a id="link-instagram" href="#" target="_blank" rel="noopener">@pixel_galletas</a></li>
-            <li><svg class="icono" viewBox="0 0 9 8" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><path fill="currentColor" d="M2 0h5v1h-5zM1 1h7v1h-7zM1 2h2v1h-2zM6 2h2v1h-2zM1 3h2v1h-2zM6 3h2v1h-2zM1 4h7v1h-7zM2 5h5v1h-5zM3 6h3v1h-3zM4 7h1v1h-1z"/></svg> <strong>Ubicación</strong>
+            <li><span class="icono icono-ubi" aria-hidden="true"><svg viewBox="0 0 384 512"><path fill="currentColor" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg></span> <strong>Ubicación</strong>
               <a id="link-ubicacion" href="#" target="_blank" rel="noopener">Ceiba 2, Cúcuta</a></li>
           </ul>
           <p class="subtitulo">Galletas Nueva York gamer hechas en Cúcuta con amor y pasión por los videojuegos.</p>
@@ -174,8 +293,28 @@
   </main>
 
   <footer class="pie">
-    <img src="/img/logo.png" alt="" width="36" height="36">
-    <p>© 2026 Pixel Galletas. De la pantalla a tu paladar, desde Cúcuta, Colombia.</p>
+    <div class="pie-cols">
+      <div class="pie-marca">
+        <img src="/img/logo.png" alt="" width="60" height="60">
+        <div>
+          <strong>Pixel Galletas</strong>
+          <p>De la pantalla a tu paladar. Galletas Nueva York gamer hechas en Cúcuta con amor y muchos píxeles.</p>
+        </div>
+      </div>
+      <nav class="pie-links" aria-label="Del pie de página">
+        <a href="#catalogo">Galletas</a>
+        <a href="#cajas">Cajas Pixel</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#pedido">Hacer pedido</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+      <div class="pie-social">
+        <a id="link-whatsapp-pie" href="#" target="_blank" rel="noopener">WhatsApp · 313 783 9935</a>
+        <a id="link-instagram-pie" href="#" target="_blank" rel="noopener">Instagram · @pixel_galletas</a>
+        <a id="link-ubicacion-pie" href="#" target="_blank" rel="noopener">Ceiba 2, Cúcuta</a>
+      </div>
+    </div>
+    <p class="pie-legal">© 2026 Pixel Galletas · Cúcuta, Colombia · Hecho con ♥ y muchos píxeles</p>
   </footer>
 
   <script type="module" src="/js/auth.js"></script>
@@ -183,5 +322,6 @@
   <script type="module" src="/js/pedidos.js"></script>
   <script type="module" src="/js/contacto.js"></script>
   <script type="module" src="/js/usuarios.js"></script>
+  <script type="module" src="/js/efectos.js"></script>
 </body>
 </html>
