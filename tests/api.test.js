@@ -1,5 +1,15 @@
 // Pruebas de la API: autenticación, autorización por rol y CRUD (con base simulada).
 process.env.JWT_SECRET = "clave-solo-para-pruebas";
+// Los límites de tasa protegen la API real contra fuerza bruta y spam, pero la
+// suite hace cientos de peticiones legítimas en segundos desde 127.0.0.1. Se
+// suben por aquí (el módulo de límites los lee del entorno) sin tocar el
+// código: en producción siguen con sus topes normales.
+for (const clave of ["LIMITE_API_MAX", "LIMITE_LOGIN_MAX", "LIMITE_REGISTRO_MAX", "LIMITE_PEDIDOS_MAX", "LIMITE_ESTADO_MAX"]) {
+  process.env[clave] = "100000";
+}
+// Las pruebas no deben hablar con Telegram aunque el .env del proyecto tenga
+// las llaves del obrador: se declaran vacías para que dotenv no las rellene y
+// el aviso quede en "sin configurar".
 const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
 const bcrypt = require("bcryptjs");
@@ -157,4 +167,262 @@ test("Pedidos: ver y gestionar es solo del admin", async () => {
 
   assert.equal((await llamar("PUT", "/api/pedidos/99999/estado", { estado: "listo" }, tokAdmin)).estado, 404);
   assert.equal((await llamar("GET", "/api/pedidos/99999", null, tokAdmin)).estado, 404);
+});
+
+test("Pedidos: el descuento por volumen lo calcula el servidor e ignora el del navegador", async () => {
+  const creado = await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Descuento", precio_venta: 6000 }, tokAdmin);
+  const idProducto = creado.datos.id;
+  const pedir = (cantidad, extra = {}) => llamar("POST", "/api/pedidos", {
+    cliente_nombre: "Ana", cliente_telefono: "3001112233", items: [{ producto_id: idProducto, cantidad }], ...extra,
+  });
+
+  // 12 galletas: 5% (72.000 -> 68.400). El cliente intenta colar un descuento
+  // y un total falsos: se ignoran, igual que el precio_unitario.
+  const docena = await pedir(12, { descuento: 999999, total: 1 });
+  assert.equal(docena.estado, 201);
+  assert.equal(Number(docena.datos.total), 68400);
+  assert.equal(Number(docena.datos.descuento), 3600);
+  assert.equal(docena.datos.descuento_porcentaje, 5);
+
+  // 48 galletas: 10% (288.000 -> 259.200), y 11 galletas: sin descuento.
+  const caja = await pedir(48);
+  assert.equal(Number(caja.datos.total), 259200);
+  assert.equal(Number(caja.datos.descuento), 28800);
+  assert.equal(caja.datos.descuento_porcentaje, 10);
+  const sueltas = await pedir(11);
+  assert.equal(Number(sueltas.datos.total), 66000);
+  assert.equal(Number(sueltas.datos.descuento), 0);
+});
+
+test("Domicilio: el costo del envío lo calcula el servidor según la zona y la cantidad", async () => {
+  const creado = await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Envío", precio_venta: 6000 }, tokAdmin);
+  const idProducto = creado.datos.id;
+  const pedir = (extra) => llamar("POST", "/api/pedidos", {
+    cliente_nombre: "Ana", cliente_telefono: "3001112233",
+    items: [{ producto_id: idProducto, cantidad: 2 }], ...extra,
+  });
+
+  // Recoger: gratis siempre (y es lo que pasa si no se elige nada).
+  const recogiendo = await pedir({});
+  assert.equal(recogiendo.estado, 201);
+  assert.equal(recogiendo.datos.entrega, "recoger");
+  assert.equal(Number(recogiendo.datos.envio), 0);
+  assert.equal(Number(recogiendo.datos.total), 12000);
+
+  // Cúcuta con menos de 12 galletas: +$5.000. El navegador manda envío y total
+  // falsos: se ignoran, igual que el precio_unitario.
+  const cucuta = await pedir({ entrega: "cucuta", direccion: "Calle 5 # 3-2", envio: 0, total: 1 });
+  assert.equal(cucuta.estado, 201);
+  assert.equal(Number(cucuta.datos.envio), 5000);
+  assert.equal(Number(cucuta.datos.total), 17000);
+
+  // Municipios: +$7.000.
+  const municipios = await pedir({ entrega: "municipios", direccion: "Villa del Rosario" });
+  assert.equal(Number(municipios.datos.envio), 7000);
+  assert.equal(Number(municipios.datos.total), 19000);
+
+  // Desde 12 galletas el domicilio sale gratis, en cualquier zona, y el
+  // descuento por volumen se aplica igual.
+  const docena = await llamar("POST", "/api/pedidos", {
+    cliente_nombre: "Ana", cliente_telefono: "3001112233", entrega: "municipios", direccion: "Villa",
+    items: [{ producto_id: idProducto, cantidad: 12 }],
+  });
+  assert.equal(Number(docena.datos.envio), 0);
+  assert.equal(Number(docena.datos.total), 68400); // 72.000 − 5% y envío gratis
+
+  // Zona inventada y domicilio sin dirección: 400, sin pedido de por medio.
+  assert.equal((await pedir({ entrega: "china" })).estado, 400);
+  assert.equal((await pedir({ entrega: "cucuta" })).estado, 400);
+});
+
+// ---------- Inventario del obrador ----------
+
+test("Inventario: no se puede pedir más de lo que queda y el agotado se cierra", async () => {
+  const creado = await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Inventario", precio_venta: 6000, cantidad_disponible: 3 }, tokAdmin);
+  assert.equal(creado.estado, 201);
+  assert.equal(creado.datos.cantidad_disponible, 3);
+  assert.equal(creado.datos.disponible, true);
+  const id = creado.datos.id;
+  const pedir = (cantidad) => llamar("POST", "/api/pedidos", {
+    cliente_nombre: "Ana", cliente_telefono: "3001112233", items: [{ producto_id: id, cantidad }],
+  });
+
+  // Pedir 4 cuando quedan 3 se rechaza, y el rechazo no descuenta nada.
+  assert.equal((await pedir(4)).estado, 409);
+  assert.equal((await llamar("GET", "/api/productos/" + id)).datos.cantidad_disponible, 3);
+
+  assert.equal((await pedir(2)).estado, 201);
+  assert.equal((await llamar("GET", "/api/productos/" + id)).datos.cantidad_disponible, 1);
+
+  // La última unidad se vende y el sabor queda agotado para todos.
+  assert.equal((await pedir(1)).estado, 201);
+  const agotado = await llamar("GET", "/api/productos/" + id);
+  assert.equal(agotado.datos.cantidad_disponible, 0);
+  assert.equal(agotado.datos.disponible, false);
+  assert.equal((await pedir(1)).estado, 409);
+});
+
+test("Inventario: un sabor sin inventario declarado nunca se agota", async () => {
+  const libre = await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Libre", precio_venta: 6000 }, tokAdmin);
+  assert.equal(libre.datos.cantidad_disponible, null, "sin control de inventario no se limita");
+  assert.equal(libre.datos.disponible, true);
+
+  const pedido = await llamar("POST", "/api/pedidos", {
+    cliente_nombre: "Ana", cliente_telefono: "3001112233", items: [{ producto_id: libre.datos.id, cantidad: 50 }],
+  });
+  assert.equal(pedido.estado, 201);
+  assert.equal((await llamar("GET", "/api/productos/" + libre.datos.id)).datos.cantidad_disponible, null);
+});
+
+test("Inventario: cancelar un pedido devuelve las galletas y reactivarlo las reserva", async () => {
+  const creado = await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Devuelve", precio_venta: 6000, cantidad_disponible: 5 }, tokAdmin);
+  const id = creado.datos.id;
+  const pedido = await llamar("POST", "/api/pedidos", {
+    cliente_nombre: "Ana", cliente_telefono: "3001112233", items: [{ producto_id: id, cantidad: 4 }],
+  });
+  assert.equal(pedido.estado, 201);
+  assert.equal((await llamar("GET", "/api/productos/" + id)).datos.cantidad_disponible, 1);
+
+  // Cancelado: las 4 vuelven al catálogo (1 + 4 = 5).
+  assert.equal((await llamar("PUT", `/api/pedidos/${pedido.datos.id}/estado`, { estado: "cancelado" }, tokAdmin)).estado, 200);
+  assert.equal((await llamar("GET", "/api/productos/" + id)).datos.cantidad_disponible, 5);
+
+  // Reactivado: se vuelven a reservar (5 - 4 = 1).
+  assert.equal((await llamar("PUT", `/api/pedidos/${pedido.datos.id}/estado`, { estado: "listo" }, tokAdmin)).estado, 200);
+  assert.equal((await llamar("GET", "/api/productos/" + id)).datos.cantidad_disponible, 1);
+
+  // Si el obrador ya vendió esas unidades, reactivar se rechaza en vez de
+  // vender lo que no existe.
+  await llamar("PUT", `/api/pedidos/${pedido.datos.id}/estado`, { estado: "cancelado" }, tokAdmin);
+  await llamar("PUT", "/api/productos/" + id, { cantidad_disponible: 2 }, tokAdmin);
+  assert.equal((await llamar("PUT", `/api/pedidos/${pedido.datos.id}/estado`, { estado: "pendiente" }, tokAdmin)).estado, 409);
+});
+
+test("Inventario: el panel marca agotado, cuenta unidades y valida el valor", async () => {
+  const creado = await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Agotado", precio_venta: 6000 }, tokAdmin);
+  const id = creado.datos.id;
+
+  const agotado = await llamar("PUT", "/api/productos/" + id, { cantidad_disponible: 0 }, tokAdmin);
+  assert.equal(agotado.estado, 200);
+  assert.equal(agotado.datos.disponible, false);
+  // Marcar agotado no toca el resto del producto.
+  assert.equal(Number(agotado.datos.precio_venta), 6000);
+  assert.equal(agotado.datos.nombre_sabor, "Pixel Agotado");
+
+  // Editar el precio no borra el inventario que el obrador tenía contado.
+  await llamar("PUT", "/api/productos/" + id, { cantidad_disponible: 8 }, tokAdmin);
+  const soloPrecio = await llamar("PUT", "/api/productos/" + id, { precio_venta: 6500 }, tokAdmin);
+  assert.equal(soloPrecio.datos.cantidad_disponible, 8);
+  assert.equal(Number(soloPrecio.datos.precio_venta), 6500);
+
+  // Volver a disponible es quitar el control de inventario, no inventar un número.
+  assert.equal((await llamar("PUT", "/api/productos/" + id, { cantidad_disponible: null }, tokAdmin)).datos.cantidad_disponible, null);
+
+  assert.equal((await llamar("PUT", "/api/productos/" + id, { cantidad_disponible: -1 }, tokAdmin)).estado, 400);
+  assert.equal((await llamar("PUT", "/api/productos/" + id, { cantidad_disponible: 2.5 }, tokAdmin)).estado, 400);
+  assert.equal((await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Malo", precio_venta: 6000, cantidad_disponible: "muchas" }, tokAdmin)).estado, 400);
+  // Marcar el inventario es del admin, como el resto del catálogo.
+  assert.equal((await llamar("PUT", "/api/productos/" + id, { cantidad_disponible: 0 }, tokCliente)).estado, 403);
+});
+
+// ---------- Medición propia del sitio ----------
+
+test("Medición: los eventos del sitio se registran sin cuenta y con validación", async () => {
+  const creado = await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Medido", precio_venta: 6000 }, tokAdmin);
+  const idProducto = creado.datos.id;
+
+  assert.equal((await llamar("POST", "/api/eventos", { evento: "sabor_visto", producto_id: idProducto })).estado, 201);
+  assert.equal((await llamar("POST", "/api/eventos", { evento: "carrito_agregar", producto_id: idProducto, cantidad: 2 })).estado, 201);
+  assert.equal((await llamar("POST", "/api/eventos", { evento: "checkout_iniciado" })).estado, 201);
+
+  // Un evento inventado no entra: la lista blanca no es decorativa.
+  assert.equal((await llamar("POST", "/api/eventos", { evento: "espiar_cliente" })).estado, 400);
+  assert.equal((await llamar("POST", "/api/eventos", {})).estado, 400);
+  // Un sabor que no existe no tumba la medición: se registra sin el sabor (la
+  // llave ajena no puede hacer fallar el INSERT).
+  assert.equal((await llamar("POST", "/api/eventos", { evento: "sabor_visto", producto_id: 99999 })).estado, 201);
+});
+
+test("Medición: el resumen del embudo es del admin y une el carrito con los pedidos confirmados", async () => {
+  assert.equal((await llamar("GET", "/api/eventos/resumen")).estado, 401);
+  assert.equal((await llamar("GET", "/api/eventos/resumen", null, tokCliente)).estado, 403);
+
+  const creado = await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Embudo", precio_venta: 6000 }, tokAdmin);
+  const idProducto = creado.datos.id;
+
+  // Visita que sí compra: ve el sabor, lo agrega, empieza el pedido y confirma.
+  const compra = "visitaAAAA0001";
+  await llamar("POST", "/api/eventos", { evento: "sabor_visto", producto_id: idProducto, visita: compra });
+  await llamar("POST", "/api/eventos", { evento: "carrito_agregar", producto_id: idProducto, visita: compra });
+  await llamar("POST", "/api/eventos", { evento: "checkout_iniciado", visita: compra });
+  const pedido = await llamar("POST", "/api/pedidos", {
+    cliente_nombre: "Ana", cliente_telefono: "3001112233", visita: compra,
+    items: [{ producto_id: idProducto, cantidad: 2 }],
+  });
+  assert.equal(pedido.estado, 201);
+  assert.equal(pedido.datos.visita, compra, "el pedido guarda la visita que lo cerró");
+
+  // Visita que se queda a medias: agrega al carrito y no confirma nunca.
+  const abandona = "visitaBBBB0002";
+  await llamar("POST", "/api/eventos", { evento: "sabor_visto", producto_id: idProducto, visita: abandona });
+  await llamar("POST", "/api/eventos", { evento: "carrito_agregar", producto_id: idProducto, visita: abandona });
+
+  const { estado, datos } = await llamar("GET", "/api/eventos/resumen", null, tokAdmin);
+  assert.equal(estado, 200);
+  assert.equal(datos.dias, 30);
+  assert.equal(datos.embudo.visitas_que_agregaron, 2, "dos visitas distintas agregaron al carrito");
+  assert.equal(datos.embudo.visitas_que_empezaron_pedido, 1);
+  assert.equal(datos.embudo.visitas_que_confirmaron, 1, "solo una cerró el pedido");
+  assert.equal(datos.embudo.abandono, 50, "una de las dos visitas se quedó a medias");
+
+  const medido = datos.sabores.find((s) => s.producto_id === idProducto);
+  assert.equal(medido.nombre, "Pixel Embudo");
+  assert.equal(medido.vistos, 2);
+  assert.equal(medido.agregados, 2);
+  assert.ok(datos.pedidos.cantidad >= 2);
+  // La ventana se puede pedir más corta o más larga, con un tope razonable.
+  assert.equal((await llamar("GET", "/api/eventos/resumen?dias=7", null, tokAdmin)).datos.dias, 7);
+  assert.equal((await llamar("GET", "/api/eventos/resumen?dias=9999", null, tokAdmin)).datos.dias, 365);
+});
+
+// ---------- Estado del pedido (consulta pública) ----------
+
+test("Estado: se consulta con número y teléfono, sin cuenta, y sin exponer a otros", async () => {
+  const creado = await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Estado", precio_venta: 6000 }, tokAdmin);
+  const pedido = await llamar("POST", "/api/pedidos", {
+    cliente_nombre: "Ana", cliente_telefono: "3137839935", direccion: "Ceiba 2", notas: "Sorpresita",
+    items: [{ producto_id: creado.datos.id, cantidad: 2 }],
+  });
+  assert.equal(pedido.estado, 201);
+  const id = pedido.datos.id;
+
+  // Sin sesión: la consulta es pública (POST: el teléfono viaja en el cuerpo,
+  // nunca en la URL, para no dejarlo en historiales ni registros).
+  const bien = await llamar("POST", "/api/pedidos/estado", { id, telefono: "3137839935" });
+  assert.equal(bien.estado, 200);
+  assert.equal(bien.datos.estado, "pendiente");
+  assert.equal(bien.datos.total, 12000);
+  assert.deepEqual(bien.datos.detalles.map((d) => `${d.cantidad} × ${d.nombre_sabor}`), ["2 × Pixel Estado"]);
+  // Nada que espiar: ni el nombre, ni la dirección, ni las notas, ni el
+  // teléfono. Sí cómo se entrega (y cuánto costó el envío), que es del pedido.
+  assert.deepEqual(Object.keys(bien.datos).sort(),
+    ["creado_en", "descuento", "detalles", "entrega", "envio", "estado", "id", "total"]);
+
+  // El mismo teléfono escrito de otra forma sirve igual (+57, espacios, guiones).
+  const otroFormato = await llamar("POST", "/api/pedidos/estado", { id, telefono: "+57 313 783 9935" });
+  assert.equal(otroFormato.estado, 200);
+  assert.equal((await llamar("POST", "/api/pedidos/estado", { id, telefono: "313-783-9935" })).estado, 200);
+
+  // Teléfono equivocado, pedido inexistente y parámetros malos: no se filtra nada.
+  assert.equal((await llamar("POST", "/api/pedidos/estado", { id, telefono: "3009998877" })).estado, 404);
+  assert.equal((await llamar("POST", "/api/pedidos/estado", { id: 999999, telefono: "3137839935" })).estado, 404);
+  assert.equal((await llamar("POST", "/api/pedidos/estado", { telefono: "3137839935" })).estado, 400);
+  assert.equal((await llamar("POST", "/api/pedidos/estado", { id })).estado, 400);
+  assert.equal((await llamar("POST", "/api/pedidos/estado", { id, telefono: "abc" })).estado, 400);
+  // La forma vieja por GET ya no consulta nada: el teléfono no puede volver a
+  // la URL por ningún camino.
+  assert.notEqual((await llamar("GET", `/api/pedidos/estado?id=${id}&telefono=3137839935`)).estado, 200);
+  // El detalle completo (nombre, dirección, notas) sigue siendo solo del admin.
+  assert.equal((await llamar("GET", `/api/pedidos/${id}`)).estado, 401);
+  assert.equal((await llamar("GET", `/api/pedidos/${id}`, null, tokAdmin)).estado, 200);
 });

@@ -1,5 +1,9 @@
 const Pedido = require("../models/Pedido");
+const errorInterno = require("../util/errorInterno");
 const Producto = require("../models/Producto");
+const { descuentoDe } = require("../config/descuentos");
+const { ENTREGAS, envioDe } = require("../config/envio");
+const { notificarPedido } = require("../config/telegram");
 
 const ESTADOS_VALIDOS = ["pendiente", "en_preparacion", "listo", "entregado", "cancelado"];
 
@@ -9,7 +13,11 @@ class PedidoController {
   // nunca se acepta el precio que envíe el navegador.
   static async crear(req, res) {
     try {
-      const { cliente_nombre, cliente_telefono, direccion, notas, items } = req.body;
+      const { cliente_nombre, cliente_telefono, direccion, entrega, notas, items } = req.body;
+      // Visita anónima que cierra el embudo de la medición propia (misma forma
+      // que valida el controlador de eventos). Si no viene, el pedido se guarda
+      // igual: la medición nunca puede impedir una compra.
+      const visita = /^[A-Za-z0-9]{8,16}$/.test(String(req.body.visita ?? "")) ? String(req.body.visita) : null;
 
       if (!cliente_nombre || !String(cliente_nombre).trim()) {
         return res.status(400).json({ error: "cliente_nombre es obligatorio" });
@@ -20,13 +28,25 @@ class PedidoController {
       if (!Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: "El pedido debe incluir al menos un producto (items)" });
       }
+      // Forma de entrega: una de las tres que hay. Si el cliente no elige
+      // (clientes viejos, o alguien que llama por teléfono), se asume
+      // "recoger", que es gratis y no cambia el total.
+      const formaEntrega = entrega ?? "recoger";
+      if (!ENTREGAS[formaEntrega]) {
+        return res.status(400).json({ error: `entrega debe ser una de: ${Object.keys(ENTREGAS).join(", ")}` });
+      }
+      // Un domicilio sin dirección no se puede servir, así que se pide aquí y
+      // no cuando ya el obrador tenga las galletas horneadas.
+      if (formaEntrega !== "recoger" && !(direccion && String(direccion).trim())) {
+        return res.status(400).json({ error: "Para el domicilio necesitamos la dirección de entrega" });
+      }
       if (items.length > 30) {
         return res.status(400).json({ error: "El pedido no puede tener más de 30 líneas distintas" });
       }
 
       // Valida cada línea y arma el detalle con los precios reales del catálogo.
       const detalle = [];
-      let total = 0;
+      let subtotal = 0;
       for (const item of items) {
         const cantidad = Number(item?.cantidad);
         if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > 100) {
@@ -36,8 +56,21 @@ class PedidoController {
         if (!producto) {
           return res.status(400).json({ error: `El producto con id ${item?.producto_id} no existe en el catálogo` });
         }
+        // Inventario: un sabor agotado (0 unidades) no se puede pedir, y no se
+        // puede pedir más de lo que queda. El modelo vuelve a comprobarlo
+        // dentro de la transacción, porque entre esta validación y el INSERT
+        // otro cliente puede haber comprado las últimas unidades.
+        if (!producto.disponible) {
+          return res.status(409).json({ error: `El sabor ${producto.nombre_sabor} está agotado por ahora` });
+        }
+        if (producto.cantidad_disponible !== null && cantidad > producto.cantidad_disponible) {
+          const quedan = producto.cantidad_disponible;
+          return res.status(409).json({
+            error: `De ${producto.nombre_sabor} solo quedan ${quedan} ${quedan === 1 ? "unidad" : "unidades"}`,
+          });
+        }
         const precio = Number(producto.precio_venta);
-        total += precio * cantidad;
+        subtotal += precio * cantidad;
         detalle.push({
           producto_id: producto.id,
           nombre_sabor: producto.nombre_sabor,
@@ -46,28 +79,86 @@ class PedidoController {
         });
       }
 
+      // El descuento por volumen se aplica aquí, sobre la cantidad total de
+      // galletas del pedido, y no en el navegador: el cliente puede calcularlo
+      // mal (o saltárselo) y el pedido guardado tiene que ser el correcto.
+      const unidades = detalle.reduce((suma, d) => suma + d.cantidad, 0);
+      const { porcentaje, valor: descuento, total: totalGalletas } = descuentoDe(unidades, subtotal);
+
+      // El domicilio también se calcula aquí y nunca se acepta el precio que
+      // mande el navegador: recoger es gratis siempre, cada zona tiene su
+      // costo y desde 12 galletas el envío sale gratis (ver
+      // src/config/envio.js, que es la misma tabla que usa el carrito).
+      const envio = envioDe(unidades, formaEntrega);
+      const total = totalGalletas + envio;
+
       const pedido = await Pedido.crear({
         usuario_id: req.usuario?.id ?? null,
         cliente_nombre: String(cliente_nombre).trim().slice(0, 100),
         cliente_telefono: String(cliente_telefono).trim(),
         direccion: direccion ? String(direccion).trim().slice(0, 255) : null,
+        entrega: formaEntrega,
+        envio,
         notas: notas ? String(notas).trim().slice(0, 500) : null,
         total,
+        descuento,
+        visita,
         items: detalle,
       });
-      return res.status(201).json(pedido);
+      // El aviso al obrador va después de guardar el pedido y nunca puede
+      // tumbarlo: notificarPedido no lanza (si Telegram falla, queda en los
+      // registros del servidor y el cliente igual recibe su pedido).
+      await notificarPedido(pedido);
+      return res.status(201).json({ ...pedido, descuento, descuento_porcentaje: porcentaje, envio });
     } catch (error) {
-      return res.status(500).json({ error: "Error al crear el pedido", detalle: error.message });
+      // El inventario se agotó entre la validación y el guardado: se le
+      // explica al cliente con precisión en vez de un error genérico.
+      if (error.codigo === "SIN_CUPO") {
+        return res.status(409).json({
+          error: `Alguien se adelantó con ${error.producto}: ya no quedan unidades suficientes. Revisa tu carrito e inténtalo de nuevo.`,
+        });
+      }
+      return errorInterno(res, "Error al crear el pedido", error);
+    }
+  }
+
+  // Consulta pública del estado del pedido: sin cuenta, con el número del
+  // pedido y el teléfono con el que se hizo. Va en POST con los datos en el
+  // cuerpo (nunca en la URL: el teléfono no tiene por qué quedar en el
+  // historial del navegador ni en los registros del servidor).
+  static async consultarEstado(req, res) {
+    const id = Number(req.body.id);
+    const telefono = String(req.body.telefono ?? "");
+    if (!Number.isInteger(id) || id < 1) {
+      return res.status(400).json({ error: "Falta el número de pedido" });
+    }
+    if (!/^[0-9+\s-]{7,20}$/.test(telefono)) {
+      return res.status(400).json({ error: "telefono debe ser un número de contacto válido (7 a 20 dígitos)" });
+    }
+    try {
+      const pedido = await Pedido.buscarPublico(id, telefono);
+      // Mismo mensaje con y sin coincidencia: no se revela si el número existe.
+      if (!pedido) {
+        return res.status(404).json({
+          error: "No encontramos un pedido con ese número y teléfono. Revisa el número de pedido y el teléfono con el que pediste.",
+        });
+      }
+      return res.json(pedido);
+    } catch (error) {
+      return errorInterno(res, "Error al consultar el pedido", error);
     }
   }
 
   // Listado completo (con detalle) para el panel del administrador.
   static async listar(req, res) {
     try {
-      const pedidos = await Pedido.listarTodos();
+      // ?pagina=1&limite=50 (límite máximo 100). Valores no válidos vuelven al predeterminado.
+      const pagina = Math.max(1, parseInt(req.query.pagina, 10) || 1);
+      const limite = Math.min(100, Math.max(1, parseInt(req.query.limite, 10) || 50));
+      const pedidos = await Pedido.listarTodos({ limite, pagina });
       return res.json(pedidos);
     } catch (error) {
-      return res.status(500).json({ error: "Error al listar pedidos", detalle: error.message });
+      return errorInterno(res, "Error al listar pedidos", error);
     }
   }
 
@@ -77,7 +168,7 @@ class PedidoController {
       if (!pedido) return res.status(404).json({ error: "Pedido no encontrado" });
       return res.json(pedido);
     } catch (error) {
-      return res.status(500).json({ error: "Error al consultar pedido", detalle: error.message });
+      return errorInterno(res, "Error al consultar pedido", error);
     }
   }
 
@@ -91,7 +182,14 @@ class PedidoController {
       if (!actualizado) return res.status(404).json({ error: "Pedido no encontrado" });
       return res.json(await Pedido.buscarPorId(req.params.id));
     } catch (error) {
-      return res.status(500).json({ error: "Error al actualizar el estado del pedido", detalle: error.message });
+      // Reactivar un pedido cancelado reserva otra vez sus galletas: si el
+      // obrador ya vendió esas unidades, el cambio de estado no se aplica.
+      if (error.codigo === "SIN_CUPO") {
+        return res.status(409).json({
+          error: `No se puede reactivar: ya no quedan unidades suficientes de ${error.producto}`,
+        });
+      }
+      return errorInterno(res, "Error al actualizar el estado del pedido", error);
     }
   }
 }

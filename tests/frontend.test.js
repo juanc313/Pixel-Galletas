@@ -56,6 +56,26 @@ test("Producto: convierte el precio de texto a número y lo da en pesos colombia
   assert.equal(p.descripcion, "");
 });
 
+test("Producto: el inventario decide si se puede pedir y qué avisa la tarjeta", async () => {
+  const { Producto } = await cargar();
+  const base = { precio_venta: "6000.00" };
+  // Sin control de inventario: se hornea bajo pedido y no hay nada que avisar.
+  const libre = new Producto({ ...base, id: 1, nombre_sabor: "Libre", cantidad_disponible: null });
+  assert.equal(libre.disponible, true);
+  assert.equal(libre.avisoStock, null);
+  // Con pocas unidades se anuncia urgencia real; con muchas, no se inventa.
+  const pocas = new Producto({ ...base, id: 2, nombre_sabor: "Pocas", cantidad_disponible: 3 });
+  assert.equal(pocas.disponible, true);
+  assert.equal(pocas.avisoStock, "Quedan 3");
+  assert.equal(new Producto({ ...base, id: 3, nombre_sabor: "Muchas", cantidad_disponible: 40 }).avisoStock, null);
+  // Agotado: no se puede pedir y la tarjeta lo dice.
+  const agotado = new Producto({ ...base, id: 4, nombre_sabor: "Agotado", cantidad_disponible: 0 });
+  assert.equal(agotado.disponible, false);
+  assert.equal(agotado.avisoStock, "Agotado por ahora");
+  // Una respuesta vieja de la API (sin el campo) no marca nada como agotado.
+  assert.equal(new Producto({ ...base, id: 5, nombre_sabor: "Viejo" }).disponible, true);
+});
+
 test("ProductoServicio: usa el método y la ruta correctos en cada operación CRUD", async () => {
   const { ProductoServicio, ApiClient, Producto } = await cargar();
   const s = new ProductoServicio(new ApiClient());
@@ -76,4 +96,25 @@ test("UsuarioServicio: listar, cambiar rol (solo envía el rol) y eliminar", asy
   await s.eliminar(2);
   assert.equal(llamadas[1].cuerpo, JSON.stringify({ rol: "admin" }));
   assert.deepEqual(llamadas.slice(1).map((l) => `${l.metodo} ${l.url}`), ["PUT /api/usuarios/2", "DELETE /api/usuarios/2"]);
+});
+
+test("Sello de familia: cada familia del catálogo tiene sigilo y todo sabor lo hereda", async () => {
+  const { SIGILOS, FAMILIAS_INFO, FAMILIAS, familiaDe } = await cargar();
+  assert.deepEqual(Object.keys(SIGILOS).sort(), Object.keys(FAMILIAS_INFO).sort());
+  for (const [idSabor, familia] of Object.entries(FAMILIAS)) {
+    assert.ok(SIGILOS[familia], `${idSabor} debería tener sigilo`);
+  }
+  assert.equal(familiaDe("special-edition"), "edicion");
+  // Un sabor sin familia declarada no recibe sello: nunca se etiqueta de más.
+  assert.equal(familiaDe("sabor-inventado"), null);
+});
+
+test("Sello de familia: cada sigilo apunta a un sprite definido en la página", async () => {
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const { SIGILOS } = await cargar();
+  const html = fs.readFileSync(path.join(__dirname, "..", "public", "index.html"), "utf8");
+  for (const { sprite } of Object.values(SIGILOS)) {
+    assert.ok(html.includes(`id="${sprite}"`), `el sprite ${sprite} debería estar definido en index.html`);
+  }
 });

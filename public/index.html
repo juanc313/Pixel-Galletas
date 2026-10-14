@@ -3,44 +3,292 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pixel Galletas — De la pantalla a tu paladar</title>
-  <meta name="description" content="Galletas tipo Nueva York inspiradas en personajes de videojuegos. Pide online y recíbelo por WhatsApp. Cúcuta, Colombia.">
+  <title>Pixel Galletas — Galletas Nueva York gamer hechas en Cúcuta</title>
+  <meta name="description" content="Galletas tipo Nueva York inspiradas en personajes de videojuego. Elige tus sabores, arma tu caja y pide online por WhatsApp. Cúcuta, Colombia.">
   <meta name="theme-color" content="#15094F">
   <meta name="color-scheme" content="dark">
+  <meta name="author" content="Pixel Galletas">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="es_CO">
+  <meta property="og:site_name" content="Pixel Galletas">
   <meta property="og:title" content="Pixel Galletas — De la pantalla a tu paladar">
   <meta property="og:description" content="Galletas Nueva York gamer hechas en Cúcuta. Elige tus sabores y pide por WhatsApp.">
   <meta property="og:image" content="/img/contacto.jpg">
+  <meta property="og:image:width" content="1080">
+  <meta property="og:image:height" content="1080">
+  <meta property="og:image:alt" content="Las galletas de Pixel Galletas junto a su logo">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" type="image/png" href="/img/logo.png">
+  <meta name="twitter:title" content="Pixel Galletas — De la pantalla a tu paladar">
+  <meta name="twitter:image" content="/img/contacto.jpg">
+  <meta name="twitter:image:alt" content="Las galletas de Pixel Galletas junto a su logo">
+  <!-- El logo grande (logo.png, 512×512 y 354 KB) se queda como original de
+       trabajo; la página usa su versión WebP de 256 px (29 KB) y un favicon
+       aparte de 64 px: antes la pestaña se bajaba el PNG completo en cada
+       visita. -->
+  <link rel="icon" type="image/png" sizes="64x64" href="/img/favicon.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" as="image" href="/img/hero.webp" type="image/webp" imagesrcset="/img/hero.webp">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Fuentes autoalojadas (public/css/fuentes.css): antes se pedían a
+       fonts.googleapis.com en cada visita, dos peticiones a Google que
+       registraban al visitante mientras la página prometía "sin servicios de
+       terceros". Ahora las tipografías se sirven desde este mismo dominio. -->
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/silkscreen-700-latin.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/rubik-400-latin.woff2" crossorigin>
+  <link rel="stylesheet" href="/css/fuentes.css">
   <link rel="stylesheet" href="/css/styles.css">
-  <script>
-    // Activa las animaciones solo si efectos.js se carga (si falla, todo se ve).
-    document.documentElement.classList.add("js-anim");
-    setTimeout(function () {
-      if (!window.__efectosListo) document.documentElement.classList.remove("js-anim");
-    }, 4000);
+  <script src="/js/arranque.js"></script>
+  <!-- Datos estructurados: identidad de la marca y preguntas frecuentes.
+       Google los lee para mostrar rich results; también da seriedad al proyecto. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "¿Hacen entregas en toda la ciudad?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Entregamos en Cúcuta, Villa del Rosario, Los Patios y El Zulia. El domicilio cuesta $5.000 en Cúcuta y $7.000 en esos municipios, y es gratis desde 12 galletas. Recoger en Ceiba 2 siempre sale gratis." } },
+      { "@type": "Question", "name": "¿Cómo se paga el pedido?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Pagas en efectivo o por transferencia al Nequi 313 783 9935, al coordinar la entrega contigo." } },
+      { "@type": "Question", "name": "¿Hay pedido mínimo?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. Puedes pedir desde una sola galleta; el total se actualiza al instante en tu carrito." } },
+      { "@type": "Question", "name": "¿Dan descuento por cantidad?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Sí: 12 galletas 5% de descuento, 24 galletas 8% y 48 o más galletas 10%. Los descuentos se ajustan a cada pedido según empaque, entrega y preparación." } },
+      { "@type": "Question", "name": "¿Cómo hago un pedido grande para un evento?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Para 24 unidades o más pedimos un anticipo y acordamos el plazo de preparación por WhatsApp." } },
+      { "@type": "Question", "name": "¿Puedo personalizar el mensaje de una caja?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Sí. Toda caja viene con mensaje personalizado y presentación gamer; solo nos dices el texto al hacer el pedido." } },
+      { "@type": "Question", "name": "¿Cómo sé en qué va mi pedido?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Con el número de pedido y el teléfono con el que pediste puedes verlo en la sección Estado del pedido; no necesitas cuenta." } }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Bakery",
+    "name": "Pixel Galletas",
+    "description": "Galletas tipo Nueva York inspiradas en personajes de videojuegos, hechas a mano en Cúcuta.",
+    "slogan": "De la pantalla a tu paladar",
+    "image": "/img/contacto.jpg",
+    "telephone": "+57 313 783 9935",
+    "priceRange": "$6.000–$7.500",
+    "address": { "@type": "PostalAddress", "streetAddress": "Ceiba 2", "addressLocality": "Cúcuta", "addressRegion": "Norte de Santander", "addressCountry": "CO" },
+    "sameAs": ["https://www.instagram.com/pixel_galletas/"]
+  }
   </script>
 </head>
 <body>
+  <!-- Sprites decorativos en píxeles: una sola definición, reutilizada por las
+       galletas flotantes de la portada. Dibujadas en la retícula de 16×16 con
+       bordes nítidos (crispEdges), como las de un juego de 8 bits. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="galleta-pixel" viewBox="0 0 16 16" shape-rendering="crispEdges">
+      <g fill="#F5902F"><rect x="5" y="1" width="6" height="1"/><rect x="3" y="2" width="10" height="1"/><rect x="2" y="3" width="12" height="1"/><rect x="1" y="4" width="14" height="8"/><rect x="2" y="12" width="12" height="1"/><rect x="3" y="13" width="10" height="1"/><rect x="5" y="14" width="6" height="1"/></g>
+      <g fill="#FFB25C"><rect x="5" y="1" width="4" height="1"/><rect x="3" y="2" width="3" height="1"/><rect x="2" y="3" width="2" height="1"/><rect x="1" y="4" width="2" height="2"/></g>
+      <g fill="#C46A1B"><rect x="13" y="11" width="2" height="1"/><rect x="12" y="12" width="2" height="1"/><rect x="10" y="13" width="3" height="1"/><rect x="7" y="14" width="4" height="1"/></g>
+      <g fill="#4A2410"><rect x="6" y="3" width="2" height="2"/><rect x="10" y="5" width="2" height="2"/><rect x="4" y="7" width="2" height="2"/><rect x="8" y="8" width="2" height="2"/><rect x="6" y="11" width="2" height="2"/></g>
+    </symbol>
+    <!-- Moneda pixel (12×12): disco dorado con brillo a la izquierda, sombra
+         a la derecha y un hueco cuadrado al centro. Dibujada a mano en la
+         retícula: es un token de juego genérico, no de ninguna marca. -->
+    <symbol id="moneda-pixel" viewBox="0 0 12 12" shape-rendering="crispEdges">
+      <g fill="#FFD21F"><rect x="4" y="0" width="4" height="1"/><rect x="2" y="1" width="8" height="1"/><rect x="1" y="2" width="10" height="1"/><rect x="0" y="3" width="12" height="7"/><rect x="1" y="10" width="10" height="1"/><rect x="2" y="11" width="8" height="1"/></g>
+      <g fill="#FFF3B0"><rect x="3" y="2" width="1" height="1"/><rect x="1" y="3" width="2" height="4"/></g>
+      <g fill="#C9930B"><rect x="10" y="3" width="2" height="7"/><rect x="8" y="10" width="3" height="1"/><rect x="4" y="11" width="6" height="1"/></g>
+      <g fill="#8A5A00"><rect x="5" y="5" width="2" height="2"/></g>
+    </symbol>
+    <!-- Estrella pixel (12×12): estrella de cinco puntas clásica de arcade,
+         crema con sombra naranja en las puntas de abajo. También original. -->
+    <symbol id="estrella-pixel" viewBox="0 0 12 12" shape-rendering="crispEdges">
+      <g fill="#FFF3DC"><rect x="5" y="0" width="2" height="1"/><rect x="4" y="1" width="4" height="2"/><rect x="0" y="3" width="12" height="1"/><rect x="1" y="4" width="10" height="1"/><rect x="2" y="5" width="8" height="2"/><rect x="3" y="7" width="6" height="1"/><rect x="2" y="8" width="3" height="1"/><rect x="7" y="8" width="3" height="1"/><rect x="2" y="9" width="2" height="1"/><rect x="8" y="9" width="2" height="1"/><rect x="1" y="10" width="2" height="1"/><rect x="9" y="10" width="2" height="1"/><rect x="0" y="11" width="2" height="1"/><rect x="10" y="11" width="2" height="1"/></g>
+      <g fill="#F5902F"><rect x="0" y="3" width="1" height="1"/><rect x="11" y="3" width="1" height="1"/><rect x="2" y="8" width="3" height="1"/><rect x="7" y="8" width="3" height="1"/><rect x="0" y="11" width="2" height="1"/><rect x="10" y="11" width="2" height="1"/></g>
+    </symbol>
+    <!-- Corazón pixel (12×12): la misma forma de las vidas del HUD, ahora también
+         como sprite para poder reutilizarla fuera del CSS. -->
+    <symbol id="corazon-pixel" viewBox="0 0 12 12" shape-rendering="crispEdges">
+      <g fill="#E5412B"><rect x="2" y="0" width="3" height="1"/><rect x="7" y="0" width="3" height="1"/><rect x="1" y="1" width="5" height="1"/><rect x="6" y="1" width="5" height="1"/><rect x="0" y="2" width="12" height="3"/><rect x="1" y="5" width="10" height="1"/><rect x="2" y="6" width="8" height="1"/><rect x="3" y="7" width="6" height="1"/><rect x="4" y="8" width="4" height="1"/><rect x="5" y="9" width="2" height="1"/></g>
+      <g fill="#FF8A78"><rect x="2" y="1" width="2" height="1"/><rect x="1" y="2" width="2" height="2"/><rect x="0" y="4" width="1" height="1"/></g>
+      <g fill="#8E1F13"><rect x="10" y="2" width="2" height="3"/><rect x="9" y="5" width="2" height="1"/><rect x="8" y="6" width="2" height="1"/><rect x="7" y="7" width="2" height="1"/><rect x="6" y="8" width="2" height="1"/></g>
+    </symbol>
+    <!-- Fantasma pixel (12×12): silueta clásica de arcade con falda de ondas y
+         dos ojos. Dibujada en la retícula; sin personajes de nadie. -->
+    <symbol id="fantasma-pixel" viewBox="0 0 12 12" shape-rendering="crispEdges">
+      <g fill="#B9A6FF"><rect x="4" y="0" width="4" height="1"/><rect x="2" y="1" width="8" height="1"/><rect x="1" y="2" width="10" height="1"/><rect x="0" y="3" width="12" height="6"/><rect x="0" y="9" width="12" height="1"/></g>
+      <g fill="#8F76FF"><rect x="9" y="3" width="3" height="6"/><rect x="9" y="9" width="3" height="1"/><rect x="0" y="10" width="1" height="1"/><rect x="3" y="10" width="1" height="1"/><rect x="6" y="10" width="1" height="1"/><rect x="9" y="10" width="1" height="1"/></g>
+      <g fill="#E7DEFF"><rect x="1" y="1" width="2" height="2"/><rect x="0" y="3" width="2" height="4"/></g>
+      <g fill="#15094F"><rect x="3" y="4" width="2" height="3"/><rect x="7" y="4" width="2" height="3"/></g>
+      <g fill="#FFF3DC"><rect x="3" y="4" width="1" height="1"/><rect x="7" y="4" width="1" height="1"/></g>
+    </symbol>
+    <!-- Gema pixel (12×12): rombo facetado de botín, con la luz arriba a la
+         izquierda y la sombra abajo a la derecha. -->
+    <symbol id="gema-pixel" viewBox="0 0 12 12" shape-rendering="crispEdges">
+      <g fill="#4DE8D0"><rect x="5" y="0" width="2" height="1"/><rect x="4" y="1" width="4" height="1"/><rect x="3" y="2" width="6" height="1"/><rect x="2" y="3" width="8" height="1"/><rect x="1" y="4" width="10" height="1"/><rect x="0" y="5" width="12" height="1"/></g>
+      <g fill="#8FF7E8"><rect x="5" y="1" width="2" height="1"/><rect x="4" y="2" width="2" height="1"/><rect x="3" y="3" width="2" height="1"/><rect x="2" y="4" width="2" height="1"/><rect x="1" y="5" width="2" height="1"/></g>
+      <g fill="#2BB8A6"><rect x="5" y="6" width="6" height="1"/><rect x="6" y="7" width="4" height="1"/><rect x="7" y="8" width="2" height="1"/></g>
+      <g fill="#1E8C7E"><rect x="4" y="6" width="2" height="1"/><rect x="6" y="7" width="2" height="1"/><rect x="7" y="8" width="2" height="1"/><rect x="8" y="9" width="1" height="1"/></g>
+      <g fill="#BFFBF0"><rect x="5" y="6" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/></g>
+    </symbol>
+    <!-- Rayo pixel (12×12): el icono de power up, amarillo con brillo a la
+         izquierda y sombra dorada a la derecha. -->
+    <symbol id="rayo-pixel" viewBox="0 0 12 12" shape-rendering="crispEdges">
+      <g fill="#FFD21F"><rect x="7" y="0" width="3" height="1"/><rect x="6" y="1" width="3" height="1"/><rect x="5" y="2" width="4" height="1"/><rect x="4" y="3" width="5" height="1"/><rect x="2" y="4" width="8" height="1"/><rect x="4" y="5" width="5" height="1"/><rect x="3" y="6" width="4" height="1"/><rect x="2" y="7" width="4" height="1"/><rect x="1" y="8" width="4" height="1"/><rect x="0" y="9" width="4" height="1"/></g>
+      <g fill="#FFF3B0"><rect x="7" y="0" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="4" y="3" width="2" height="1"/><rect x="2" y="4" width="2" height="1"/></g>
+      <g fill="#C9930B"><rect x="8" y="5" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="3" y="8" width="2" height="1"/></g>
+    </symbol>
+  </svg>
+
+  <!-- Pantalla CRT del sitio: la página entera se lee como el monitor de una
+       máquina recreativa (líneas de barrido, rejilla de fósforo, viñeta en los
+       cantos y una barra de refresco que baja despacio). Es una capa fija,
+       decorativa y transparente a los clics; si no se pinta, no se pierde nada.
+       Va por debajo del cromo interactivo (barra, carrito, HUD y WhatsApp) para
+       que nunca estorbe a un botón. -->
+  <div class="crt" aria-hidden="true"><span class="crt-barrido"></span></div>
+
+  <!-- Ambiente de fondo: cielo de estrellas pixel en dos capas de paralaje y
+       sprites de arcade flotando muy despacio por los márgenes. Da la
+       profundidad de una pantalla de juego por detrás del contenido y se queda
+       siempre detrás de él (z -1). Todo original, dibujado en la retícula. -->
+  <div class="ambiente" aria-hidden="true">
+    <span class="ambiente-cielo ambiente-cielo-1"></span>
+    <span class="ambiente-cielo ambiente-cielo-2"></span>
+    <span class="ambiente-sprite am-1"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
+    <span class="ambiente-sprite am-2"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#estrella-pixel"/></svg></span>
+    <span class="ambiente-sprite am-3"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#galleta-pixel"/></svg></span>
+    <span class="ambiente-sprite am-4"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#fantasma-pixel"/></svg></span>
+    <span class="ambiente-sprite am-5"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#gema-pixel"/></svg></span>
+    <span class="ambiente-sprite am-6"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#rayo-pixel"/></svg></span>
+  </div>
+
+  <!-- Entrada: pantalla de título con el logo, como la de un juego al arrancar.
+       Decorativa y oculta por defecto: solo la muestra efectos.js, una vez por
+       sesión y nunca con movimiento reducido. Los iconos que la rodean son
+       pixel-art propio (corazón, monedas, estrellas y la galleta de la marca),
+       sin personajes ni signos de terceros. -->
+  <div class="entrada" id="entrada" hidden>
+    <!-- Ambiente: brasas pixel subiendo detrás de la escena (lo pinta efectos.js) -->
+    <canvas class="entrada-lienzo" aria-hidden="true"></canvas>
+    <!-- Barrido CRT sobre toda la pantalla de título: líneas de barrido y viñeta
+         (estilo ya definido para esta capa). -->
+    <span class="entrada-vista" aria-hidden="true"></span>
+    <!-- Ráfaga de sol girando detrás del logo (entra en el impacto) -->
+    <span class="entrada-sol" aria-hidden="true"></span>
+    <!-- Impacto del logo: destello, doble onda y esquirlas pixel -->
+    <span class="entrada-flash" aria-hidden="true"></span>
+    <span class="entrada-onda" aria-hidden="true"></span>
+    <span class="entrada-onda2" aria-hidden="true"></span>
+    <span class="entrada-shard" aria-hidden="true">
+      <span style="--a:0deg;--dist:12rem;--d:0"></span><span style="--a:45deg;--dist:10rem;--d:1"></span>
+      <span style="--a:90deg;--dist:13rem;--d:2"></span><span style="--a:135deg;--dist:9rem;--d:3"></span>
+      <span style="--a:180deg;--dist:12rem;--d:0"></span><span style="--a:225deg;--dist:10rem;--d:2"></span>
+      <span style="--a:270deg;--dist:13rem;--d:1"></span><span style="--a:315deg;--dist:9rem;--d:3"></span>
+    </span>
+    <!-- HUD de arcade: puntuación que sube y récord imbatible -->
+    <div class="entrada-hud" aria-hidden="true">
+      <span>Puntos <b id="entrada-puntos">000000</b></span>
+      <span class="hud-record">Récord <b>999999</b></span>
+    </div>
+    <!-- Consola de arranque: tres líneas que se teclean como en un arranque -->
+    <p class="entrada-boot" aria-hidden="true">
+      <span>&gt; PIXEL OS v1.0</span><span data-sabores="boot">&gt; CARGANDO 6 SABORES…</span><span>&gt; HORNEANDO… OK</span>
+    </p>
+    <div class="entrada-decor" aria-hidden="true">
+    <!-- Lluvia de monedas y estrellas de celebración justo antes de la salida -->
+    <span class="entrada-lluvia ec-1" style="--c:0"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
+    <span class="entrada-lluvia ec-2" style="--c:1"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
+    <span class="entrada-lluvia ec-3" style="--c:2"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#estrella-pixel"/></svg></span>
+    <span class="entrada-lluvia ec-4" style="--c:3"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
+    <span class="entrada-lluvia ec-5" style="--c:4"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#estrella-pixel"/></svg></span>
+    <span class="entrada-lluvia ec-6" style="--c:5"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
+    <span class="entrada-lluvia ec-7" style="--c:6"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#estrella-pixel"/></svg></span>
+    <span class="entrada-lluvia ec-8" style="--c:7"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
+    <span class="entrada-icono ei-corazon"></span>
+    <span class="entrada-icono ei-moneda"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
+    <span class="entrada-icono ei-estrella"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#estrella-pixel"/></svg></span>
+    <span class="entrada-icono ei-galleta"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#galleta-pixel"/></svg></span>
+    <span class="entrada-icono ei-moneda2"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
+    <span class="entrada-icono ei-estrella2"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#estrella-pixel"/></svg></span>
+    <!-- Lluvia extra: solo aparece con el modo secreto desbloqueado -->
+    <span class="entrada-lluvia entrada-lluvia-extra ec-2" style="--c:1"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
+    <span class="entrada-lluvia entrada-lluvia-extra ec-4" style="--c:2"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#estrella-pixel"/></svg></span>
+    <span class="entrada-lluvia entrada-lluvia-extra ec-6" style="--c:3"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
+    <span class="entrada-lluvia entrada-lluvia-extra ec-8" style="--c:4"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#estrella-pixel"/></svg></span>
+    </div>
+    <div class="entrada-escena">
+      <!-- Vidas estilo HUD: los cinco corazones de la marca -->
+      <p class="entrada-vidas" aria-hidden="true"><span style="--i:0"></span><span style="--i:1"></span><span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span></p>
+      <!-- Insignia: el logo dentro del aro de presentación, el mismo sello de
+           la portada (disco índigo translúcido, marco pixel punteado y el
+           texto girando). La caja es cuadrada, así el aro manda en el alto y
+           la escena no se descuadra; el aro gira y el logo se queda quieto. -->
+      <div class="entrada-insignia">
+        <span class="entrada-sello" aria-hidden="true">
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <path id="entrada-sello-path" fill="none" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0"/>
+            </defs>
+            <circle class="entrada-sello-disco" cx="50" cy="50" r="49"/>
+            <circle class="entrada-sello-marco" cx="50" cy="50" r="45.5"/>
+            <g class="entrada-sello-anillo">
+              <text><textPath href="#entrada-sello-path" textLength="218" lengthAdjust="spacingAndGlyphs">HECHA A MANO EN CÚCUTA · PIXEL GALLETAS · </textPath></text>
+            </g>
+          </svg>
+        </span>
+        <img class="entrada-logo" src="/img/logo-256.webp" alt="" width="128" height="128">
+      </div>
+      <p class="entrada-nombre">Pixel Galletas</p>
+      <p class="entrada-eslogan">De la pantalla a tu paladar</p>
+    </div>
+    <!-- Barra "Horneando…": franja de estado del arranque, en el hueco que
+       queda entre la escena y el menú de título. El hueco del menú se reserva
+       con --reserva-menu (lo mide efectos.js), así la barra respira igual en
+       cualquier alto de ventana y nunca se apelotona con las opciones. -->
+    <div class="entrada-carga" aria-hidden="true">
+      <span class="entrada-carga-barra"><i><svg class="entrada-carga-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#galleta-pixel"/></svg></i></span>
+      <span class="entrada-carga-texto">Cargando <b id="entrada-carga-pct">0</b>%<em>100% · ¡Listo!</em></span>
+    </div>
+    <!-- Menú de título: el juego espera al jugador. Las tres categorías van
+         abajo, soltadas del logo, como las opciones de una pantalla de
+         inicio: marco pixel, cursor ▶ parpadeando y barra de carga interna en
+         la opción elegida mientras arranca la partida. Cualquiera de las tres
+         entra a la página —y el logo vuela hasta su hueco de la cabecera—:
+         aventura y sabores al catálogo, créditos a La marca. Navegable con
+         flechas y Enter, con ratón o tacto; Esc o un toque en el fondo salen. -->
+    <nav class="entrada-menu" tabindex="-1" aria-label="Menú de inicio">
+      <button type="button" class="entrada-op" data-accion="empezar">Empezar aventura</button>
+      <button type="button" class="entrada-op" data-accion="sabores">Sabores del día</button>
+      <button type="button" class="entrada-op" data-accion="creditos">Créditos</button>
+      <button type="button" class="entrada-op entrada-op-secreta" data-accion="secreto" hidden>??? ??? ???</button>
+      <p class="entrada-secreto-nota">¡Modo secreto! Doble lluvia desbloqueada</p>
+      <p class="entrada-menu-pista">↑ ↓ elegir · Enter entrar · Esc salir</p>
+    </nav>
+    <button type="button" class="entrada-saltar" aria-label="Saltar la entrada">✕</button>
+  </div>
+
   <a class="saltar" href="#catalogo">Saltar al contenido</a>
 
   <header class="barra">
     <div class="marca">
-      <img src="/img/logo.png" alt="Logo de Pixel Galletas" width="48" height="48">
+      <img src="/img/logo-256.webp" alt="Logo de Pixel Galletas" width="48" height="48">
       <div>
-        <h1>Pixel Galletas</h1>
+        <strong class="marca-nombre">Pixel Galletas</strong>
         <small>De la pantalla a tu paladar</small>
       </div>
     </div>
-    <nav class="menu" aria-label="Principal">
+
+    <!-- Menú móvil: el botón lo abre y cierra efectos.js -->
+    <button type="button" class="btn-menu" id="btn-menu" aria-expanded="false" aria-controls="menu-principal">
+      <span aria-hidden="true" class="btn-menu-barras"><i></i><i></i><i></i></span>
+      <span class="btn-menu-texto">Menú</span>
+    </button>
+
+    <nav class="menu" id="menu-principal" aria-label="Principal">
       <a href="#catalogo">Galletas</a>
+      <a href="#cajas">Cajas</a>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#marca">La marca</a>
+      <a href="#faq">Preguntas</a>
       <a href="#pedido">Pedir</a>
+      <a href="#estado">Estado</a>
       <a href="#contacto">Contacto</a>
       <a class="carrito-icono" href="#pedido" title="Ver mi carrito">Carrito <span id="carrito-contador" aria-live="polite" aria-atomic="true">0</span></a>
       <button type="button" id="btn-acceso" aria-expanded="false" aria-controls="acceso">Acceso</button>
@@ -83,15 +331,31 @@
 
     <!-- Portada: pantalla de título -->
     <section class="hero" aria-labelledby="hero-titulo" data-reveal>
-      <span class="chispa chispa-1" aria-hidden="true"><img src="/img/sabores/klim.webp" alt="" width="480" height="480"></span>
-      <span class="chispa chispa-2" aria-hidden="true"><img src="/img/sabores/monster.webp" alt="" width="480" height="480"></span>
-      <span class="chispa chispa-3" aria-hidden="true"><img src="/img/sabores/red-velvet.webp" alt="" width="480" height="480"></span>
+      <canvas class="lienzo-particulas" aria-hidden="true"></canvas>
+      <!-- Aura: resplandor cálido de horno + viñeta en píxeles que enmarca la portada -->
+      <div class="hero-aura" aria-hidden="true"></div>
+      <!-- Tres galletas pixel-art flotando en el aura. Son SVG dibujados a mano
+           en la retícula de píxeles (no fotos): decoración con carácter gamer que
+           da profundidad a la portada sin robarle protagonismo al titular. -->
+      <span class="galleta-flotante gf-1" aria-hidden="true">
+        <svg viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#galleta-pixel"/></svg>
+      </span>
+      <span class="galleta-flotante gf-2" aria-hidden="true">
+        <svg viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#galleta-pixel"/></svg>
+      </span>
+      <span class="galleta-flotante gf-3" aria-hidden="true">
+        <svg viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#galleta-pixel"/></svg>
+      </span>
       <div class="hero-texto">
         <p class="vidas" role="img" aria-label="Cinco corazones llenos">
           <span style="--i:0"></span><span style="--i:1"></span><span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span>
         </p>
         <p class="gancho">Cúcuta · Colombia · <strong>Hechas a mano</strong></p>
-        <h2 id="hero-titulo">Galletas Nueva York de tus personajes <em>favoritos</em></h2>
+        <!-- El titular lleva dos copias decorativas (::before/::after, el
+             efecto de glitch). Se expone su nombre una sola vez con
+             aria-label: sin él, el nombre accesible de la portada —y del
+             titular— se leía tres veces seguidas. -->
+        <h1 id="hero-titulo" data-texto="Galletas Nueva York de tus personajes favoritos" aria-label="Galletas Nueva York de tus personajes favoritos">Galletas Nueva York de tus personajes <em>favoritos</em></h1>
         <p>Elaboradas con ingredientes de alta calidad, sabores únicos y empaque coleccionable.
            Del diseño pixelado al detalle de cada bocado, hechas con amor para gamers.</p>
         <div class="hero-acciones">
@@ -103,13 +367,35 @@
           <li>Coordinas el pago en efectivo o Nequi y la entrega con nosotros</li>
           <li>Empaque coleccionable listo para regalar</li>
         </ul>
+        <!-- Cifras del negocio: datos reales del catálogo y del modelo DYME -->
+        <ul class="cifras">
+          <li><b data-sabores="cifra">6</b><span>sabores en catálogo</span></li>
+          <li><b>$6.000</b><span>precio desde, por galleta</span></li>
+          <li><b>3</b><span>presentaciones de caja</span></li>
+          <li><b>100%</b><span>hechas a mano</span></li>
+        </ul>
       </div>
       <figure class="hero-pantalla">
         <picture>
           <source srcset="/img/hero.webp" type="image/webp">
-          <img class="hero-img" src="/img/hero.jpg" alt="Amantes de los videojuegos disfrutando Pixel Galletas" width="1200" height="801" fetchpriority="high">
+          <img class="hero-img" data-zoom="1" src="/img/hero.jpg" alt="Amantes de los videojuegos disfrutando Pixel Galletas" width="1200" height="801" fetchpriority="high">
         </picture>
         <figcaption class="hero-pegatina">Hecho en Cúcuta</figcaption>
+        <!-- Sello de artesanía: anillo de texto que gira lentamente sobre el
+             disco, como el tampón de una panadería de barrio. SVG puro. -->
+        <span class="sello" aria-hidden="true">
+          <svg viewBox="0 0 100 100">
+            <circle class="sello-disco" cx="50" cy="50" r="47"/>
+            <circle class="sello-marco" cx="50" cy="50" r="44"/>
+            <defs>
+              <path id="sello-anillo-path" fill="none" d="M50 50 m-33 0 a33 33 0 1 1 66 0 a33 33 0 1 1 -66 0"/>
+            </defs>
+            <g class="sello-anillo">
+              <text><textPath href="#sello-anillo-path" textLength="205" lengthAdjust="spacingAndGlyphs">HECHO A MANO · CÚCUTA · PIXEL GALLETAS · </textPath></text>
+            </g>
+            <use href="#galleta-pixel" width="16" height="16" transform="translate(31 31) scale(2.4)"/>
+          </svg>
+        </span>
       </figure>
     </section>
 
@@ -118,9 +404,19 @@
 
     <!-- Catálogo público: elige tu sabor -->
     <section id="catalogo" data-reveal>
-      <p class="etiqueta">Nivel 01 · Catálogo</p>
+      <p class="etiqueta">Catálogo</p>
       <h2>Elige tu sabor</h2>
-      <p class="subtitulo">Pide desde una sola galleta. El precio de cada sabor aparece en su tarjeta.</p>
+      <p class="subtitulo">Pide desde una sola galleta. Filtra por familia y el precio de cada sabor aparece en su tarjeta.</p>
+
+      <!-- Filtros por familia (los aplica productos.js) -->
+      <div class="filtros" id="filtros-catalogo" role="group" aria-label="Ir a una categoría de galletas">
+        <button type="button" class="filtro activo" data-familia="todas" aria-pressed="true">Todo el catálogo</button>
+        <button type="button" class="filtro" data-familia="clasica" aria-pressed="false">Clásicas</button>
+        <button type="button" class="filtro" data-familia="fusion" aria-pressed="false">Fusiones</button>
+        <button type="button" class="filtro" data-familia="edicion" aria-pressed="false">Edición especial</button>
+        <span class="filtros-contador" id="catalogo-contador" aria-live="polite"></span>
+      </div>
+
       <ul id="lista-productos" class="productos"></ul>
 
       <div id="admin-productos" hidden>
@@ -129,6 +425,9 @@
           <label>Sabor <input type="text" name="nombre" required maxlength="100"></label>
           <label>Descripción <textarea name="descripcion" rows="2" maxlength="300"></textarea></label>
           <label>Precio (COP) <input type="number" name="precio" required min="1" step="1"></label>
+          <!-- Inventario del obrador. Vacío = se hornea bajo pedido (sin límite);
+               0 deja el sabor agotado y N descuenta unidades en cada pedido. -->
+          <label>Unidades disponibles <input type="number" name="disponibles" min="0" max="9999" step="1" placeholder="vacío = sin límite"></label>
           <div>
             <button type="submit" id="btn-guardar">Agregar galleta</button>
             <button type="button" id="btn-cancelar" class="secundario" hidden>Cancelar edición</button>
@@ -138,9 +437,41 @@
       <p id="mensaje-productos" role="alert"></p>
     </section>
 
+    <!-- Comunidad: prueba social con fotos y datos reales (bento) -->
+    <section id="comunidad" data-reveal aria-labelledby="titulo-comunidad" class="banda">
+      <span class="banda-esquinas" aria-hidden="true"></span>
+      <p class="etiqueta">Hecho en Cúcuta</p>
+      <h2 id="titulo-comunidad">Gente real disfrutando Pixel Galletas</h2>
+      <p class="subtitulo">Fotos de nuestros clientes y datos del obrador. Sin reseñas inventadas: lo que ves es lo que somos.</p>
+      <ul class="bento">
+        <li class="bento-foto">
+          <figure>
+            <!-- Nota: cuando scripts/prepararFotos.py corra en un entorno con
+                 Python, se generará clientes.webp y aquí se añadirá el <source>. -->
+            <img src="/img/clientes.jpg" data-zoom="1" alt="Clientes disfrutando galletas Pixel Galletas" width="1080" height="1080" loading="lazy" decoding="async">
+            <figcaption>Nuestros clientes, en su elemento</figcaption>
+          </figure>
+        </li>
+        <li class="bento-dato"><b data-sabores="cifra">6</b><span>sabores en catálogo</span></li>
+        <li class="bento-dato"><b>$6.000</b><span>precio desde, por galleta</span></li>
+        <li class="bento-cita">
+          <p>Cada galleta es un personaje con su propia historia. Las hacemos a mano para que abrir la caja se sienta como abrir un cofre de juego.</p>
+          <cite>El obrador Pixel Galletas</cite>
+        </li>
+        <li class="bento-cta">
+          <b>¿Vas a probarlas?</b>
+          <p>Cuéntanos en WhatsApp qué personaje te gustaría ver en la próxima tanda.</p>
+          <a id="link-comunidad" href="#" target="_blank" rel="noopener">Escribir al obrador</a>
+        </li>
+      </ul>
+    </section>
+
+    <div class="divisor" data-reveal aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
     <!-- Cajas Pixel: regalo, compartir y eventos -->
-    <section id="cajas" data-reveal aria-labelledby="titulo-cajas">
-      <p class="etiqueta">Nivel 02 · Cajas Pixel</p>
+    <section id="cajas" data-reveal aria-labelledby="titulo-cajas" class="banda banda-par">
+      <span class="banda-esquinas" aria-hidden="true"></span>
+      <p class="etiqueta">Cajas Pixel</p>
       <h2 id="titulo-cajas">Cajas para regalar, compartir y celebrar</h2>
       <p class="subtitulo">Eliges los sabores y añades un mensaje personalizado. Toda caja viene en presentación gamer.</p>
       <ul class="cajas">
@@ -160,8 +491,8 @@
         <li class="caja">
           <h3>Caja Pixel x12</h3>
           <p class="caja-para">Eventos y celebraciones</p>
-          <p class="caja-precio">$ 72.000</p>
-          <p class="caja-detalle">Doce galletas para reuniones, cumpleaños y equipos. Preparación con anticipo y plazo acordado.</p>
+          <p class="caja-precio">$ 68.400</p>
+          <p class="caja-detalle">Doce galletas para reuniones, cumpleaños y equipos, ya con el 5% de descuento por volumen. Preparación con anticipo y plazo acordado.</p>
         </li>
       </ul>
       <div class="volumen">
@@ -176,7 +507,16 @@
       <div class="mensual">
         <div>
           <h3>Caja mensual</h3>
-          <p>Cada mes recibes 4 o 6 galletas con sabores seleccionados, novedades del obrador y acceso anticipado a las ediciones especiales.</p>
+          <!-- Los precios salen de la escalera real de descuentos, no de un
+               número escogido aparte: 6 × $6.000 y 12 × $6.000 con el 5%. El
+               gancho de la suscripción es la entrega gratis y el acceso
+               anticipado, no un descuento que el resto del sitio no respalde. -->
+          <p>Eliges el tamaño una vez y cada mes te llega tu caja con sabores seleccionados, novedades del obrador y acceso anticipado a las ediciones especiales.</p>
+          <ul class="mensual-planes">
+            <li><b>Caja x6</b> <span>$ 36.000 / mes</span></li>
+            <li><b>Caja x12</b> <span>$ 68.400 / mes</span></li>
+          </ul>
+          <p class="mensual-nota">Entrega gratis en Cúcuta y alrededores. Sin contrato ni cobro automático: confirmas por WhatsApp y pagas por Nequi o en efectivo al recibir, y puedes pausar el mes que no quieras.</p>
         </div>
         <a class="boton-grande" id="link-caja-mensual" href="#" target="_blank" rel="noopener">Suscribirme por WhatsApp</a>
       </div>
@@ -184,7 +524,7 @@
 
     <!-- Cómo funciona: los tres pasos del pedido -->
     <section id="como-funciona" data-reveal aria-labelledby="titulo-como">
-      <p class="etiqueta">Nivel 03 · Cómo funciona</p>
+      <p class="etiqueta">Cómo funciona</p>
       <h2 id="titulo-como">Pedir es tan fácil como un botón</h2>
       <p class="subtitulo">Sin apps ni registros eternos: tres pasos y tus galletas van en camino.</p>
       <ol class="pasos">
@@ -206,9 +546,152 @@
       </ol>
     </section>
 
+    <!-- Sala de juegos: minijuego original de reflejos. La caja de arena son
+         botones de verdad (se juega con teclado y con lector de pantalla) y el
+         panel funciona de tres formas: partida normal con reloj, partida sin
+         prisa si el sistema pide movimiento reducido, y repaso del récord
+         guardado. La puntuación se anuncia en una región en vivo. -->
+    <section id="juego" data-reveal aria-labelledby="titulo-juego" class="banda banda-par">
+      <span class="banda-esquinas" aria-hidden="true"></span>
+      <p class="etiqueta">Sala de juegos</p>
+      <h2 id="titulo-juego">Atrapa la galleta</h2>
+      <p class="subtitulo">Una ronda de reflejos de 30 segundos, cortesía de la casa. Sin premios ni trampas: el único trofeo es quedar en el rango más alto y batir tu propio récord.</p>
+
+      <div class="juego" id="juego-panel">
+        <div class="juego-marcador">
+          <p class="juego-dato"><span>Puntos</span> <b id="juego-puntos">0</b></p>
+          <p class="juego-dato"><span>Racha</span> <b id="juego-racha">×1</b></p>
+          <p class="juego-dato"><span>Tiempo</span> <b id="juego-tiempo">30</b></p>
+          <p class="juego-dato juego-dato-record"><span>Récord</span> <b id="juego-record">0</b></p>
+        </div>
+
+        <!-- Caja de arena: 3 filas × 4 casillas. Cada casilla es un botón con
+             la galleta del sprite de la marca; la galleta solo se ve cuando
+             está "en el horno", y se atrapa pulsando la casilla. -->
+        <ul class="juego-arena" id="juego-arena" aria-label="Casillas del juego">
+          <li><button type="button" class="hueco" data-hueco="0" aria-label="Casilla 1"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+          <li><button type="button" class="hueco" data-hueco="1" aria-label="Casilla 2"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+          <li><button type="button" class="hueco" data-hueco="2" aria-label="Casilla 3"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+          <li><button type="button" class="hueco" data-hueco="3" aria-label="Casilla 4"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+          <li><button type="button" class="hueco" data-hueco="4" aria-label="Casilla 5"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+          <li><button type="button" class="hueco" data-hueco="5" aria-label="Casilla 6"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+          <li><button type="button" class="hueco" data-hueco="6" aria-label="Casilla 7"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+          <li><button type="button" class="hueco" data-hueco="7" aria-label="Casilla 8"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+          <li><button type="button" class="hueco" data-hueco="8" aria-label="Casilla 9"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+          <li><button type="button" class="hueco" data-hueco="9" aria-label="Casilla 10"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+          <li><button type="button" class="hueco" data-hueco="10" aria-label="Casilla 11"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+          <li><button type="button" class="hueco" data-hueco="11" aria-label="Casilla 12"><svg class="hueco-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><use href="#galleta-pixel"/></svg></button></li>
+        </ul>
+
+        <div class="juego-pie">
+          <button type="button" class="boton-grande" id="juego-empezar">Empezar la ronda</button>
+          <p class="juego-estado" id="juego-estado" role="status">Pulsa «Empezar la ronda»: son 30 segundos y las galletas no esperan.</p>
+        </div>
+
+        <div class="juego-final" id="juego-final" hidden>
+          <p class="juego-rango" id="juego-rango"></p>
+          <a class="boton-whatsapp" id="juego-wa" href="#" target="_blank" rel="noopener">Contar mi ronda por WhatsApp</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Power up: banda de acción a sangre con tipografía gigante.
+         Rompe el ritmo de bandas índigo justo antes de "La marca". -->
+    <section class="powerup" id="powerup" data-reveal aria-labelledby="titulo-powerup">
+      <div class="powerup-tira" aria-hidden="true">
+        <span>PIDE HOY ★ ENTREGA EN CÚCUTA ★ HECHO A MANO ★ PIDE HOY ★ ENTREGA EN CÚCUTA ★ HECHO A MANO ★ </span>
+        <span>PIDE HOY ★ ENTREGA EN CÚCUTA ★ HECHO A MANO ★ PIDE HOY ★ ENTREGA EN CÚCUTA ★ HECHO A MANO ★ </span>
+      </div>
+      <p class="etiqueta">Power up</p>
+      <h2 id="titulo-powerup">¿Listo para el siguiente nivel?</h2>        <p class="powerup-texto">Arma tu carrito, cuéntanos qué sabores quieres y hoy mismo tus galletas salen del obrador. Entrega en Cúcuta, Villa del Rosario, Los Patios y El Zulia, y pagas en efectivo o Nequi al coordinar.</p>
+      <div class="powerup-acciones">
+        <a class="boton-grande boton-noche" href="#pedido">Hacer mi pedido</a>
+        <a class="enlace-secundario" id="link-powerup-wa" href="#" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+      </div>
+    </section>
+
+    <!-- La marca: quiénes somos (misión, visión y diferenciación del modelo DYME) -->
+    <section id="marca" data-reveal aria-labelledby="titulo-marca" class="banda">
+      <span class="banda-esquinas" aria-hidden="true"></span>
+      <p class="etiqueta">La marca</p>
+      <h2 id="titulo-marca">De la pantalla a tu paladar</h2>
+      <p class="subtitulo">No vendemos solo una galleta: vendemos una experiencia completa para amantes de los videojuegos.</p>
+
+      <div class="mision-grid">
+        <article class="mision-tarjeta">
+          <h3>Misión</h3>
+          <p>Crear galletas únicas y deliciosas inspiradas en personajes de videojuegos, para llevar una experiencia agradable en cada bocado.</p>
+        </article>
+        <article class="mision-tarjeta">
+          <h3>Visión 2027</h3>
+          <p>Ser la marca líder de galletas temáticas de videojuegos, la opción preferida de cada amante de los videojuegos en Cúcuta y sus alrededores.</p>
+        </article>
+        <article class="mision-tarjeta">
+          <h3>Cliente ideal</h3>
+          <p>Niños, jóvenes y adultos de 10 a 70 años: estudiantes, familias y gamers que buscan productos artesanales y novedosos.</p>
+        </article>
+      </div>
+
+      <div class="diferencia">
+        <div>
+          <h3>¿Por qué Pixel Galletas?</h3>
+          <ul class="diferencia-lista">
+            <li><b>Diseño pixelado coleccionable</b><span>Cada galleta representa un personaje icónico y su empaque se guarda como un recuerdo.</span></li>
+            <li><b>Ingredientes de alta calidad</b><span>Galletas Nueva York grandes, frescas y con sabor similar al del personaje que inspiró su nombre.</span></li>
+            <li><b>Sabores que se renuevan</b><span>Innovamos constantemente con nuevos sabores y ediciones especiales.</span></li>
+            <li><b>Trato cercano</b><span>Pides por WhatsApp y coordinas todo con nosotros, sin intermediarios ni apps de terceros.</span></li>
+          </ul>
+        </div>
+        <figure class="pantalla-negra diferencia-foto">
+          <picture>
+            <source srcset="/img/obrador.webp" type="image/webp">
+            <img src="/img/obrador.jpg" data-zoom="1" alt="El obrador batiendo la masa de las galletas, con guantes" width="1080" height="1080" loading="lazy" decoding="async">
+          </picture>
+          <figcaption class="diferencia-pie">Hecho a mano, galleta por galleta</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Preguntas frecuentes (acordeón nativo: funciona sin JavaScript) -->
+    <section id="faq" data-reveal aria-labelledby="titulo-faq">
+      <p class="etiqueta">Preguntas</p>
+      <h2 id="titulo-faq">Lo que más nos preguntan</h2>
+      <p class="subtitulo">Si tu duda no está aquí, escríbenos por WhatsApp y te respondemos al instante.</p>
+      <div class="faq">
+        <details class="faq-item" open>
+          <summary>¿Hacen entregas en toda la ciudad?</summary>
+          <p>Entregamos en <b>Cúcuta, Villa del Rosario, Los Patios y El Zulia</b>. El domicilio cuesta <b>$5.000 en Cúcuta</b> y <b>$7.000 en los alrededores</b>, y es <b>gratis desde 12 galletas</b>. Recoger en Ceiba 2 siempre sale gratis. Si estás en otra zona, escríbenos y vemos qué podemos hacer contigo.</p>
+        </details>
+        <details class="faq-item">
+          <summary>¿Cómo se paga el pedido?</summary>
+          <p>Coordinas el pago en <b>efectivo</b> o por transferencia al <b>Nequi 313 783 9935</b> al acordar la entrega. Nunca te pedimos datos de tarjeta.</p>
+        </details>
+        <details class="faq-item">
+          <summary>¿Hay pedido mínimo?</summary>
+          <p>No. Puedes pedir <b>desde una sola galleta</b>; el total se actualiza al instante en tu carrito.</p>
+        </details>
+        <details class="faq-item">
+          <summary>¿Dan descuento por cantidad?</summary>
+          <p>Sí: <b>12 galletas</b> 5% de descuento, <b>24 galletas</b> 8% y <b>48 o más</b> 10%. Cada pedido se ajusta según empaque, entrega y preparación.</p>
+        </details>
+        <details class="faq-item">
+          <summary>¿Cómo hago un pedido grande para un evento?</summary>
+          <p>Para <b>24 unidades o más</b> pedimos un anticipo y acordamos juntos el plazo de preparación por WhatsApp.</p>
+        </details>
+        <details class="faq-item">
+          <summary>¿Puedo personalizar el mensaje de una caja?</summary>
+          <p>Sí. Toda caja viene con <b>mensaje personalizado</b> y presentación gamer; solo nos dices qué texto quieres al hacer el pedido.</p>
+        </details>
+        <details class="faq-item">
+          <summary>¿Cómo sé en qué va mi pedido?</summary>
+          <p>Con el <b>número de pedido</b> y el teléfono con el que pediste puedes verlo en <a href="#estado">Estado del pedido</a>. No necesitas cuenta.</p>
+        </details>
+      </div>
+    </section>
+
     <!-- Carrito + formulario de pedido -->
     <section class="tarjeta" id="pedido" data-reveal>
-      <p class="etiqueta">Nivel 04 · Tu pedido</p>
+      <p class="etiqueta">Tu pedido</p>
       <h2>Tu pedido</h2>
 
       <div class="pedido-cols">
@@ -216,17 +699,27 @@
           <h3>Carrito</h3>
           <ul id="lista-carrito" class="productos"></ul>
           <p id="vacio">Tu carrito está vacío. Agrega galletas desde el catálogo.</p>
+          <!-- Desglose del descuento por volumen (lo rellena pedidos.js): solo
+               se ve cuando la cantidad alcanza el primer tramo, así el carrito
+               de una galleta no enseña cuentas que no hacen falta. -->
+          <p class="desglose" id="desglose" hidden>
+            <span>Subtotal <b id="carrito-subtotal">$ 0</b></span>
+            <span class="ahorro" id="linea-descuento">Descuento por volumen (<b id="descuento-pct">0</b>%) <b id="carrito-descuento">−$ 0</b></span>
+            <span id="linea-envio">Envío <b id="carrito-envio">$ 0</b></span>
+          </p>
           <p class="total-linea">Total <strong id="carrito-total">$ 0</strong></p>
+          <!-- Empujón al tramo siguiente: "te faltan 4 galletas para el 8%". -->
+          <p class="aviso-descuento" id="aviso-descuento" hidden></p>
           <button type="button" id="btn-vaciar-carrito" class="secundario">Vaciar carrito</button>
 
           <div class="detalles" role="region" aria-labelledby="titulo-entrega-pago">
             <h3 id="titulo-entrega-pago">Cómo se entrega y se paga</h3>
             <ul class="detalles-lista">
               <li><span class="icono icono-ubi" aria-hidden="true"><svg viewBox="0 0 384 512"><path fill="currentColor" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg></span>
-                <span><b>Solo Cúcuta</b><br>Entregamos en la ciudad. Si estás en otra zona, escríbenos y vemos qué podemos hacer.</span></li>
+                <span><b>Cúcuta y alrededores</b><br>Cúcuta $5.000 · Villa del Rosario, Los Patios y El Zulia $7.000. Gratis desde 12 galletas; recoger en Ceiba 2, gratis siempre.</span></li>
               <li><span class="icono icono-wa" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 3.9A11.9 11.9 0 0 0 3.5 17.7L2 22l4.4-1.5A11.9 11.9 0 1 0 20 3.9Zm-8 19.6a9.9 9.9 0 0 1-5-1.4l-.4-.2-2.6.9.9-2.5-.2-.4a9.9 9.9 0 1 1 7.3 3.6Zm5.4-7.4c-.3-.1-1.7-.8-2-1s-.5-.1-.7.1-.8 1-1 1.2-.4.2-.7.1a8 8 0 0 1-2.4-1.5 9 9 0 0 1-1.6-2.1c-.2-.3 0-.5.1-.6l.5-.6.3-.5c.1-.2 0-.4 0-.5l-.9-2.2c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.8.4 3.5 3.5 0 0 0-1.1 2.6 6.2 6.2 0 0 0 1.3 3.3 14.2 14.2 0 0 0 5.4 4.8c2.1.9 2.9 1 3.9.8a3 3 0 0 0 2-1.4 2.5 2.5 0 0 0 .2-1.4c-.1-.2-.3-.2-.6-.3Z"/></svg></span>
-                <span><b>Efectivo o Nequi</b><br>Pagas en efectivo o por transferencia Nequi al coordinar la entrega.</span></li>
-              <li><span class="icono icono-ig" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1Zm0 6.8a3.9 3.9 0 1 0 0 7.8 3.9 3.9 0 0 0 0-7.8Zm0 6.4a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Zm5-6.6a.9.9 0 1 1-1.8 0 .9.9 0 0 1 1.8 0Z"/></svg></span>
+                <span><b>Efectivo o Nequi</b><br>Pagas en efectivo o por transferencia al Nequi 313 783 9935 al coordinar la entrega.</span></li>
+              <li><span class="icono icono-caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" opacity=".5" d="M12 2 21 6.5 12 11 3 6.5Z"/><path fill="currentColor" d="M3 6.5V17.5L12 22V11Z"/><path fill="currentColor" opacity=".72" d="M12 11V22L21 17.5V6.5Z"/></svg></span>
                 <span><b>Pedidos grandes</b><br>Para 24 unidades o más pedimos anticipo y acordamos el plazo de preparación.</span></li>
             </ul>
           </div>
@@ -236,8 +729,15 @@
           <h3 id="titulo-entrega">Datos de entrega</h3>
           <form id="form-pedido" aria-labelledby="titulo-entrega">
             <label>Nombre <input type="text" id="pedido-nombre" name="nombre" required maxlength="100" autocomplete="name"></label>
-            <label>Teléfono / WhatsApp <input type="tel" id="pedido-telefono" name="telefono" required pattern="[0-9+\s\-]{7,20}" autocomplete="tel"></label>
-            <label>Dirección (opcional) <input type="text" name="direccion" maxlength="255" autocomplete="street-address"></label>
+            <label>Teléfono / WhatsApp <input type="tel" id="pedido-telefono" name="telefono" required pattern="[0-9+\s\-]{7,20}" autocomplete="tel" inputmode="tel"></label>
+            <label>Entrega
+              <select id="pedido-entrega" name="entrega" required>
+                <option value="recoger">Recoger en Ceiba 2 — gratis</option>
+                <option value="cucuta">Domicilio en Cúcuta — $5.000 (gratis desde 12 galletas)</option>
+                <option value="municipios">Domicilio en Villa del Rosario, Los Patios o El Zulia — $7.000 (gratis desde 12 galletas)</option>
+              </select>
+            </label>
+            <label>Dirección (obligatoria para domicilio) <input type="text" name="direccion" maxlength="255" autocomplete="street-address"></label>
             <label>Notas (opcional) <textarea name="notas" rows="2" maxlength="500" placeholder="Ej: sin nueces, empacar para regalo…"></textarea></label>
             <button type="submit" id="btn-pedir" disabled>Hacer pedido</button>
           </form>
@@ -265,15 +765,42 @@
       <p id="mensaje-usuarios" role="alert"></p>
     </section>
 
+    <!-- Medición propia: qué sabores se ven y dónde se abandona el pedido (solo admin) -->
+    <section class="tarjeta" id="seccion-analitica" data-reveal hidden>
+      <p class="etiqueta">Medición propia</p>
+      <h2>Qué mira la gente</h2>
+      <p class="subtitulo">Medición propia: el sitio cuenta sus propios eventos y los guarda en esta base.
+        Sin cookies, sin servicios de terceros y sin datos personales.</p>
+      <!-- Esta línea NO lleva la clase "etiqueta": efectos.js reescribe esos párrafos
+           para numerar las secciones ("Nivel 05 · ...") y se comía el resumen. -->
+      <p id="resumen-analitica" aria-live="polite"></p>
+      <ul id="lista-analitica" class="productos"></ul>
+      <p id="mensaje-analitica" role="alert"></p>
+    </section>
+
     <!-- Contacto -->
+    <!-- Estado del pedido: consulta pública con número y teléfono, sin cuenta -->
+    <section class="tarjeta" id="estado" data-reveal aria-labelledby="titulo-estado">
+      <p class="etiqueta">Estado</p>
+      <h2 id="titulo-estado">¿Dónde va mi pedido?</h2>
+      <p class="subtitulo">Pon el número de pedido y el teléfono con el que lo hiciste. No necesitas cuenta ni registro.</p>
+      <form id="form-estado">
+        <label>Número de pedido <input type="number" name="id" id="estado-id" min="1" required placeholder="12" inputmode="numeric"></label>
+        <label>Teléfono con el que pediste <input type="tel" name="telefono" id="estado-telefono" required minlength="7" maxlength="20" pattern="[0-9+\s\-]{7,20}" placeholder="313 783 9935" inputmode="tel"></label>
+        <button type="submit" class="boton-grande">Ver estado</button>
+      </form>
+      <p id="mensaje-estado" role="alert"></p>
+      <div id="estado-resultado" class="estado-resultado" hidden></div>
+    </section>
+
     <section class="tarjeta" id="contacto" data-reveal>
-      <p class="etiqueta">Nivel 05 · Contacto</p>
+      <p class="etiqueta">Contacto</p>
       <h2>Contacto</h2>
       <div class="contacto-cols">
         <figure class="pantalla-negra">
           <picture>
             <source srcset="/img/contacto.webp" type="image/webp">
-            <img src="/img/contacto.jpg" alt="Las cinco galletas de Pixel Galletas junto a su logo" width="1080" height="1080" loading="lazy" decoding="async">
+            <img src="/img/contacto.jpg" alt="Las galletas de Pixel Galletas junto a su logo" width="1080" height="1080" loading="lazy" decoding="async">
           </picture>
         </figure>
         <div>
@@ -295,7 +822,7 @@
   <footer class="pie">
     <div class="pie-cols">
       <div class="pie-marca">
-        <img src="/img/logo.png" alt="" width="60" height="60">
+        <img src="/img/logo-256.webp" alt="" width="60" height="60">
         <div>
           <strong>Pixel Galletas</strong>
           <p>De la pantalla a tu paladar. Galletas Nueva York gamer hechas en Cúcuta con amor y muchos píxeles.</p>
@@ -305,7 +832,10 @@
         <a href="#catalogo">Galletas</a>
         <a href="#cajas">Cajas Pixel</a>
         <a href="#como-funciona">Cómo funciona</a>
+        <a href="#marca">La marca</a>
+        <a href="#faq">Preguntas frecuentes</a>
         <a href="#pedido">Hacer pedido</a>
+        <a href="#estado">Estado del pedido</a>
         <a href="#contacto">Contacto</a>
       </nav>
       <div class="pie-social">
@@ -314,14 +844,74 @@
         <a id="link-ubicacion-pie" href="#" target="_blank" rel="noopener">Ceiba 2, Cúcuta</a>
       </div>
     </div>
+    <!-- Palabra gigante: remate editorial del pie (decorativa) -->
+    <p class="pie-wordmark" aria-hidden="true">Pixel Galletas</p>
+    <!-- Franja de máquina recreativa: el remate decorativo del pie, con el
+         aviso de moneda parpadeando entre sprites de la casa. -->
+    <p class="pie-maquina" aria-hidden="true">
+      <span class="pie-maquina-sprite"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
+      <span class="pie-maquina-sprite"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#estrella-pixel"/></svg></span>
+      <span class="pie-maquina-texto">Inserte moneda</span>
+      <span class="pie-maquina-sprite"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#galleta-pixel"/></svg></span>
+      <span class="pie-maquina-sprite"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#corazon-pixel"/></svg></span>
+      <span class="pie-maquina-sprite"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#gema-pixel"/></svg></span>
+    </p>
+    <p class="pie-legal pie-privacidad">Aquí no hay cookies ni publicidad de terceros: la medición de visitas es propia, anónima y no guardamos datos de quien navega (sí guardamos tu nombre y teléfono si decides hacer un pedido, para poder entregártelo).</p>
     <p class="pie-legal">© 2026 Pixel Galletas · Cúcuta, Colombia · Hecho con ♥ y muchos píxeles</p>
+    <p class="pie-secreto" aria-hidden="true">↑ ↑ ↓ ↓ ← → ← → B A</p>
   </footer>
+
+  <!-- Acción fija: siempre a un toque del pedido en cualquier punto de la página -->
+  <a id="link-whatsapp-fijo-barra" class="barra-whatsapp" href="#" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+    <span>Pedir por WhatsApp</span>
+  </a>
+
+  <!-- Resumen flotante del carrito: aparece solo cuando hay galletas
+       elegidas (lo activa pedidos.js con la clase .activo). -->
+  <a class="mini-carrito" id="mini-carrito" href="#pedido">
+    <span class="mini-carrito-galleta" aria-hidden="true"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#galleta-pixel"/></svg></span>
+    <span class="mini-carrito-resumen" id="mini-carrito-resumen">0 galletas · $ 0</span>
+    <span class="mini-carrito-cta">Ver mi pedido</span>
+  </a>
+
+  <!-- HUD de niveles: la numeración "Nivel 0X" que ya llevan las secciones,
+       convertida en mapa navegable. Se muestra solo cuando efectos.js lo
+       activa (si no, no existe) y vive en el centro-abajo, donde no choca con
+       el carrito (izquierda) ni con el botón de WhatsApp (derecha). -->
+  <div class="nivel-hud" id="nivel-hud" hidden>
+    <button type="button" class="nivel-hud-boton" id="nivel-hud-boton" aria-expanded="false" aria-controls="nivel-mapa">
+      <span class="nivel-hud-punto" aria-hidden="true"></span>
+      <span class="nivel-hud-texto">Nivel <b id="nivel-actual">01</b> · <span id="nivel-nombre">Portada</span></span>
+      <span class="nivel-hud-progreso" aria-hidden="true"><i id="nivel-barra"></i></span>
+    </button>
+    <nav class="nivel-mapa" id="nivel-mapa" aria-label="Mapa de niveles" hidden></nav>
+  </div>
+
+  <!-- Visor de fotos: se abre al pulsar cualquier foto del sitio (las de
+       marca, comunidad y catálogo). Es un <dialog> nativo: atrapa el foco,
+       cierra con Esc y devuelve el foco al sitio sin código extra. -->
+  <dialog class="visor" id="visor" aria-label="Visor de fotos">
+    <figure class="visor-marco">
+      <img id="visor-img" src="/img/logo-256.webp" alt="">
+      <figcaption id="visor-pie"></figcaption>
+    </figure>
+    <div class="visor-controles">
+      <button type="button" id="visor-anterior" aria-label="Foto anterior">◀</button>
+      <button type="button" id="visor-cerrar" aria-label="Cerrar el visor">✕</button>
+      <button type="button" id="visor-siguiente" aria-label="Foto siguiente">▶</button>
+    </div>
+  </dialog>
 
   <script type="module" src="/js/auth.js"></script>
   <script type="module" src="/js/productos.js"></script>
   <script type="module" src="/js/pedidos.js"></script>
   <script type="module" src="/js/contacto.js"></script>
   <script type="module" src="/js/usuarios.js"></script>
+  <script type="module" src="/js/juego.js"></script>
+  <script type="module" src="/js/visor.js"></script>
+  <script type="module" src="/js/analitica.js"></script>
+  <script type="module" src="/js/estado.js"></script>
   <script type="module" src="/js/efectos.js"></script>
 </body>
 </html>

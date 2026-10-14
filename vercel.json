@@ -1,0 +1,22 @@
+{
+  "outputDirectory": "public",
+  "rewrites": [
+    { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+        },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ],
+  "crons": [
+    { "path": "/api/eventos/cron/purgar", "schedule": "0 4 * * *" }
+  ]
+}

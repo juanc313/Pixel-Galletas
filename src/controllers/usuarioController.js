@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const errorInterno = require("../util/errorInterno");
 const jwt = require("jsonwebtoken");
 const Usuario = require("../models/Usuario");
 
@@ -20,7 +21,7 @@ class UsuarioController {
       const nuevoUsuario = await Usuario.crear({ nombre, correo, contrasenaHasheada });
       return res.status(201).json(nuevoUsuario);
     } catch (error) {
-      return res.status(500).json({ error: "Error al registrar usuario", detalle: error.message });
+      return errorInterno(res, "Error al registrar usuario", error);
     }
   }
 
@@ -48,7 +49,7 @@ class UsuarioController {
         usuario: { id: usuario.id, nombre: usuario.nombre, correo: usuario.correo, rol: usuario.rol },
       });
     } catch (error) {
-      return res.status(500).json({ error: "Error al iniciar sesión", detalle: error.message });
+      return errorInterno(res, "Error al iniciar sesión", error);
     }
   }
 
@@ -57,7 +58,7 @@ class UsuarioController {
       const usuarios = await Usuario.listarTodos();
       return res.json(usuarios);
     } catch (error) {
-      return res.status(500).json({ error: "Error al listar usuarios", detalle: error.message });
+      return errorInterno(res, "Error al listar usuarios", error);
     }
   }
 
@@ -67,7 +68,7 @@ class UsuarioController {
       if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
       return res.json(usuario);
     } catch (error) {
-      return res.status(500).json({ error: "Error al consultar usuario", detalle: error.message });
+      return errorInterno(res, "Error al consultar usuario", error);
     }
   }
 
@@ -85,7 +86,7 @@ class UsuarioController {
       const actualizado = await Usuario.actualizar(req.params.id, req.body);
       return res.json(actualizado);
     } catch (error) {
-      return res.status(500).json({ error: "Error al actualizar usuario", detalle: error.message });
+      return errorInterno(res, "Error al actualizar usuario", error);
     }
   }
 
@@ -98,7 +99,7 @@ class UsuarioController {
       if (!eliminado) return res.status(404).json({ error: "Usuario no encontrado" });
       return res.json({ mensaje: "Usuario eliminado correctamente" });
     } catch (error) {
-      return res.status(500).json({ error: "Error al eliminar usuario", detalle: error.message });
+      return errorInterno(res, "Error al eliminar usuario", error);
     }
   }
 }

@@ -1,9 +1,16 @@
 /* Pixel Galletas — hoja de estilos
    Dirección de diseño: una pantalla de selección de personaje de videojuego retro,
-   con acabado de marca moderna: profundidad por capas, glow cálido de horno,
+   con acabado de marca profesional: profundidad por capas, glow cálido de horno,
    textura de ruido sutil y microinteracciones en cada punto de contacto.
    Colores y tipografías salen de la marca: el índigo y los corazones del modelo DYME,
-   el naranja de la galleta del logo y los colores de cada sabor del presupuesto. */
+   el naranja de la galleta del logo y los colores de cada sabor del presupuesto.
+
+   Orden del archivo:
+     1. Tokens y reset          5. Catálogo
+     2. Tipografía base         6. Cajas, pasos, marca y FAQ
+     3. Barra superior          7. Pedido, contacto y pie
+     4. Portada y cinta         8. Sala de juegos, mapa de niveles y visor
+                                 9. Responsive y movimiento reducido */
 
 :root {
   --noche: #15094F;          /* fondo de la página */
@@ -11,20 +18,122 @@
   --pantalla-alta: #32209F;  /* zonas elevadas y barra superior */
   --tinta: #0C0535;          /* campos de formulario y filas de listas */
   --masa: #F5902F;           /* color de marca: la galleta */
+  --masa-clara: #FFB25C;
   --crema: #FFF3DC;          /* texto principal */
   --corazon: #E5412B;
   --diamante: #4DE8D0;       /* confirmaciones y foco del teclado */
   --linea: rgba(255, 243, 220, .55);
+  --linea-suave: rgba(255, 243, 220, .2);
   --suave: rgba(255, 243, 220, .82);
   --brillo: rgba(255, 255, 255, .55);
 
-  --titulos: "Pixelify Sans", "Courier New", monospace;
+  /* Titulares: fuente pixel PERO con cifras de ancho uniforme y bien formadas.
+     Pixelify Sans era exagerada con los números (glifos torcidos y advance
+     desigual). Silkscreen es un pixel-font legible para letras y cifras, con
+     figuras tabulares limpias; se usa en 400/700. */
+  --titulos: "Silkscreen", "Courier New", monospace;
   --texto: "Rubik", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --ancho: 72rem;
+  /* Margen lateral de página: .contenido lo usa como padding y la cinta
+        como sangrado negativo. Un solo token mantiene las dos cosidas. */
+  --gutter: clamp(1.25rem, 4vw, 2rem);
 
-  /* Sombra pixel: capa dura + caída suave (los dos mundos) */
-  --sombra-dura: 0 -4px 0 0 var(--linea), 0 4px 0 0 var(--linea), -4px 0 0 0 var(--linea), 4px 0 0 0 var(--linea);
+  /* ---------------------------------------------------------------
+     SISTEMA DE DISEÑO
+     Cinco escalas cerradas. Todo el resto del archivo las consume;
+     no deberían aparecer valores de espaciado, duración, tamaño de
+     texto ni bordes "inventados" fuera de aquí.
+     --------------------------------------------------------------- */
+
+  /* 1. Escala tipográfica — 8 pasos, de nota al pie a titular.
+        Las dos últimas son fluidas (clamp) para que el titular nunca
+        desborde ni en móvil ni en escritorio. */
+  --t-xs: .85rem;                          /* leyendas, notas al pie */
+  --t-sm: .95rem;                          /* texto secundario */
+  --t-base: 1rem;                          /* cuerpo */
+  --t-md: 1.1rem;                          /* cuerpo destacado, subtítulos */
+  --t-lg: 1.25rem;                         /* títulos de tarjeta */
+  --t-xl: 1.5rem;                          /* nombres de producto, precios grandes */
+  --t-2xl: clamp(1.8rem, 3.4vw, 2.4rem);   /* h2 de sección */
+  --t-3xl: clamp(2.3rem, 5vw, 3.5rem);     /* h1 de portada */
+  /* Cifras: números que quieren verse como marcador, no como texto */
+  --t-num: clamp(1.7rem, 3vw, 2.1rem);
+  --t-num-grande: clamp(2.2rem, 4vw, 2.8rem);
+
+  /* 2. Escala de espaciado — base 4px. Cualquier separación del sitio
+        sale de aquí; si hace falta un valor nuevo, se añade un paso. */
+  --s-1: .25rem;   /* 4px  — hairline entre cosas del mismo grupo */
+  --s-2: .5rem;    /* 8px  — mínimo con significado */
+  --s-3: .75rem;   /* 12px */
+  --s-4: 1rem;     /* 16px — unidad base */
+  --s-5: 1.5rem;   /* 24px — entre hermanos */
+  --s-6: 2rem;     /* 32px — entre bloques */
+  --s-7: 2.5rem;   /* 40px */
+  --s-8: 3rem;     /* 48px — entre columnas grandes */
+  --s-9: 4rem;     /* 64px */
+
+  /* 3. Escala de movimiento — tres duraciones y dos curvas.
+        micro = color/transform de hover; ui = menú y barra;
+        reveal = aparición de secciones al hacer scroll. */
+  --d-micro: .15s;
+  --d-ui: .25s;
+  --d-reveal: .55s;
+  --e-salida: cubic-bezier(.22, .8, .3, 1);   /* entra y se asienta */
+  --e-rebote: cubic-bezier(.2, .9, .3, 1.4);  /* pequeña sobrepuesta */
+
+  /* 4. Bordes pixel — la firma de la marca. Un box-shadow de cuatro
+        direcciones simula un borde de 1 píxel sin redondeos. Antes
+        estaban escritos 22 veces; ahora viven solo aquí. */
+  --px-3: 0 -3px 0 0 var(--linea), 0 3px 0 0 var(--linea), -3px 0 0 0 var(--linea), 3px 0 0 0 var(--linea);
+  --px-3-suave: 0 -3px 0 0 var(--linea-suave), 0 3px 0 0 var(--linea-suave), -3px 0 0 0 var(--linea-suave), 3px 0 0 0 var(--linea-suave);
+  --px-3-masa: 0 -3px 0 0 var(--masa), 0 3px 0 0 var(--masa), -3px 0 0 0 var(--masa), 3px 0 0 0 var(--masa);
+  --px-3-tinta: 0 -3px 0 0 var(--tinta), 0 3px 0 0 var(--tinta), -3px 0 0 0 var(--tinta), 3px 0 0 0 var(--tinta);
+  --px-3-diamante: 0 -3px 0 0 var(--diamante), 0 3px 0 0 var(--diamante), -3px 0 0 0 var(--diamante), 3px 0 0 0 var(--diamante);
+  --px-4: 0 -4px 0 0 var(--linea), 0 4px 0 0 var(--linea), -4px 0 0 0 var(--linea), 4px 0 0 0 var(--linea);
+  --px-4-masa: 0 -4px 0 0 var(--masa), 0 4px 0 0 var(--masa), -4px 0 0 0 var(--masa), 4px 0 0 0 var(--masa);
+  --px-4-tinta: 0 -4px 0 0 var(--tinta), 0 4px 0 0 var(--tinta), -4px 0 0 0 var(--tinta), 4px 0 0 0 var(--tinta);
+  /* Filete inferior de acento: no es un borde cerrado, solo marca el canto
+        de abajo (usado en el bloque de volumen y en la línea del total). */
+  --px-inferior-masa: inset 0 -3px 0 0 rgba(245, 144, 47, .5);
+
+  /* Ritmo vertical: toda sección respira igual */
+  --gap-seccion: clamp(3.5rem, 7vw, 5.5rem);
+  --radio: 0; /* la marca no tiene esquinas redondeadas: es pixel */
+
+  /* 5. Sombras compuestas: borde pixel + profundidad. Un solo lugar
+        define cuánto "flota" cada tipo de superficie. */
+  --sombra-dura: var(--px-4);
   --sombra-caida: 10px 14px 0 0 rgba(0, 0, 0, .38), 0 18px 40px rgba(0, 0, 0, .35);
+  --sombra-tarjeta: var(--px-3-suave), 8px 10px 0 0 rgba(0, 0, 0, .32);
+  --sombra-caja: var(--px-4), 8px 10px 0 0 rgba(0, 0, 0, .32);
+  --sombra-caja-alta: var(--px-4), 12px 16px 0 0 rgba(0, 0, 0, .4), 0 0 30px rgba(245, 144, 47, .18);
+  --sombra-lista: var(--px-3);
+
+  /* Rejilla compartida: las secciones de "tres tarjetas" y las de
+        "dos columnas" usan el mismo hueco, para que el ritmo sea igual
+        bajando por la página. */
+  --gap-col: var(--s-6);
+  --gap-fila: var(--s-5);
+
+  /* Proporciones de columna. Las secciones de dos columnas se reducen a
+        tres casos reales en lugar de cuatro fracciones escritas a mano:
+          parejas  — contenido equivalente a los dos lados
+          texto    — el texto manda y la foto acompaña (a la derecha)
+          texto-inv — lo mismo, con la foto a la izquierda */
+  --col-parejas: 1.05fr .95fr;
+  --col-texto: 1.15fr .85fr;
+  --col-texto-inv: .85fr 1.15fr;
+
+  /* Escala de puntos de ruptura. No se puede usar var() dentro de una
+        condición @media (el navegador la parsea antes de resolver los
+        tokens), así que esta lista es la referencia que hay que seguir al
+        añadir un corte nuevo, no una variable ejecutable.
+          34rem  cifras 2 → 4 columnas
+          40rem  descuentos y caja mensual a varias columnas
+          48rem  bloques de dos columnas
+          52rem  rejillas de tres tarjetas
+          56rem  portada a dos columnas
+          62rem  barra: de menú horizontal a menú móvil */
 
   /* Sprites pixelados (se usan como máscaras para teñirlos con CSS) */
   --sprite-cuerpo: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2012%2012%27%20shape-rendering%3D%27crispEdges%27%3E%3Cpath%20fill%3D%27%23000%27%20d%3D%27M4%200h4v1h-4zM2%201h6v1h-6zM1%202h8v1h-8zM1%203h9v1h-9zM0%204h12v1h-12zM0%205h12v1h-12zM0%206h12v1h-12zM0%207h12v1h-12zM1%208h10v1h-10zM1%209h10v1h-10zM2%2010h8v1h-8zM4%2011h4v1h-4z%27%2F%3E%3C%2Fsvg%3E");
@@ -45,6 +154,9 @@ html { scroll-behavior: smooth; scroll-padding-top: 6rem; color-scheme: dark; }
 
 body {
   margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+  /* El resplandor del cursor en la portada se sale del lienzo (inset: -10%);
+     se recorta sin crear contenedor de scroll, para no romper la barra sticky. */
+  overflow-x: clip;
   background-color: var(--noche);
   background-image:
     radial-gradient(60rem 34rem at 82% -6rem, rgba(245, 144, 47, .14), transparent 65%),
@@ -54,7 +166,7 @@ body {
     linear-gradient(90deg, rgba(255, 243, 220, .035) 2px, transparent 2px);
   background-size: auto, auto, auto, 32px 32px, 32px 32px;
   background-attachment: fixed, fixed, fixed, scroll, scroll;
-  color: var(--crema); font-family: var(--texto); font-size: 1rem; line-height: 1.55;
+  color: var(--crema); font-family: var(--texto); font-size: var(--t-base); line-height: 1.6;
 }
 /* Capa de ruido fijo: le da grano de película al índigo liso */
 body::before {
@@ -65,10 +177,11 @@ body::before {
 img { display: block; max-width: 100%; height: auto; }
 a { color: var(--diamante); }
 p { margin: 0 0 1rem; }
-h1, h2, h3 { margin: 0 0 .8rem; font-family: var(--titulos); font-weight: 700; line-height: 1.1;
+h1, h2, h3 { margin: 0 0 .8rem; font-family: var(--titulos); font-weight: 700; line-height: 1.08;
   text-shadow: 3px 3px 0 rgba(0, 0, 0, .35); }
-h2 { font-size: clamp(1.8rem, 3.6vw, 2.4rem); }
-h3 { font-size: 1.3rem; }
+h1 { font-size: var(--t-2xl); }
+h2 { font-size: var(--t-xl); }
+h3 { font-size: var(--t-lg); }
 
 :focus-visible { outline: 3px solid var(--diamante); outline-offset: 3px; }
 .saltar { position: absolute; left: -999px; top: .5rem; z-index: 50; padding: .6rem 1rem;
@@ -78,59 +191,79 @@ h3 { font-size: 1.3rem; }
 /* ===== Barra superior ===== */
 .barra {
   position: sticky; top: 0; z-index: 20;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .6rem 1rem;
-  padding: .7rem max(1rem, calc((100% - var(--ancho)) / 2));
-  background: rgba(21, 9, 79, .92); backdrop-filter: blur(10px) saturate(1.2);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--s-2) var(--s-4);
+  padding: var(--s-3) max(var(--s-4), calc((100% - var(--ancho)) / 2));
+  /* Sin backdrop-filter: en barras sticky con texto pixel provoca parpadeo de
+     repintado al alternar subir/bajar. La opacidad alta basta para el fondo. */
+  background: rgba(21, 9, 79, .96);
   border-bottom: 4px solid var(--pantalla-alta);
-  transition: box-shadow .25s ease, background-color .25s ease, border-color .25s ease;
+  transition: box-shadow var(--d-ui) ease, background-color var(--d-ui) ease, border-color var(--d-ui) ease;
 }
-.barra.desplazada { background: rgba(12, 5, 53, .97); border-bottom-color: var(--masa);
+/* El estado desplazado NO toca métricas de layout (tamaño de fuente, padding
+   de la marca): solo color, sombra y borde. Así el logo y el nombre nunca
+   cambian de caja al hacer scroll y desaparece el bug del nombre. */
+.barra.desplazada { background: rgba(12, 5, 53, .98); border-bottom-color: var(--masa);
   box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
 /* Barra de progreso de lectura al pie de la cabecera */
 .progreso-lectura { position: absolute; left: 0; bottom: -4px; height: 4px; width: 100%;
   background: linear-gradient(90deg, var(--masa), var(--corazon), var(--diamante));
   transform: scaleX(0); transform-origin: left center; will-change: transform; }
 /* Contador del carrito: latido cuando cambia */
-#carrito-contador.latido { animation: latido .45s cubic-bezier(.2, .9, .3, 1.4); }
+#carrito-contador.latido { animation: latido var(--d-ui) var(--e-rebote); }
 @keyframes latido { 30% { transform: scale(1.55); background: var(--diamante); color: var(--noche); } }
-.marca { display: flex; align-items: center; gap: .75rem; }
+.marca { display: flex; align-items: center; gap: var(--s-3); }
 .marca img { width: 48px; height: 48px; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, .45)); }
-.marca h1 { margin: 0; font-size: 1.5rem; text-shadow: 2px 2px 0 rgba(0, 0, 0, .4); }
-.marca small { display: block; font-size: .85rem; font-weight: 500; color: var(--masa); }
-.menu { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem .6rem; }
-.menu a { padding: .45rem .7rem; color: var(--crema); font-weight: 500; text-decoration: none;
-  border-bottom: 3px solid transparent;
-  transition: background-color .16s ease, transform .16s ease, color .16s ease, border-color .16s ease; }
+.marca-nombre { display: block; font-family: var(--titulos); font-size: var(--t-lg); font-weight: 700; white-space: nowrap;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, .4); }
+.marca small { display: block; font-size: var(--t-sm); font-weight: 500; color: var(--masa); }
+/* En escritorio el menú cabe en una sola fila: sin wrap la barra no crece. */
+@media (min-width: 62.01rem) { .menu { flex-wrap: nowrap; } }
+.menu { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2) var(--s-1); }
+.menu a { padding: var(--s-2) var(--s-2); color: var(--crema); font-weight: 500; font-size: var(--t-sm);
+  text-decoration: none; border-bottom: 3px solid transparent;
+  transition: background-color var(--d-micro) ease, transform var(--d-micro) ease, color var(--d-micro) ease, border-color var(--d-micro) ease; }
 .menu a:hover { background: var(--pantalla-alta); transform: translateY(-2px); }
 .menu a.actual { color: var(--masa); border-bottom-color: var(--masa); }
-.menu a.carrito-icono { display: inline-flex; align-items: center; gap: .6rem; margin: 0 .3rem;
-  border-bottom-color: transparent;
-  box-shadow: 0 -3px 0 0 var(--masa), 0 3px 0 0 var(--masa), -3px 0 0 0 var(--masa), 3px 0 0 0 var(--masa); }
+.menu a.carrito-icono { display: inline-flex; align-items: center; gap: var(--s-3); margin: 0 var(--s-1);
+  border-bottom-color: transparent; box-shadow: var(--px-3-masa); }
 .menu a.carrito-icono:hover { background: rgba(245, 144, 47, .18); }
 #carrito-contador { min-width: 1.7rem; padding: 0 .4rem; text-align: center;
   font-family: var(--titulos); font-weight: 700; background: var(--corazon); color: #fff; }
 #btn-acceso { max-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* Botón de menú móvil: solo aparece bajo 62rem */
+.btn-menu { display: none; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-4); }
+.btn-menu-barras { display: grid; gap: var(--s-1); width: 1.15rem; }
+.btn-menu-barras i { display: block; height: 3px; background: currentColor; transition: transform var(--d-ui) ease, opacity var(--d-ui) ease; }
+.btn-menu[aria-expanded="true"] .btn-menu-barras i:nth-child(1) { transform: translateY(.5rem) rotate(45deg); }
+.btn-menu[aria-expanded="true"] .btn-menu-barras i:nth-child(2) { opacity: 0; }
+.btn-menu[aria-expanded="true"] .btn-menu-barras i:nth-child(3) { transform: translateY(-.5rem) rotate(-45deg); }
+.btn-menu-texto { font-family: var(--titulos); font-weight: 700; }
+
 /* ===== Botones ===== */
 button, .boton-grande, .boton-whatsapp {
-  display: inline-block; padding: .7rem 1.2rem; border: 0; border-radius: 0;
-  font-family: var(--titulos); font-weight: 700; font-size: 1.05rem; line-height: 1.2;
+  display: inline-block; padding: var(--s-3) var(--s-5); border: 0; border-radius: var(--radio);
+  font-family: var(--titulos); font-weight: 700; font-size: var(--t-md); line-height: 1.2;
   text-align: center; text-decoration: none; cursor: pointer;
-  color: var(--noche); background: linear-gradient(180deg, #FFB25C, var(--masa) 55%);
-  box-shadow:
-    0 -4px 0 0 var(--tinta), 0 4px 0 0 var(--tinta), -4px 0 0 0 var(--tinta), 4px 0 0 0 var(--tinta),
+  color: var(--noche); background: linear-gradient(180deg, var(--masa-clara), var(--masa) 55%);
+  box-shadow: var(--px-4-tinta),
     inset 4px 4px 0 0 rgba(255, 255, 255, .38), inset -4px -4px 0 0 rgba(0, 0, 0, .28);
-  transition: transform .14s ease, filter .14s ease, box-shadow .14s ease;
+  transition: transform var(--d-micro) ease, filter var(--d-micro) ease, box-shadow var(--d-micro) ease;
 }
 button:hover:not(:disabled), .boton-grande:hover, .boton-whatsapp:hover { filter: brightness(1.08); transform: translateY(-2px); }
 button:active:not(:disabled), .boton-grande:active, .boton-whatsapp:active {
   transform: translateY(4px);
-  box-shadow:
-    0 -4px 0 0 var(--tinta), 0 4px 0 0 var(--tinta), -4px 0 0 0 var(--tinta), 4px 0 0 0 var(--tinta),
+  box-shadow: var(--px-4-tinta),
     inset 4px 4px 0 0 rgba(0, 0, 0, .28);
 }
-button:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.4); }
-.boton-grande { padding: .9rem 1.6rem; font-size: 1.2rem; }
+/* Botón desactivado legible: antes era opacity .45 + grayscale y, sobre el
+   naranja, el texto quedaba a 1:1 de contraste (medido en «Hacer pedido» con
+   el carrito vacío: la etiqueta desaparecía). Ahora se apaga con relleno crema
+   translúcido y texto por encima de 4.5:1: se lee que está desactivado. */
+button:disabled { cursor: not-allowed; opacity: 1; filter: none;
+  background: rgba(255, 243, 220, .14); color: rgba(255, 243, 220, .78);
+  box-shadow: var(--px-4-tinta); }
+.boton-grande { padding: var(--s-4) var(--s-6); font-size: var(--t-lg); }
 .boton-whatsapp { background: linear-gradient(180deg, #47E389, #25D366 55%); }
 
 /* Barrido de luz al pasar el mouse sobre los botones rellenos */
@@ -152,22 +285,22 @@ button:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.4); }
 /* Botones secundarios: contorno en lugar de relleno */
 button.secundario, #btn-acceso, .pestanas button:not(.activa), .acciones button, .controles button[data-accion="quitar"] {
   color: var(--crema); background: transparent;
-  box-shadow: 0 -3px 0 0 var(--linea), 0 3px 0 0 var(--linea), -3px 0 0 0 var(--linea), 3px 0 0 0 var(--linea);
+  box-shadow: var(--px-3);
 }
 button.secundario:hover:not(:disabled), #btn-acceso:hover, .pestanas button:not(.activa):hover,
 .acciones button:hover:not(:disabled), .controles button[data-accion="quitar"]:hover { background: rgba(255, 243, 220, .12); filter: none; }
 button.secundario:active:not(:disabled), #btn-acceso:active, .acciones button:active:not(:disabled) {
-  box-shadow: 0 -3px 0 0 var(--linea), 0 3px 0 0 var(--linea), -3px 0 0 0 var(--linea), 3px 0 0 0 var(--linea);
+  box-shadow: var(--px-3);
 }
 
 /* ===== Formularios ===== */
-form { display: grid; gap: 1.1rem; }
-label { display: grid; gap: .45rem; font-weight: 500; }
+form { display: grid; gap: var(--s-5); }
+label { display: grid; gap: var(--s-2); font-weight: 500; }
 input, textarea, select {
-  width: 100%; padding: .75rem .85rem; border: 0; border-radius: 0;
+  width: 100%; padding: var(--s-3) var(--s-4); border: 0; border-radius: var(--radio);
   font: inherit; color: var(--crema); caret-color: var(--masa); background: var(--tinta);
-  box-shadow: 0 -3px 0 0 var(--linea), 0 3px 0 0 var(--linea), -3px 0 0 0 var(--linea), 3px 0 0 0 var(--linea);
-  transition: background-color .18s ease, box-shadow .18s ease;
+  box-shadow: var(--px-3);
+  transition: background-color var(--d-micro) ease, box-shadow var(--d-micro) ease;
 }
 input:hover, textarea:hover, select:hover { background: #130743; }
 textarea { resize: vertical; }
@@ -177,34 +310,75 @@ select:disabled { opacity: .5; cursor: not-allowed; }
 input::placeholder, textarea::placeholder { color: rgba(255, 243, 220, .55); }
 input:focus-visible, textarea:focus-visible, select:focus-visible {
   outline: none;
-  box-shadow: 0 -3px 0 0 var(--diamante), 0 3px 0 0 var(--diamante), -3px 0 0 0 var(--diamante), 3px 0 0 0 var(--diamante),
-    0 0 22px rgba(77, 232, 208, .25);
+  box-shadow: var(--px-3-diamante), 0 0 22px rgba(77, 232, 208, .25);
 }
 p[role="alert"] { min-height: 1.5rem; margin: 1rem 0 0; font-weight: 500; color: #FF8A78; }
 p[role="alert"].ok { color: var(--diamante); }
 .insignia { display: inline-block; padding: .1rem .7rem; font-weight: 700; background: var(--diamante); color: var(--noche); }
 
 /* ===== Estructura ===== */
-.contenido { width: 100%; max-width: var(--ancho); margin: 0 auto; padding: 2.5rem 1.25rem 4.5rem;
-  display: flex; flex-direction: column; gap: 4.5rem; }
+.contenido { width: 100%; max-width: var(--ancho); margin: 0 auto; padding: var(--s-7) var(--gutter) var(--s-9);
+  display: flex; flex-direction: column; gap: var(--gap-seccion); }
 
 /* Revelado al hacer scroll: el módulo efectos.js añade .visible cuando la
    sección entra en pantalla. Sin JS todo se ve desde el inicio. */
 [data-reveal] { opacity: 1; }
-.js-anim [data-reveal] { opacity: 0; transform: translateY(1.6rem); }
+.js-anim [data-reveal] { opacity: 0; transform: var(--reveal-desde, translateY(1.6rem)); }
 .js-anim [data-reveal].visible { opacity: 1; transform: none;
-  transition: opacity .55s ease, transform .55s cubic-bezier(.22, .8, .3, 1); }
+  transition: opacity var(--d-reveal) ease, transform var(--d-reveal) var(--e-salida); }
+
+/* ===== Encabezado de sección: componente =====
+   La estructura es siempre la misma y viene dada por selectores, no por
+   clases extra en el HTML: primero la etiqueta de nivel, después el título
+   y por último el subtítulo. El ritmo entre los tres es idéntico en toda
+   la página, que es lo que hace que las secciones se lean como una sola
+   familia y no como piezas sueltas. */
+/* El hueco corto solo aplica cuando debajo viene un subtítulo; si no lo hay
+   (p. ej. *Tu pedido* o *Contacto*), manda el hueco largo de .tarjeta. */
+section:not(.tarjeta) > .etiqueta + h2 { margin-bottom: var(--s-3); }
+section > h2 + .subtitulo { margin-bottom: var(--s-6); }
+/* La línea naranja bajo el título solo aparece en el interior de tarjeta;
+   fuera de ella, la etiqueta ya cumple esa función de anclaje visual. */
+section:not(.tarjeta) > h2::after { display: none; }
 
 /* Etiqueta de sección: como el título de un nivel */
-.etiqueta { display: flex; align-items: center; gap: .6rem; margin: 0 0 .55rem;
-  font-family: var(--titulos); font-size: .95rem; font-weight: 600;
+.etiqueta { display: flex; align-items: center; gap: var(--s-3); margin: 0 0 var(--s-2);
+  font-family: var(--titulos); font-size: var(--t-sm); font-weight: 700;
   letter-spacing: .18em; text-transform: uppercase; color: var(--masa); }
 .etiqueta::before { content: ""; flex: none; width: .7rem; height: .7rem; background: currentColor;
   box-shadow: .35rem .35rem 0 rgba(245, 144, 47, .3); animation: pulso-etiqueta 2.6s ease-in-out infinite; }
 @keyframes pulso-etiqueta { 50% { opacity: .45; } }
 
+/* Conector-píxel entre secciones: una fila de guijarros que se encienden en
+   cascada cuando la sección entra en pantalla. Sustituye al separador plano
+   por algo con carácter de videojuego, sin añadir elementos al HTML (va en el
+   ::after de la etiqueta solo cuando hay subtítulo debajo). Se apaga con
+   prefers-reduced-motion. */
+section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 3px; min-width: 2rem;
+  background-image: repeating-linear-gradient(90deg, currentColor 0 .5rem, transparent .5rem 1.4rem);
+  opacity: .35; }
+@media (prefers-reduced-motion: no-preference) {
+  .js-anim [data-reveal] .etiqueta::after { opacity: 0; }
+  .js-anim [data-reveal].visible .etiqueta::after { animation: guijarro 1.6s var(--e-salida) forwards; }
+}
+@keyframes guijarro { 0% { opacity: 0; background-position-x: -1.4rem; } 40% { opacity: .5; } 100% { opacity: .35; background-position-x: 0; } }
+
+/* ===== Cifras animadas de la portada =====
+   Cada cifra respira al entrar en pantalla y su número recibe un pequeño
+   rebote (efectos.js cuenta desde 0 hasta el valor real). El halo cálido
+   pulsante da presencia al marcador sin gritar. */
+.cifras li { position: relative; }
+.js-anim .cifras li.visible b { animation: cifra-entra .6s var(--e-rebote) backwards;
+  animation-delay: calc(var(--ci, 0) * 90ms); }
+@keyframes cifra-entra { 0% { transform: translateY(.5rem) scale(.9); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  .cifras b { text-shadow: 2px 2px 0 rgba(0, 0, 0, .4), 0 0 22px rgba(245, 144, 47, .0); }
+  .js-anim .cifras li.visible b { animation: cifra-entra .6s var(--e-rebote) backwards, cifra-halo 3.4s 0.6s ease-in-out infinite; }
+}
+@keyframes cifra-halo { 0%, 100% { text-shadow: 2px 2px 0 rgba(0, 0, 0, .4), 0 0 14px rgba(245, 144, 47, .25); } 50% { text-shadow: 2px 2px 0 rgba(0, 0, 0, .4), 0 0 26px rgba(245, 144, 47, .5); } }
+
 .tarjeta {
-  width: 100%; padding: 1.9rem; position: relative; overflow: hidden;
+  width: 100%; padding: clamp(1.4rem, 3vw, 2.2rem); position: relative; overflow: hidden;
   background: linear-gradient(165deg, #2A1785, var(--pantalla) 48%, #1D0E63);
   box-shadow: var(--sombra-dura), var(--sombra-caida), inset 0 1px 0 rgba(255, 255, 255, .09);
 }
@@ -217,86 +391,258 @@ p[role="alert"].ok { color: var(--diamante); }
   background: linear-gradient(115deg, transparent 30%, rgba(255, 243, 220, .14) 48%, transparent 62%);
   transform: translateX(-120%); pointer-events: none; animation: destello 1.1s .35s ease-out forwards; }
 @keyframes destello { to { transform: translateX(120%); } }
-.tarjeta > h2 { margin-bottom: 1.6rem; }
-.tarjeta > h2::after { content: ""; display: block; width: 3.6rem; height: .35rem; margin-top: .55rem;
+.tarjeta > h2 { margin-bottom: var(--s-6); }
+.tarjeta > h2::after { content: ""; display: block; width: 3.6rem; height: .35rem; margin-top: var(--s-2);
   background: linear-gradient(90deg, var(--masa), transparent); box-shadow: 2px 2px 0 rgba(0, 0, 0, .3); }
-.subtitulo { max-width: 40rem; margin-bottom: 1.8rem; font-size: 1.05rem; color: var(--suave); }
+.subtitulo { max-width: 44rem; margin-bottom: var(--s-6); font-size: var(--t-md); color: var(--suave); }
 #acceso { max-width: 30rem; margin-inline: auto; }
-.pestanas { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+.pestanas { display: flex; gap: var(--s-4); margin-bottom: var(--s-6); }
 .pestanas button { flex: 1; }
-#vista-panel p { margin-bottom: .8rem; }
+#vista-panel p { margin-bottom: var(--s-3); }
 
 /* ===== Portada: pantalla de título ===== */
-.hero { display: grid; gap: 3rem; align-items: center; position: relative; }
-@media (min-width: 56rem) { .hero { grid-template-columns: 1.05fr .95fr; } }
-/* Galletas flotantes alrededor de la portada */
-.chispa { position: absolute; width: 3.6rem; height: 3.6rem; pointer-events: none; opacity: .9;
-  filter: drop-shadow(0 .5rem .6rem rgba(0, 0, 0, .45)); z-index: -1; }
-.chispa img { width: 100%; height: 100%; object-fit: contain; }
-.chispa-1 { top: -1.5rem; right: 8%; animation: flotar 5.5s ease-in-out infinite; }
-.chispa-2 { bottom: -1rem; left: 42%; width: 2.8rem; height: 2.8rem; animation: flotar 7s ease-in-out -2s infinite; }
-.chispa-3 { top: 44%; right: -1.2rem; width: 3.1rem; height: 3.1rem; animation: flotar 6.2s ease-in-out -4s infinite; }
+.hero { display: grid; gap: var(--s-8); align-items: center; position: relative; }
+@media (min-width: 56rem) { .hero { grid-template-columns: var(--col-parejas); } }
 @keyframes flotar { 50% { transform: translateY(-.9rem) rotate(6deg); } }
-.vidas { display: flex; gap: .4rem; margin: 0 0 1.4rem; }
+
+/* ===== Aura de portada: la "pantalla de título" respira =====
+   Tres capas de ambiente que dan vida a la portada sin robarle el protagonismo
+   al titular: (1) un resplandor cálido de horno, (2) galletas pixel-art que
+   flotan con paralaje y parpadeo, y (3) un halo que late suavemente. Todo es
+   decorativo (aria-hidden) y se apaga con prefers-reduced-motion. */
+.hero-aura { position: absolute; inset: -6% -4%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(42rem 30rem at 12% 88%, rgba(245, 144, 47, .17), transparent 62%),
+    radial-gradient(34rem 26rem at 88% 6%, rgba(77, 232, 208, .10), transparent 60%),
+    radial-gradient(26rem 22rem at 66% 96%, rgba(229, 65, 43, .12), transparent 58%);
+  filter: blur(2px); opacity: .95; }
+@media (prefers-reduced-motion: no-preference) {
+  .js-anim .hero-aura { animation: aura-respirar 11s ease-in-out infinite; }
+}
+@keyframes aura-respirar { 0%, 100% { opacity: .72; transform: scale(1); } 50% { opacity: 1; transform: scale(1.035); } }
+
+/* Galletas pixel-art flotantes: son <span> con un SVG de 16×16 reutilizado
+   (#galleta-pixel). Cada una tiene su propio ritmo de flotación y su propio
+   parpadeo de brillo; efectos.js les mueve --mx/--my con el puntero para el
+   paralaje de profundidad. Nunca interceptan el ratón. */
+.galleta-flotante { position: absolute; z-index: -1; pointer-events: none; line-height: 0;
+  --prof: 10;
+  filter: drop-shadow(0 0 14px rgba(245, 144, 47, .5)) drop-shadow(0 6px 10px rgba(0, 0, 0, .45));
+  /* Paralaje de profundidad con el puntero. Va en el SPAN (translate) y el
+     flotar vive en el svg interior: son capas distintas, así que las dos
+     transformaciones conviven sin pisarse (si estuvieran en el mismo elemento,
+     las keyframes de flotar escribirían translate y ganarían siempre).
+     --par-x/--par-y llegan en px desde efectos.js (±1px) y aquí se multiplica
+     UNA vez por la profundidad de cada galleta: --prof decide cuánto viaja
+     cada una (mayor = más cerca). Un calc(length * number) es el único formato
+     válido; un calc(number * number * px) se descartaría en silencio. */
+  translate: calc(var(--par-x, 0px) * var(--prof)) calc(var(--par-y, 0px) * var(--prof));
+  transition: translate .6s var(--e-salida); }
+.galleta-flotante svg { display: block; width: 100%; height: 100%; }
+.gf-1 { top: 4%; right: 30%; width: 3.4rem; height: 3.4rem; opacity: .9; --prof: 16; }
+.gf-2 { bottom: 16%; left: -1.2rem; width: 2.6rem; height: 2.6rem; opacity: .72; --prof: -9; }
+.gf-3 { top: 42%; right: -1rem; width: 3rem; height: 3rem; opacity: .82; --prof: 12; }
+@media (max-width: 62rem) { .gf-2, .gf-3 { display: none; } .gf-1 { top: auto; bottom: 2%; right: 4%; width: 2.8rem; height: 2.8rem; } }
+@media (prefers-reduced-motion: no-preference) {
+  .js-anim .gf-1 svg { animation: galleta-1 7s ease-in-out infinite; }
+  .js-anim .gf-2 svg { animation: galleta-2 9s ease-in-out -2s infinite; }
+  .js-anim .gf-3 svg { animation: galleta-3 8s ease-in-out -4s infinite; }
+  .js-anim .gf-1 { animation: brillo-galleta 3.4s ease-in-out infinite; }
+  .js-anim .gf-3 { animation: brillo-galleta 4.2s ease-in-out -1.2s infinite; }
+}
+@keyframes galleta-1 { 0%, 100% { translate: 0 0; rotate: -4deg; } 50% { translate: 0 -1.1rem; rotate: 5deg; } }
+@keyframes galleta-2 { 0%, 100% { translate: 0 0; rotate: 7deg; } 50% { translate: .5rem -.8rem; rotate: -3deg; } }
+@keyframes galleta-3 { 0%, 100% { translate: 0 0; rotate: -8deg; } 50% { translate: -.4rem -1.3rem; rotate: 4deg; } }
+@keyframes brillo-galleta { 0%, 100% { filter: drop-shadow(0 0 10px rgba(245, 144, 47, .35)) drop-shadow(0 6px 10px rgba(0, 0, 0, .45)); } 50% { filter: drop-shadow(0 0 22px rgba(255, 178, 92, .75)) drop-shadow(0 6px 10px rgba(0, 0, 0, .45)); } }
+
+.vidas { display: flex; gap: var(--s-1); margin: 0 0 var(--s-6); }
 .vidas span { width: 1.8rem; height: 1.8rem; background: var(--corazon);
   filter: drop-shadow(0 0 10px rgba(229, 65, 43, .55));
   -webkit-mask: var(--icono-corazon) center / 100% 100% no-repeat; mask: var(--icono-corazon) center / 100% 100% no-repeat; }
-.gancho { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .55rem; margin: 0 0 .9rem;
-  font-size: .95rem; letter-spacing: .12em; text-transform: uppercase; color: var(--suave); }
+.gancho { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-2); margin: 0 0 var(--s-4);
+  font-size: var(--t-sm); letter-spacing: .12em; text-transform: uppercase; color: var(--suave); }
 .gancho strong { color: var(--masa); }
-.hero h2 { margin-bottom: 1.1rem; font-size: clamp(2.2rem, 4.6vw, 3.4rem); }
-.hero h2 em { font-style: normal;
+.hero h1 { margin-bottom: var(--s-4); }
+.hero h1 em { font-style: normal;
   background: linear-gradient(92deg, var(--masa), var(--corazon) 55%, #FF7A9C);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 0 18px rgba(245, 144, 47, .35)); }
-.hero-texto > p:not(.vidas):not(.gancho) { max-width: 34rem; font-size: 1.12rem; color: var(--suave); }
-.hero-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 1.4rem 1.8rem; margin-top: 1.8rem; }
+.hero-texto > p:not(.vidas):not(.gancho) { max-width: 34rem; font-size: var(--t-md); color: var(--suave); }
+.hero-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-5) var(--s-6); margin-top: var(--s-6); }
 .enlace-secundario { color: var(--crema); font-weight: 500; text-underline-offset: .35em; }
 .enlace-secundario:hover { color: var(--masa); }
 /* Motivos de confianza bajo las acciones */
-.confianza { list-style: none; display: flex; flex-wrap: wrap; gap: .8rem 1.6rem; margin: 1.9rem 0 0; padding: 0; }
-.confianza li { display: flex; align-items: center; gap: .55rem; font-size: .97rem; color: var(--suave); }
+.confianza { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-6); margin: var(--s-6) 0 0; padding: 0; }
+.confianza li { display: flex; align-items: center; gap: var(--s-2); font-size: var(--t-sm); color: var(--suave); }
 .confianza li::before { content: "✓"; flex: none; display: grid; place-items: center;
-  width: 1.4rem; height: 1.4rem; font-family: var(--titulos); font-weight: 700; font-size: .95rem;
+  width: 1.4rem; height: 1.4rem; font-family: var(--titulos); font-weight: 700; font-size: var(--t-sm);
   background: var(--diamante); color: var(--noche); box-shadow: 2px 2px 0 rgba(0, 0, 0, .35); }
-.hero-pantalla { position: relative; margin: 0; padding: .8rem; background: #F9ECDC;
+/* Cifras del negocio: pruebas concretas bajo la portada */
+.cifras { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4) var(--s-5); margin: var(--s-7) 0 0; padding: var(--s-5) 0 0; border-top: 3px dashed var(--linea-suave); }
+/* A 2 columnas (móvil/estrecho) cada celda respira: ahí $6.000 cabe holgado.
+   A 4 columnas recién cuando cada columna alcanza ~9rem de ancho útil; por
+   debajo, saltar a 4 comprime las cifras y $6.000 desborda su celda. */
+@media (min-width: 47rem) { .cifras { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.cifras li { display: grid; align-items: start; gap: var(--s-1); }
+/* inline-block permite el transform de la animación de entrada; align-self:start
+   evita que una etiqueta que envuelve a dos líneas (en columnas 2×2) desplace el número. */
+/* La cifra es un <b> (inline) dentro de un <li> grid: sin just-self:start se
+   estiraría a todo el ancho de la columna, porque en grid los hijos inline se
+   comportan como cajas de rejilla. justify-self:start la encoge a su glifo. */
+.cifras li > b { justify-self: start; white-space: nowrap;
+  font-family: var(--titulos); font-size: var(--t-num); line-height: 1; color: var(--masa);
+  letter-spacing: -.02em; text-shadow: 2px 2px 0 rgba(0, 0, 0, .4); }
+/* La cifra escala según su columna (container query), no según el viewport:
+   así $6.000 siempre cabe aunque la rejilla tenga 4 columnas angostas. */
+.cifras li { container-type: inline-size; }
+@container (max-width: 8.5rem) { .cifras li > b { font-size: clamp(1.35rem, 14cqi, var(--t-num)); letter-spacing: -.03em; } }
+.cifras span { font-size: var(--t-xs); color: var(--suave); text-transform: uppercase; letter-spacing: .06em; }
+.hero-pantalla { position: relative; margin: 0; padding: var(--s-3); background: #F9ECDC;
   transform: rotate(-.8deg);
-  box-shadow: 0 -4px 0 0 var(--masa), 0 4px 0 0 var(--masa), -4px 0 0 0 var(--masa), 4px 0 0 0 var(--masa),
-    14px 18px 0 0 rgba(0, 0, 0, .4), 0 0 60px rgba(245, 144, 47, .22);
-  transition: transform .3s ease, box-shadow .3s ease; }
+  box-shadow: var(--px-4-masa), 14px 18px 0 0 rgba(0, 0, 0, .4), 0 0 60px rgba(245, 144, 47, .22);
+  transition: transform var(--d-ui) ease, box-shadow var(--d-ui) ease; }
 .hero-pantalla:hover { transform: rotate(0deg) translateY(-4px);
-  box-shadow: 0 -4px 0 0 var(--masa), 0 4px 0 0 var(--masa), -4px 0 0 0 var(--masa), 4px 0 0 0 var(--masa),
-    18px 24px 0 0 rgba(0, 0, 0, .45), 0 0 80px rgba(245, 144, 47, .32); }
+  box-shadow: var(--px-4-masa), 18px 24px 0 0 rgba(0, 0, 0, .45), 0 0 80px rgba(245, 144, 47, .32); }
 .hero-pantalla img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
-.hero-pegatina { position: absolute; left: -1.1rem; bottom: 1.5rem; padding: .55rem 1rem;
+.hero-pegatina { position: absolute; left: -1.1rem; bottom: var(--s-6); padding: var(--s-2) var(--s-4);
   transform: rotate(-5deg); background: var(--corazon); color: #fff;
   font-family: var(--titulos); font-weight: 700; letter-spacing: .04em;
   box-shadow: 4px 4px 0 rgba(0, 0, 0, .45); animation: flotar 5s ease-in-out infinite; }
 
 /* ===== Cinta de sabores ===== */
-.cinta { overflow: hidden; margin-inline: -1.25rem; padding: .7rem 0;
+.cinta { overflow: hidden; margin-inline: calc(var(--gutter) * -1); padding: var(--s-3) 0;
   background: linear-gradient(180deg, var(--tinta), #090326);
   border-block: 3px solid var(--pantalla-alta);
   box-shadow: inset 0 0 24px rgba(0, 0, 0, .5), 0 0 30px rgba(245, 144, 47, .08);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
-.cinta-pista { display: flex; width: max-content; gap: 1.4rem; align-items: center;
-  font-family: var(--titulos); font-size: 1.05rem; letter-spacing: .04em; white-space: nowrap;
+
+/* ===== Banda de sección: ritmo editorial =====
+   Alterna el fondo de cada bloque para dar respiración (patrón de las tiendas
+   D2C premium). Cada banda es una capa de gradiente + rejilla pixel + viñeta,
+   todas detrás del contenido. La numeración "Nivel 0X" la pinta el JS al
+   reordenar las secciones, así que el orden del HTML es libre. */
+.banda { position: relative; isolation: isolate; padding-block: var(--s-8); border-radius: 0; }
+.banda::before { content: ""; position: absolute; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(50, 32, 159, .34), rgba(12, 5, 53, .1) 42%, rgba(12, 5, 53, .5)),
+    repeating-linear-gradient(0deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px);
+  box-shadow: inset 0 1px 0 rgba(255, 243, 220, .06), inset 0 -1px 0 rgba(0, 0, 0, .35); }
+.banda::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(70rem 30rem at 50% -6rem, rgba(245, 144, 47, .1), transparent 68%); }
+.banda-par { --banda-tinte: rgba(245, 144, 47, .05); }
+.banda-par::before { background:
+    linear-gradient(180deg, rgba(245, 144, 47, .07), rgba(12, 5, 53, .12) 46%, rgba(12, 5, 53, .5)),
+    repeating-linear-gradient(0deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px);
+  box-shadow: inset 0 1px 0 rgba(255, 243, 220, .06), inset 0 -1px 0 rgba(0, 0, 0, .35); }
+/* Esquinas pixel en los cantos de cada banda: la firma de marca repetida. */
+.banda-esquinas { position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  --esq: linear-gradient(var(--masa), var(--masa));
+  --esq-suave: linear-gradient(rgba(255, 243, 220, .5), rgba(255, 243, 220, .5)); }
+.banda-esquinas::before, .banda-esquinas::after { content: ""; position: absolute; width: 2.6rem; height: .35rem; background: var(--esq); }
+.banda-esquinas::before { top: 0; left: var(--gutter); }
+.banda-esquinas::after { bottom: 0; right: var(--gutter); }
+
+/* ===== Comunidad: bento de prueba social =====
+   Mosaico asimétrico (patrón bento) con foto real, cifras y una frase de la
+   marca. Da prueba social sin inventar reseñas: usa fotos reales y datos
+   verificables del catálogo. */
+.bento { list-style: none; margin: var(--s-6) 0 0; padding: 0; display: grid; gap: var(--s-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; }
+@media (min-width: 52rem) {
+  .bento { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 10rem; }
+  .bento > .bento-foto { grid-column: span 2; grid-row: span 2; }
+  .bento > .bento-cita { grid-column: span 2; }
+  .bento > .bento-dato { grid-column: span 1; }
+  .bento > .bento-cta { grid-column: span 1; }
+}
+.bento > li { position: relative; overflow: hidden; padding: var(--s-5);
+  background: linear-gradient(165deg, rgba(50, 32, 159, .6), rgba(12, 5, 53, .8));
+  box-shadow: var(--sombra-tarjeta); display: flex; flex-direction: column; justify-content: flex-end; gap: var(--s-2);
+  transition: transform var(--d-ui) ease, box-shadow var(--d-ui) ease; }
+.bento > li:hover { transform: translateY(-4px); box-shadow: var(--px-4-masa), 10px 14px 0 0 rgba(0, 0, 0, .4); }
+.bento-foto { padding: 0 !important; grid-column: 1 / -1; }
+/* El <figure> trae margen por defecto del navegador: se anula para que la foto
+   llene su celda del bento de borde a borde. */
+.bento-foto figure { margin: 0; height: 100%; }
+.bento-foto img { width: 100%; height: 100%; object-fit: cover; display: block;
+  filter: saturate(1.05) contrast(1.02); transition: transform var(--d-reveal) var(--e-salida); }
+.bento-foto:hover img { transform: scale(1.05); }
+.bento-foto figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: var(--s-5) var(--s-4) var(--s-3);
+  background: linear-gradient(transparent, rgba(6, 2, 24, .85));
+  font-family: var(--titulos); font-size: var(--t-sm); letter-spacing: .04em; color: var(--crema); }
+.bento-dato { justify-content: center; }
+.bento-dato b { font-family: var(--titulos); font-size: var(--t-num-grande); line-height: 1; color: var(--masa);
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, .4); }
+.bento-dato span { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .06em; color: var(--suave); }
+.bento-cita { justify-content: center; }
+.bento-cita p { margin: 0; font-size: var(--t-md); line-height: 1.5; color: var(--crema); }
+.bento-cita p::before { content: "\201C"; font-family: var(--titulos); font-size: var(--t-2xl); line-height: 0; color: var(--masa); margin-right: .1em; }
+.bento-cita cite { font-style: normal; font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .12em; text-transform: uppercase; color: var(--masa); }
+.bento-cta { justify-content: center; align-items: flex-start; background: linear-gradient(165deg, rgba(245, 144, 47, .18), rgba(12, 5, 53, .8)) !important; }
+.bento-cta b { font-family: var(--titulos); font-size: var(--t-lg); color: var(--crema); }
+.bento-cta a { color: var(--masa); font-weight: 600; text-underline-offset: .3em; }
+.bento-cta a:hover { color: var(--masa-clara); }
+
+/* El bento a dos columnas no cabe en un móvil: medido a 360 px, la celda queda
+   en 146 px y dentro tiene que entrar el precio grande (148 px de texto) y la
+   llamada de la comunidad (221 px), que el recorte de la celda partía por la
+   mitad. Por debajo de 34rem el bento pasa a una columna y cada celda usa el
+   ancho completo de la sección. */
+@media (max-width: 34rem) {
+  .bento { grid-template-columns: 1fr; }
+}
+
+.cinta-pista { display: flex; width: max-content; gap: var(--s-5); align-items: center;
+  font-family: var(--titulos); font-size: var(--t-md); letter-spacing: .04em; white-space: nowrap;
   animation: desfile 26s linear infinite; }
 .cinta-pista span { color: var(--crema); }
 .cinta-pista b { color: var(--masa); }
 .cinta:hover .cinta-pista { animation-play-state: paused; }
 @keyframes desfile { to { transform: translateX(-50%); } }
 
+/* ===== Filtros del catálogo ===== */
+.filtros { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin: 0 0 var(--s-6); }
+.filtro { padding: var(--s-2) var(--s-4); font-size: var(--t-sm); color: var(--crema); background: transparent;
+  box-shadow: var(--px-3-suave);
+  transition: background-color var(--d-micro) ease, color var(--d-micro) ease, transform var(--d-micro) ease; }
+.filtro:hover { background: rgba(255, 243, 220, .1); transform: translateY(-2px); }
+.filtro.activo { background: var(--masa); color: var(--noche); box-shadow: var(--px-3-tinta); }
+.filtros-contador { margin-left: auto; font-size: var(--t-sm); color: var(--suave); }
+.filtros-contador:empty { display: none; }
+
+/* ===== Secciones de familia dentro del catálogo =====
+   El catálogo se divide en bloques (Clásicas, Fusiones, Edición especial) para
+   que el cliente distinga de un vistazo cada grupo. Cada sección lleva su
+   cabecera y una lista propia de tarjetas. */
+.familia-cabecera { grid-column: 1 / -1; padding: var(--s-5) 0 var(--s-2);
+  border-top: 3px dashed var(--linea-suave); }
+.familia-cabecera:first-child { border-top: 0; padding-top: 0; }
+.familia-cabecera .etiqueta { margin-bottom: var(--s-1); }
+.familia-cabecera h3 { margin-bottom: var(--s-1); font-size: var(--t-xl); color: var(--crema); }
+.familia-desc { margin: 0; max-width: 44rem; color: var(--suave); font-size: var(--t-sm); }
+
+/* El botón de categoría activa recibe un pulso corto para confirmar la acción
+   (se reinicia con una clase que pone productos.js justo al pulsar). */
+.js-anim .filtro.pulso { animation: pulso-filtro var(--d-reveal) var(--e-rebote); }
+@keyframes pulso-filtro { 0% { transform: scale(1); } 40% { transform: scale(1.07); } 100% { transform: scale(1); } }
+
 /* ===== Catálogo: elige tu sabor ===== */
-#lista-productos { list-style: none; margin: 0 0 1.5rem; padding: 1.2rem 6px 1rem;
-  display: grid; gap: 2.4rem 2rem; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); }
+#lista-productos { list-style: none; margin: 0 0 var(--s-6); padding: var(--s-5) 6px var(--s-4);
+  display: grid; gap: var(--gap-seccion) var(--gap-col); grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); }
 #lista-productos .producto {
   --sprite: 7.2rem; --zona: calc(var(--sprite) + 2.7rem);
-  position: relative; display: grid; align-items: center; gap: 1rem;
-  grid-template-columns: 1fr auto; grid-template-rows: 1fr auto auto;
-  grid-template-areas: "info info" "precio agregar" "acciones acciones";
-  padding: calc(var(--zona) + .3rem) 1.4rem 1.4rem;
+  position: relative; display: grid; align-items: center; gap: var(--s-4);
+  /* Precio y botón van en filas propias: con el precio a tamaño de cifra y la
+     tarjeta a tres columnas (273px útiles) no caben en la misma fila, y el
+     botón se aplastaba hasta cortar «＋ Carrito» a «＋ Car». El precio manda
+     su línea y el botón ocupa el ancho completo, como un canto de compra. */
+  grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 1fr auto auto auto;
+  grid-template-areas: "info info" "precio precio" "agregar agregar" "acciones acciones";
+  padding: calc(var(--zona) + var(--s-1)) var(--s-6) var(--s-6);
   /* Cada tarjeta se tiñe con el color de su sabor */
   background:
     radial-gradient(ellipse calc(var(--sprite) * .6) .8rem at 50% calc(var(--zona) - 1.2rem), rgba(0, 0, 0, .4), transparent 72%),
@@ -304,21 +650,20 @@ p[role="alert"].ok { color: var(--diamante); }
       color-mix(in srgb, var(--sabor, #F5902F) 18%, var(--pantalla-alta)) 0,
       color-mix(in srgb, var(--sabor, #F5902F) 18%, var(--pantalla-alta)) var(--zona),
       color-mix(in srgb, var(--sabor, #F5902F) 9%, var(--pantalla)) var(--zona));
-  box-shadow: var(--sombra-dura), 8px 10px 0 0 rgba(0, 0, 0, .35);
+  box-shadow: var(--sombra-tarjeta);
   transform: perspective(700px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--lift, 0px));
-  transition: transform .18s ease, box-shadow .22s ease, filter .22s ease;
+  transition: transform var(--d-micro) ease, box-shadow var(--d-ui) ease, filter var(--d-ui) ease;
 }
 @media (prefers-reduced-motion: no-preference) {
   #lista-productos .producto:hover, #lista-productos .producto:focus-within {
     --lift: -6px;
-    box-shadow: 0 -4px 0 0 var(--masa), 0 4px 0 0 var(--masa), -4px 0 0 0 var(--masa), 4px 0 0 0 var(--masa),
-      14px 18px 0 0 rgba(0, 0, 0, .45),
+    box-shadow: var(--px-4-masa), 14px 18px 0 0 rgba(0, 0, 0, .45),
       0 0 34px color-mix(in srgb, var(--sabor, #F5902F) 38%, transparent);
     filter: saturate(1.15);
   }
 }
 #lista-productos .producto::before, #lista-productos .producto::after {
-  content: ""; position: absolute; top: 1.4rem; left: 50%; width: var(--sprite); height: var(--sprite); margin-left: calc(var(--sprite) / -2);
+  content: ""; position: absolute; top: var(--s-6); left: 50%; width: var(--sprite); height: var(--sprite); margin-left: calc(var(--sprite) / -2);
   pointer-events: none;
   -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
 }
@@ -336,21 +681,22 @@ p[role="alert"].ok { color: var(--diamante); }
   filter: drop-shadow(0 .55rem .45rem rgba(0, 0, 0, .45));
 }
 .producto > div:first-child { grid-area: info; align-self: start; }
-.producto > b { grid-area: precio; font-family: var(--titulos); font-size: 1.6rem; color: var(--masa);
+.producto > b { grid-area: precio; font-family: var(--titulos); font-size: var(--t-num); color: var(--masa);
   text-shadow: 2px 2px 0 rgba(0, 0, 0, .35); }
-.producto > .btn-agregar { grid-area: agregar; padding: .6rem 1rem; font-size: 1rem; white-space: nowrap; }
+.producto > .btn-agregar { grid-area: agregar; justify-self: stretch; text-align: center;
+  padding: var(--s-2) var(--s-4); font-size: var(--t-base); white-space: nowrap; }
 .producto > .acciones { grid-area: acciones; }
-.producto strong { display: block; margin-bottom: .4rem; font-family: var(--titulos); font-size: 1.4rem; line-height: 1.15; }
+.producto strong { display: block; margin-bottom: var(--s-1); font-family: var(--titulos); font-size: var(--t-xl); line-height: 1.15; }
 .producto br { display: none; }
-.producto small { display: block; font-size: .93rem; line-height: 1.45; color: var(--suave); }
+.producto small { display: block; font-size: var(--t-sm); line-height: 1.45; color: var(--suave); }
 
 /* Color de cada sabor (los mismos del presupuesto del modelo DYME) */
 [data-sabor="monster"]         { --sabor: #2F8CFF; --chips: #0B2A66; }
 [data-sabor="red-velvet"]      { --sabor: #E02A33; --chips: #5E0D15; }
 [data-sabor="chocolate"]       { --sabor: #7A3416; --chips: #2A0F06; }
-[data-sabor="arequipe"]        { --sabor: #FF9A2A; --chips: #9A4C0A; }
-[data-sabor="klim"]            { --sabor: #FFD21F; --chips: #E5412B; }
 [data-sabor="special-edition"] { --sabor: #3D3D52; --chips: linear-gradient(90deg, #2F8CFF, #E02A33, #FF9A2A, #FFD21F); }
+[data-sabor="areklim"]        { --sabor: #F2B33D; --chips: #6B3410; }
+[data-sabor="red-monster"]    { --sabor: #E02A33; --chips: #2F8CFF; }
 
 @media (prefers-reduced-motion: no-preference) {
   .vidas span { animation: vida .5s steps(1) backwards; animation-delay: calc(var(--i) * .28s + .2s); }
@@ -367,80 +713,233 @@ p[role="alert"].ok { color: var(--diamante); }
 .galleta-voladora { position: fixed; z-index: 60; pointer-events: none; object-fit: contain;
   filter: drop-shadow(0 .4rem .5rem rgba(0, 0, 0, .4)); }
 
+/* Punto de bienvenida que cruza la pantalla al cargar (lo crea efectos.js) */
+.punto-bienvenida { position: fixed; top: 50%; left: -3rem; z-index: 70; width: 1.6rem; height: 1.6rem;
+  margin-top: -.8rem; pointer-events: none; background: var(--masa);
+  box-shadow: 0 0 24px rgba(245, 144, 47, .8);
+  animation: bienvenida 1.5s cubic-bezier(.3, .7, .4, 1) forwards; }
+@keyframes bienvenida {
+  0% { left: -3rem; opacity: 0; }
+  12% { opacity: 1; }
+  100% { left: 105%; opacity: 0; }
+}
+
 /* Administración del catálogo */
-#admin-productos { margin-top: 2.5rem; padding: 1.8rem; background: rgba(12, 5, 53, .5);
-  box-shadow: var(--sombra-dura), 8px 10px 0 0 rgba(0, 0, 0, .35); }
+#admin-productos { margin-top: var(--s-8); padding: var(--s-6); background: rgba(12, 5, 53, .5);
+  box-shadow: var(--sombra-tarjeta); }
 #admin-productos form { max-width: 34rem; }
-#admin-productos button + button { margin-left: .6rem; }
+#admin-productos button + button { margin-left: var(--s-2); }
+
+/* ===== Inventario: agotado y quedan pocas ===== */
+/* Un sabor agotado se apaga, pero sigue en el catálogo: el cliente ve que
+   existe y por qué hoy no puede pedirlo (y el obrador lo reactiva en un clic). */
+#lista-productos .producto.agotado { filter: grayscale(.55) brightness(.85); }
+#lista-productos .producto.agotado:hover, #lista-productos .producto.agotado:focus-within {
+  --lift: 0px;
+  box-shadow: var(--sombra-tarjeta);
+  filter: grayscale(.55) brightness(.85);
+}
+.stock { font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .08em; text-transform: uppercase; }
+.stock-pocas { color: var(--masa); }
+.stock-agotado { color: #ff8f7d; }
+.btn-agregar:disabled { opacity: 1; filter: none; }
+.item-carrito .quedan { font-size: var(--t-xs); color: var(--suave); }
+
+/* ===== Medición propia (panel) ===== */
+#resumen-analitica { margin: 0 0 var(--s-4); color: var(--diamante); font-family: var(--titulos);
+  font-size: var(--t-sm); line-height: 1.6; }
+
+/* ===== Cajas Pixel ===== */
+.cajas { list-style: none; margin: 0 0 var(--s-6); padding: 0; display: grid; gap: var(--gap-fila); }
+@media (min-width: 52rem) { .cajas { grid-template-columns: repeat(3, 1fr); } }
+.caja { position: relative; padding: var(--s-6);
+  background: linear-gradient(170deg, rgba(50, 32, 159, .5), rgba(12, 5, 53, .7));
+  box-shadow: var(--sombra-caja);
+  transition: transform var(--d-ui) ease, box-shadow var(--d-ui) ease; }
+.caja:hover { transform: translateY(-5px); box-shadow: var(--sombra-caja-alta); }
+.caja h3 { margin-bottom: var(--s-1); font-size: var(--t-xl); }
+.caja-para { margin: 0 0 var(--s-5); font-family: var(--titulos); font-size: var(--t-sm);
+  letter-spacing: .1em; text-transform: uppercase; color: var(--masa); }
+.caja-precio { margin: 0 0 var(--s-4); font-family: var(--titulos); font-size: var(--t-num-grande); line-height: 1;
+  color: var(--crema); text-shadow: 3px 3px 0 rgba(0, 0, 0, .4); }
+.caja-detalle { margin: 0; color: var(--suave); font-size: var(--t-sm); }
+/* Destacada: el borde naranja y una insignia la diferencian del resto */
+.caja-destacada { box-shadow: var(--sombra-caja), 0 0 0 2px var(--masa); }
+/* Pulso de brillo del borde naranja en la caja destacada ("la más pedida").
+   Solo marca el acento, sin mover la tarjeta, para guiar la elección sin
+   distraer. Se apaga con movimiento reducido. */
+@media (prefers-reduced-motion: no-preference) {
+  .js-anim .cajas.visible .caja-destacada { animation: pulso-destacada 2.8s ease-in-out infinite; }
+}
+@keyframes pulso-destacada {
+  0%, 100% { box-shadow: var(--sombra-caja), 0 0 0 2px var(--masa), 0 0 18px rgba(245, 144, 47, .25); }
+  50% { box-shadow: var(--sombra-caja), 0 0 0 2px var(--masa), 0 0 30px rgba(245, 144, 47, .55); }
+}
+.caja-insignia { position: absolute; top: -.85rem; left: var(--s-6); padding: var(--s-1) var(--s-3);
+  font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .04em;
+  background: var(--masa); color: var(--noche); box-shadow: 3px 3px 0 rgba(0, 0, 0, .4); }
+/* Descuentos por volumen */
+.volumen { padding: var(--s-6); background: rgba(12, 5, 53, .5);
+  box-shadow: var(--px-inferior-masa); }
+.volumen h3 { margin-bottom: var(--s-4); }
+.volumen ul { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: grid; gap: var(--s-2) var(--s-4); }
+@media (min-width: 40rem) { .volumen ul { grid-template-columns: repeat(3, 1fr); } }
+.volumen li { display: flex; flex-direction: column; padding: var(--s-3) var(--s-4); background: var(--tinta);
+  box-shadow: var(--sombra-lista); }
+.volumen li b { font-family: var(--titulos); font-size: var(--t-md); color: var(--crema); }
+.volumen li span { color: var(--diamante); font-weight: 500; }
+.volumen p { margin: 0; font-size: var(--t-xs); color: var(--suave); }
+/* Caja mensual */
+.mensual { display: grid; gap: var(--s-5); align-items: center; margin-top: var(--s-6); padding: var(--s-6);
+  background: linear-gradient(120deg, rgba(245, 144, 47, .16), rgba(229, 65, 43, .1));
+  box-shadow: var(--sombra-dura); }
+@media (min-width: 40rem) { .mensual { grid-template-columns: 1fr auto; } }
+.mensual h3 { margin-bottom: var(--s-1); }
+.mensual p { margin: 0; color: var(--suave); }
+.mensual .boton-grande { justify-self: start; }
+/* Planes de la caja mensual: el precio se lee como una lista de dos opciones */
+.mensual-planes { list-style: none; margin: var(--s-2) 0; padding: 0; }
+.mensual-planes li { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); justify-content: space-between;
+  padding: var(--s-1) 0; border-bottom: 1px dashed rgba(255, 243, 220, .18); }
+.mensual-planes b { color: var(--crema); }
+.mensual-planes span { color: var(--diamante); font-weight: 500; }
+.mensual-nota { font-size: var(--t-xs); }
 
 /* ===== Cómo funciona ===== */
-.pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.6rem; counter-reset: pasos; }
+.pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap-fila); counter-reset: pasos; }
 @media (min-width: 52rem) { .pasos { grid-template-columns: repeat(3, 1fr); } }
-.paso { position: relative; padding: 1.6rem 1.4rem 1.4rem;
+.paso { position: relative; padding: var(--s-6) var(--s-6) var(--s-6);
   background: linear-gradient(170deg, rgba(50, 32, 159, .55), rgba(12, 5, 53, .6));
-  box-shadow: var(--sombra-dura), 8px 10px 0 0 rgba(0, 0, 0, .3);
-  transition: transform .2s ease, box-shadow .2s ease; }
+  box-shadow: var(--sombra-caja);
+  transition: transform var(--d-ui) ease, box-shadow var(--d-ui) ease; }
 .paso:hover { transform: translateY(-5px);
-  box-shadow: var(--sombra-dura), 12px 16px 0 0 rgba(0, 0, 0, .38), 0 0 30px rgba(245, 144, 47, .15); }
-.paso-num { display: block; margin-bottom: .7rem; font-family: var(--titulos); font-size: 2.6rem;
+  box-shadow: var(--px-4), 12px 16px 0 0 rgba(0, 0, 0, .38), 0 0 30px rgba(245, 144, 47, .15); }
+.paso-num { display: block; margin-bottom: var(--s-3); font-family: var(--titulos); font-size: var(--t-num-grande);
   font-weight: 700; line-height: 1; color: var(--masa); text-shadow: 4px 4px 0 rgba(0, 0, 0, .45); }
 .pasos li:nth-child(2) .paso-num { color: var(--diamante); }
 .pasos li:nth-child(3) .paso-num { color: #FF8A78; }
-.paso h3 { margin-bottom: .5rem; }
-.paso p { margin: 0; color: var(--suave); font-size: .98rem; }
+.paso h3 { margin-bottom: var(--s-2); }
+.paso p { margin: 0; color: var(--suave); font-size: var(--t-sm); }
 /* Flechita pixel entre pasos (solo escritorio) */
 @media (min-width: 52rem) {
   .paso:not(:last-child)::after { content: "▶"; position: absolute; top: 50%; right: -1.35rem;
     transform: translateY(-50%); color: rgba(255, 243, 220, .35); font-size: 1.1rem; }
 }
 
+/* ===== La marca: misión, visión y diferenciación ===== */
+.mision-grid { display: grid; gap: var(--gap-fila); margin-bottom: var(--s-8); }
+@media (min-width: 52rem) { .mision-grid { grid-template-columns: repeat(3, 1fr); } }
+.mision-tarjeta { padding: var(--s-6); background: rgba(12, 5, 53, .45); box-shadow: var(--sombra-tarjeta); }
+.mision-tarjeta h3 { color: var(--masa); margin-bottom: var(--s-2); }
+.mision-tarjeta p { margin: 0; color: var(--suave); font-size: var(--t-sm); }
+.diferencia { display: grid; gap: var(--gap-col); align-items: center; }
+@media (min-width: 52rem) { .diferencia { grid-template-columns: var(--col-texto); } }
+.diferencia-lista { list-style: none; margin: var(--s-4) 0 0; padding: 0; display: grid; gap: var(--s-5); }
+.diferencia-lista li { display: grid; gap: var(--s-1); padding-left: var(--s-6); position: relative; }
+.diferencia-lista li::before { content: ""; position: absolute; left: 0; top: .45rem; width: .7rem; height: .7rem;
+  background: var(--masa); box-shadow: .25rem .25rem 0 rgba(245, 144, 47, .28); }
+.diferencia-lista b { font-family: var(--titulos); font-size: var(--t-md); }
+.diferencia-lista span { color: var(--suave); font-size: var(--t-sm); }
+.diferencia-foto { max-width: 22rem; }
+.diferencia-pie { margin-top: var(--s-2); font-size: var(--t-xs); color: var(--suave); text-align: center; }
+
+/* ===== Estado del pedido (consulta pública) ===== */
+#form-estado { display: grid; gap: var(--s-2); max-width: 34rem; }
+#form-estado label { display: grid; gap: 4px; font-size: var(--t-sm); color: var(--suave); }
+#form-estado input { width: 100%; padding: var(--s-2); font: inherit; color: var(--crema);
+  background: rgba(255, 243, 220, .06); border: 1px solid rgba(255, 243, 220, .22); }
+#form-estado input:focus-visible { outline: 2px solid var(--masa); outline-offset: 1px; }
+#form-estado button { justify-self: start; margin-top: var(--s-1); }
+.estado-resultado { margin-top: var(--s-4); padding: var(--s-4); background: rgba(12, 5, 53, .5);
+  box-shadow: var(--sombra-tarjeta); }
+.estado-nombre { margin: 0 0 4px; font-family: var(--titulos); font-size: var(--t-md); color: var(--masa); }
+.estado-meta { margin: 0; font-size: var(--t-sm); color: var(--suave); }
+.estado-resultado ul { margin: var(--s-2) 0; padding-left: 1.2rem; color: var(--suave); font-size: var(--t-sm); }
+.estado-siguiente { margin: 0; font-size: var(--t-sm); color: var(--diamante); }
+.pie-privacidad { margin-top: var(--s-2); color: var(--suave); font-size: var(--t-xs); opacity: .9; }
+
+/* ===== Preguntas frecuentes ===== */
+.faq { display: grid; gap: var(--s-4); max-width: 48rem; }
+.faq-item { padding: 0; background: rgba(12, 5, 53, .45); box-shadow: var(--sombra-tarjeta); }
+.faq-item summary { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
+  padding: var(--s-4) var(--s-5); cursor: pointer; list-style: none;
+  font-family: var(--titulos); font-size: var(--t-md); color: var(--crema);
+  transition: background-color var(--d-micro) ease, color var(--d-micro) ease; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary:hover { background: rgba(255, 243, 220, .06); }
+.faq-item summary::after { content: "+"; flex: none; font-size: var(--t-xl); line-height: 1; color: var(--masa);
+  transition: transform var(--d-ui) ease; }
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item[open] summary { color: var(--masa); }
+.faq-item p { margin: 0; padding: 0 var(--s-5) var(--s-5); color: var(--suave); font-size: var(--t-sm); }
+.faq-item b { color: var(--crema); }
+
 /* ===== Pedido ===== */
-.pedido-cols { display: grid; gap: 2.8rem; }
-@media (min-width: 48rem) { .pedido-cols { grid-template-columns: 1.05fr .95fr; } }
-.productos { list-style: none; margin: 0 0 1.5rem; padding: 0; display: grid; gap: .9rem; }
-.item-carrito { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .5rem .8rem;
-  padding: .9rem 0; border-bottom: 3px dashed rgba(255, 243, 220, .22); }
-.item-carrito strong { font-family: var(--titulos); font-size: 1.15rem; }
-.item-carrito > span { font-family: var(--titulos); font-size: 1.15rem; color: var(--masa); }
-.controles { grid-column: 1 / -1; display: flex; align-items: center; gap: .8rem; }
-.controles button { width: 2.2rem; height: 2.2rem; padding: 0; font-size: 1.15rem; line-height: 1; }
-.controles > span { min-width: 1.6rem; text-align: center; font-family: var(--titulos); font-size: 1.2rem; }
+.pedido-cols { display: grid; gap: var(--gap-col); }
+@media (min-width: 48rem) { .pedido-cols { grid-template-columns: var(--col-parejas); } }
+/* Las tarjetas recortan lo que se salga (overflow: hidden), así que ningún bloque
+   del carrito puede quedarse con su ancho mínimo: en pantallas de 320 px la fila
+   del carrito —nombre, precio y botones— pedía 254 px en una caja de 221 y el
+   botón de quitar quedaba cortado. Con min-width 0 el nombre del sabor parte en
+   dos líneas y la fila entra entera. */
+.pedido-cols > div { min-width: 0; }
+#lista-carrito .item-carrito { min-width: 0; }
+.productos { list-style: none; margin: 0 0 var(--s-6); padding: 0; display: grid; gap: var(--s-4); }
+.item-carrito { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--s-2) var(--s-3);
+  padding: var(--s-4) 0; border-bottom: 3px dashed rgba(255, 243, 220, .22); }
+.item-carrito strong { font-family: var(--titulos); font-size: var(--t-md); }
+.item-carrito > span { font-family: var(--titulos); font-size: var(--t-md); color: var(--masa); }
+.controles { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--s-3); }
+.controles button { width: 2.2rem; height: 2.2rem; padding: 0; font-size: var(--t-md); line-height: 1; }
+.controles > span { min-width: 1.6rem; text-align: center; font-family: var(--titulos); font-size: var(--t-lg); }
 .controles button[data-accion="quitar"] { margin-left: auto; }
-.total-linea { display: flex; justify-content: space-between; align-items: baseline; margin: 1.4rem 0;
-  padding: .9rem 1.1rem; font-size: 1.1rem; background: rgba(12, 5, 53, .55);
-  box-shadow: inset 0 -3px 0 0 rgba(245, 144, 47, .5); }
-#carrito-total { font-family: var(--titulos); font-size: 2.1rem; color: var(--masa);
+/* Desglose del descuento por volumen: aparece encima de la banda del total
+   solo cuando el carrito ya alcanzó un tramo (lo pinta pedidos.js con el
+   atributo hidden). El ahorro va en el color de confirmación de la marca. */
+.desglose { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); margin: var(--s-4) 0 0;
+  font-size: var(--t-sm); color: var(--suave); }
+.desglose b { font-family: var(--titulos); color: var(--crema); }
+.desglose .ahorro, .desglose .ahorro b { color: var(--diamante); }
+/* Con el desglose delante, la banda del total no necesita su aire de bloque. */
+.desglose:not([hidden]) + .total-linea { margin-top: var(--s-3); }
+/* Aviso del tramo siguiente: el empujón para completar el descuento. */
+.aviso-descuento { margin: var(--s-4) 0 0; padding: var(--s-2) var(--s-3);
+  background: rgba(77, 232, 208, .1); box-shadow: var(--px-3-diamante);
+  font-size: var(--t-sm); color: var(--crema); }
+.total-linea { display: flex; justify-content: space-between; align-items: baseline; margin: var(--s-6) 0;
+  padding: var(--s-4) var(--s-5); font-size: var(--t-md); background: rgba(12, 5, 53, .55);
+  box-shadow: var(--px-inferior-masa); }
+#carrito-total { font-family: var(--titulos); font-size: var(--t-num); color: var(--masa);
   text-shadow: 3px 3px 0 rgba(0, 0, 0, .4); }
 #vacio { color: var(--suave); }
-.confirmacion { margin-top: 1.6rem; padding: 1.3rem; background: rgba(77, 232, 208, .1);
-  box-shadow: 0 -3px 0 0 var(--diamante), 0 3px 0 0 var(--diamante), -3px 0 0 0 var(--diamante), 3px 0 0 0 var(--diamante);
-  animation: pop .45s cubic-bezier(.2, .9, .3, 1.4); }
+.confirmacion { margin-top: var(--s-6); padding: var(--s-5); background: rgba(77, 232, 208, .1);
+  box-shadow: var(--px-3-diamante);
+  animation: pop var(--d-ui) var(--e-rebote); }
 @keyframes pop { from { transform: scale(.94); opacity: 0; } }
-.confirmacion p { display: flex; align-items: flex-start; gap: .8rem; }
+.confirmacion p { display: flex; align-items: flex-start; gap: var(--s-3); }
 .confirmacion .icono { flex: none; width: 1.7rem; height: 1.5rem; margin-top: .15rem; color: var(--diamante); }
 
 /* Listas de administración (pedidos y usuarios) */
 .productos:not(#lista-productos) .producto { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-  gap: .7rem 1.2rem; padding: 1.1rem 1.2rem; background: var(--tinta);
-  box-shadow: 0 -3px 0 0 var(--linea), 0 3px 0 0 var(--linea), -3px 0 0 0 var(--linea), 3px 0 0 0 var(--linea); }
-.productos:not(#lista-productos) .producto strong { font-size: 1.15rem; }
-.acciones { display: flex; flex-wrap: wrap; gap: .8rem; }
-.acciones button { padding: .45rem .9rem; font-size: .95rem; }
+  gap: var(--s-3) var(--s-5); padding: var(--s-4) var(--s-5); background: var(--tinta);
+  box-shadow: var(--sombra-lista); }
+.productos:not(#lista-productos) .producto strong { font-size: var(--t-md); }
+.acciones { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+.acciones button { padding: var(--s-2) var(--s-4); font-size: var(--t-sm); }
 .productos:not(#lista-productos) .acciones { width: auto; }
 #lista-productos .acciones { width: 100%; }
 
 /* ===== Contacto ===== */
-.contacto-cols { display: grid; gap: 2.4rem; align-items: center; }
-@media (min-width: 48rem) { .contacto-cols { grid-template-columns: .85fr 1.15fr; } }
-.pantalla-negra { margin: 0; padding: .6rem; background: #000;
+.contacto-cols { display: grid; gap: var(--gap-col); align-items: center; }
+@media (min-width: 48rem) { .contacto-cols { grid-template-columns: var(--col-texto-inv); } }
+.pantalla-negra { margin: 0; padding: var(--s-2); background: #000;
   box-shadow: var(--sombra-dura), 0 0 46px rgba(245, 144, 47, .22); }
 .pantalla-negra img { width: 100%; max-width: 24rem; margin: 0 auto; aspect-ratio: 1; object-fit: cover; }
-.contacto-lista { list-style: none; margin: 0 0 1.4rem; padding: 0; display: grid; gap: 1rem; font-size: 1.1rem; }
-.contacto-lista li { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem .8rem; }
+.contacto-lista { list-style: none; margin: 0 0 var(--s-5); padding: 0; display: grid; gap: var(--s-4); font-size: var(--t-md); }
+.contacto-lista li { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
 .contacto-lista .icono { flex: none; display: inline-grid; place-items: center; width: 2.5rem; height: 2.5rem;
-  background: var(--tinta); color: var(--crema);
-  box-shadow: 0 -3px 0 0 var(--linea), 0 3px 0 0 var(--linea), -3px 0 0 0 var(--linea), 3px 0 0 0 var(--linea);
-  transition: transform .18s ease, background-color .18s ease, color .18s ease; }
+  background: var(--tinta); color: var(--crema); box-shadow: var(--sombra-lista);
+  transition: transform var(--d-micro) ease, background-color var(--d-micro) ease, color var(--d-micro) ease; }
 .contacto-lista .icono svg { width: 1.35rem; height: 1.35rem; display: block; }
 .contacto-lista .icono-wa { color: #25D366; }
 .contacto-lista .icono-ig { color: #E4405F; }
@@ -449,100 +948,1266 @@ p[role="alert"].ok { color: var(--diamante); }
 .contacto-lista li:hover .icono-wa { background: rgba(37, 211, 102, .16); }
 .contacto-lista li:hover .icono-ig { background: rgba(228, 64, 95, .16); }
 .contacto-lista li:hover .icono-ubi { background: rgba(245, 144, 47, .16); }
-.contacto-lista strong { font-family: var(--titulos); font-weight: 600; }
+.contacto-lista strong { font-family: var(--titulos); font-weight: 700; }
 .contacto-lista a { font-weight: 500; }
 .contacto-lista a:hover { color: var(--masa); }
 
-/* ===== Pie ===== */
-.pie { margin-top: auto; padding: 3rem 1.25rem 1.3rem;
-  background: linear-gradient(180deg, rgba(12, 5, 53, .35), var(--tinta));
-  border-top: 4px solid var(--pantalla-alta); }
-.pie-cols { max-width: var(--ancho); margin: 0 auto 1.9rem; display: grid; gap: 2rem; }
-@media (min-width: 52rem) { .pie-cols { grid-template-columns: 1.5fr .8fr 1fr; } }
-.pie-marca { display: flex; gap: 1rem; align-items: flex-start; }
-.pie-marca img { width: 60px; height: 60px; flex: none; }
-.pie-marca strong { display: block; margin-bottom: .3rem; font-family: var(--titulos); font-size: 1.25rem; }
-.pie-marca p { margin: 0; max-width: 26rem; font-size: .95rem; color: var(--suave); }
-.pie-links, .pie-social { display: grid; gap: .55rem; align-content: start; }
-.pie-links a, .pie-social a { color: var(--crema); text-decoration: none; font-weight: 500; width: fit-content;
-  border-bottom: 2px solid transparent; transition: color .16s ease, border-color .16s ease, transform .16s ease; }
-.pie-links a:hover, .pie-social a:hover { color: var(--masa); border-bottom-color: var(--masa); transform: translateX(3px); }
-.pie-social a { font-size: .97rem; color: var(--suave); }
-.pie-legal { max-width: var(--ancho); margin: 0 auto; padding-top: 1.3rem; text-align: center;
-  border-top: 3px dashed rgba(255, 243, 220, .18); font-size: .9rem; color: var(--suave); }
-
-/* ===== Cajas Pixel ===== */
-.cajas { list-style: none; margin: 0 0 1.8rem; padding: 0; display: grid; gap: 1.6rem; }
-@media (min-width: 52rem) { .cajas { grid-template-columns: repeat(3, 1fr); } }
-.caja { position: relative; padding: 1.7rem 1.5rem;
-  background: linear-gradient(170deg, rgba(50, 32, 159, .5), rgba(12, 5, 53, .7));
-  box-shadow: var(--sombra-dura), 8px 10px 0 0 rgba(0, 0, 0, .32);
-  transition: transform .2s ease, box-shadow .2s ease; }
-.caja:hover { transform: translateY(-5px);
-  box-shadow: var(--sombra-dura), 12px 16px 0 0 rgba(0, 0, 0, .4), 0 0 30px rgba(245, 144, 47, .18); }
-.caja h3 { margin-bottom: .2rem; font-size: 1.5rem; }
-.caja-para { margin: 0 0 1.1rem; font-family: var(--titulos); font-size: .95rem;
-  letter-spacing: .1em; text-transform: uppercase; color: var(--masa); }
-.caja-precio { margin: 0 0 .9rem; font-family: var(--titulos); font-size: 2.3rem; line-height: 1;
-  color: var(--crema); text-shadow: 3px 3px 0 rgba(0, 0, 0, .4); }
-.caja-detalle { margin: 0; color: var(--suave); font-size: .98rem; }
-/* Destacada: el borde naranja y una insignia la diferencian del resto */
-.caja-destacada { box-shadow: var(--sombra-dura), 8px 10px 0 0 rgba(0, 0, 0, .32), 0 0 0 2px var(--masa); }
-.caja-insignia { position: absolute; top: -.85rem; left: 1.5rem; padding: .3rem .8rem;
-  font-family: var(--titulos); font-size: .85rem; letter-spacing: .04em;
-  background: var(--masa); color: var(--noche); box-shadow: 3px 3px 0 rgba(0, 0, 0, .4); }
-/* Descuentos por volumen */
-.volumen { padding: 1.5rem; background: rgba(12, 5, 53, .5);
-  box-shadow: inset 0 -3px 0 0 rgba(245, 144, 47, .5); }
-.volumen h3 { margin-bottom: .9rem; }
-.volumen ul { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: .6rem; }
-@media (min-width: 40rem) { .volumen ul { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
-.volumen li { display: flex; flex-direction: column; padding: .7rem .9rem; background: var(--tinta);
-  box-shadow: 0 -3px 0 0 var(--linea), 0 3px 0 0 var(--linea), -3px 0 0 0 var(--linea), 3px 0 0 0 var(--linea); }
-.volumen li b { font-family: var(--titulos); font-size: 1.15rem; color: var(--crema); }
-.volumen li span { color: var(--diamante); font-weight: 500; }
-.volumen p { margin: 0; font-size: .93rem; color: var(--suave); }
-/* Caja mensual */
-.mensual { display: grid; gap: 1.4rem; align-items: center; margin-top: 1.6rem; padding: 1.6rem;
-  background: linear-gradient(120deg, rgba(245, 144, 47, .16), rgba(229, 65, 43, .1));
-  box-shadow: var(--sombra-dura); }
-@media (min-width: 40rem) { .mensual { grid-template-columns: 1fr auto; } }
-.mensual h3 { margin-bottom: .4rem; }
-.mensual p { margin: 0; color: var(--suave); }
-.mensual .boton-grande { justify-self: start; }
-
 /* ===== Detalles de entrega y pago (en el bloque del carrito) ===== */
-.detalles { margin-top: 2.2rem; padding-top: 1.6rem; border-top: 3px dashed rgba(255, 243, 220, .18); }
-.detalles h3 { margin-bottom: 1rem; }
-.detalles-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
-.detalles-lista li { display: flex; align-items: flex-start; gap: .9rem; }
+.detalles { margin-top: var(--s-8); padding-top: var(--s-6); border-top: 3px dashed rgba(255, 243, 220, .18); }
+.detalles h3 { margin-bottom: var(--s-4); }
+.detalles-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-4); }
+.detalles-lista li { display: flex; align-items: flex-start; gap: var(--s-4); }
 .detalles-lista .icono { flex: none; display: inline-grid; place-items: center; width: 2.5rem; height: 2.5rem;
-  background: var(--tinta);
-  box-shadow: 0 -3px 0 0 var(--linea), 0 3px 0 0 var(--linea), -3px 0 0 0 var(--linea), 3px 0 0 0 var(--linea); }
+  background: var(--tinta); box-shadow: var(--sombra-lista); }
 .detalles-lista .icono svg { width: 1.35rem; height: 1.35rem; display: block; }
 .detalles-lista .icono-ubi { color: var(--masa); }
 .detalles-lista .icono-wa { color: #25D366; }
 .detalles-lista .icono-ig { color: #E4405F; }
-.detalles-lista span { color: var(--suave); font-size: .96rem; }
+/* El tercer dato (plazos de un pedido grande) no es una red social: lleva el
+   paquete de la marca, no un icono de Instagram. */
+.detalles-lista .icono-caja { color: var(--diamante); }
+.detalles-lista span { color: var(--suave); font-size: var(--t-sm); }
 .detalles-lista b { color: var(--crema); }
 
+/* ===== Acción fija de WhatsApp ===== */
+.barra-whatsapp { position: fixed; right: var(--s-5); bottom: var(--s-5); z-index: 30;
+  display: inline-flex; align-items: center; gap: var(--s-3); padding: var(--s-3) var(--s-5);
+  font-family: var(--titulos); font-weight: 700; text-decoration: none; color: var(--noche);
+  background: linear-gradient(180deg, #47E389, #25D366 55%);
+  box-shadow: var(--px-4-tinta), 8px 12px 24px rgba(0, 0, 0, .45);
+  transition: transform var(--d-micro) ease, filter var(--d-micro) ease; }
+.barra-whatsapp svg { width: 1.4rem; height: 1.4rem; }
+.barra-whatsapp:hover { transform: translateY(-3px); filter: brightness(1.07); }
+.barra-whatsapp:active { transform: translateY(3px); }
+
+/* ===== Pie ===== */
+.pie { margin-top: auto; padding: var(--s-8) var(--gutter) var(--s-5);
+  background: linear-gradient(180deg, rgba(12, 5, 53, .35), var(--tinta));
+  border-top: 4px solid var(--pantalla-alta); }
+.pie-cols { max-width: var(--ancho); margin: 0 auto var(--s-6); display: grid; gap: var(--gap-col); }
+@media (min-width: 52rem) { .pie-cols { grid-template-columns: 1.5fr .8fr 1fr; } }
+.pie-marca { display: flex; gap: var(--s-4); align-items: flex-start; }
+.pie-marca img { width: 60px; height: 60px; flex: none; }
+.pie-marca strong { display: block; margin-bottom: var(--s-1); font-family: var(--titulos); font-size: var(--t-lg); }
+.pie-marca p { margin: 0; max-width: 26rem; font-size: var(--t-sm); color: var(--suave); }
+.pie-links, .pie-social { display: grid; gap: var(--s-2); align-content: start; }
+.pie-links a, .pie-social a { color: var(--crema); text-decoration: none; font-weight: 500; width: fit-content;
+  border-bottom: 2px solid transparent;
+  transition: color var(--d-micro) ease, border-color var(--d-micro) ease, transform var(--d-micro) ease; }
+.pie-links a:hover, .pie-social a:hover { color: var(--masa); border-bottom-color: var(--masa); transform: translateX(3px); }
+.pie-social a { font-size: var(--t-sm); color: var(--suave); }
+.pie-legal { max-width: var(--ancho); margin: 0 auto; padding-top: var(--s-5); text-align: center;
+  border-top: 3px dashed rgba(255, 243, 220, .18); font-size: var(--t-xs); color: var(--suave); }
+
+/* ===== Capa final de acabado gamer =====
+   Partículas en la portada, cursor de luz, destellos que siguen al mouse,
+   texto glitch y un halo vivo de marca. */
+
+/* Grano de impresión: capa estática sobre todo el sitio (patrón liviano, no
+   una animación). Une fotos e ilustraciones con una textura artesanal sin
+   restar contraste ni performance. */
+body::before { content: ""; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: .05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* Barrido de brillo en botones: un destello cálido cruza el botón al entrar
+   en pantalla y al pasar el cursor, como el reflejo de una pantalla arcade. */
+.boton-grande, .boton-whatsapp, button:not(.secundario):not(.filtro) { position: relative; overflow: hidden; }
+.boton-grande::after, .boton-whatsapp::after, button:not(.secundario):not(.filtro)::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%; pointer-events: none;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, .38), transparent);
+  transform: skewX(-18deg); transition: left .55s var(--e-salida); }
+.boton-grande:hover::after, .boton-whatsapp:hover::after, button:not(.secundario):not(.filtro):hover::after { left: 130%; }
+
+/* ===== Capa arcade premium =====
+   Tres acabados de videojuego real: (1) la etiqueta de sección se convierte en
+   un chip de HUD con marco pixel y rail punteado, (2) las bandas llevan raíles
+   de píxeles en sus cantos, como los bordes de una pantalla de arcade, y (3) la
+   foto de portada se enmarca con una marquesina de luces que parpadea. */
+section > .etiqueta { width: fit-content; padding: var(--s-2) var(--s-3);
+  background: rgba(12, 5, 53, .55); box-shadow: var(--px-3-suave); }
+section:not(.tarjeta) > .etiqueta::after { min-width: 3.5rem; }
+
+/* Raíles de píxeles en los cantos de cada banda (dos capas más en el
+   background del ::before, pintadas encima del degradado y la rejilla). */
+.banda::before { background:
+    repeating-linear-gradient(90deg, rgba(245, 144, 47, .5) 0 8px, transparent 8px 20px) 0 0 / 100% 3px no-repeat,
+    repeating-linear-gradient(90deg, rgba(255, 243, 220, .16) 0 8px, transparent 8px 20px) 0 100% / 100% 3px no-repeat,
+    linear-gradient(180deg, rgba(50, 32, 159, .34), rgba(12, 5, 53, .1) 42%, rgba(12, 5, 53, .5)),
+    repeating-linear-gradient(0deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px); }
+.banda-par::before { background:
+    repeating-linear-gradient(90deg, rgba(245, 144, 47, .5) 0 8px, transparent 8px 20px) 0 0 / 100% 3px no-repeat,
+    repeating-linear-gradient(90deg, rgba(255, 243, 220, .16) 0 8px, transparent 8px 20px) 0 100% / 100% 3px no-repeat,
+    linear-gradient(180deg, rgba(245, 144, 47, .07), rgba(12, 5, 53, .12) 46%, rgba(12, 5, 53, .5)),
+    repeating-linear-gradient(0deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px); }
+
+/* Marquesina de luces alrededor de la foto de portada: puntos cálidos en los
+   cuatro cantos que alternan su brillo, como el borde de una máquina arcade. */
+.hero-pantalla::before { content: ""; position: absolute; inset: -12px; pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, var(--masa) 0 7px, transparent 7px 20px) 0 0 / 100% 5px no-repeat,
+    repeating-linear-gradient(90deg, var(--masa) 0 7px, transparent 7px 20px) 0 100% / 100% 5px no-repeat,
+    repeating-linear-gradient(0deg, var(--masa) 0 7px, transparent 7px 20px) 0 0 / 5px 100% no-repeat,
+    repeating-linear-gradient(0deg, var(--masa) 0 7px, transparent 7px 20px) 100% 0 / 5px 100% no-repeat; }
+@media (prefers-reduced-motion: no-preference) {
+  .js-anim .hero-pantalla::before { animation: luces-marquesina 1.1s steps(2) infinite; }
+}
+@keyframes luces-marquesina { 50% { opacity: .35; } }
+
+/* Guiño del código secreto en el pie: atajos de teclas en tono bajo, como un
+   recordatorio escondido de manual de juego. */
+.pie-secreto { max-width: var(--ancho); margin: var(--s-3) auto 0; text-align: center;
+  font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .3em; color: var(--linea-suave); }
+
+/* Caída de las galletas del código Konami (las crea efectos.js): gira mientras
+   caen y se desvanecen al llegar al pie de la pantalla. */
+@keyframes konami-caer {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  8% { opacity: 1; }
+  100% { transform: translateY(118vh) rotate(340deg); opacity: 0; }
+}
+
+/* Divisor-píxel central entre bandas: una fila de guijarros que se enciende
+   en cascada al entrar en pantalla (usa el mismo lenguaje que la etiqueta). */
+.divisor { display: flex; justify-content: center; gap: var(--s-2); padding: var(--s-5) 0; }
+.divisor span { width: .55rem; height: .55rem; background: var(--linea-suave); }
+.js-anim .divisor span { opacity: .35; transform: translateY(.4rem); }
+.js-anim .divisor.visible span { opacity: 1; transform: none;
+  transition: opacity var(--d-reveal) var(--e-salida), transform var(--d-reveal) var(--e-salida); }
+.js-anim .divisor.visible span:nth-child(2) { transition-delay: .06s; }
+.js-anim .divisor.visible span:nth-child(3) { transition-delay: .12s; }
+.js-anim .divisor.visible span:nth-child(4) { transition-delay: .18s; background: var(--masa); }
+.js-anim .divisor.visible span:nth-child(5) { transition-delay: .24s; }
+.js-anim .divisor.visible span:nth-child(6) { transition-delay: .3s; }
+.js-anim .divisor.visible span:nth-child(7) { transition-delay: .36s; }
+
+/* Lienzo de partículas: píxeles cayendo detrás de la portada (lo pinta efectos.js) */
+.lienzo-particulas { position: absolute; inset: 0; width: 100%; height: 100%;
+  z-index: -1; pointer-events: none; opacity: .8; }
+
+/* Cursor de luz: un resplandor cálido que sigue al puntero en la portada */
+.hero { --mx: 50%; --my: 40%; }
+.hero::before { content: ""; position: absolute; inset: -10%; z-index: -2; pointer-events: none;
+  background: radial-gradient(26rem 26rem at var(--mx) var(--my), rgba(245, 144, 47, .16), transparent 60%);
+  transition: opacity var(--d-ui) ease; opacity: 0; }
+@media (hover: hover) { .hero:hover::before { opacity: 1; } }
+
+/* ===== Luz de cursor en toda la página =====
+   El mismo lenguaje que la luz de portada, pero como capa propia del sitio:
+   un resplandor cálido (con halo frío por debajo) que sigue al puntero por
+   encima del contenido y por debajo de la barra (z 15 < 20). Es sutil —opacidad
+   baja y blend screen— para no restar contraste al texto. Se enciende con el
+   primer movimiento y no existe sin puntero real ni con movimiento reducido.
+   Las variables --rx/--ry las escribe efectos.js en <html>. */
+/* Sin transición de encendido a propósito: con mix-blend-mode el navegador
+   compone la capa aparte, y una transición sobre ella es el primer elemento
+   en quedarse colgado en entornos sin compositor. El brillo aparece ya al
+   primer movimiento, que es además lo que un jugador espera. */
+body::after { content: ""; position: fixed; inset: 0; z-index: 15; pointer-events: none;
+  opacity: 0; mix-blend-mode: screen;
+  background: radial-gradient(20rem 20rem at var(--rx, 50%) var(--ry, 40%),
+    rgba(245, 144, 47, .13), rgba(77, 232, 208, .05) 45%, transparent 66%); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html.luz-activa body::after { opacity: 1; }
+}
+
+/* ===== Revelado escalonado de las tarjetas del catálogo =====
+   Cada sección de familia revela sus tarjetas con un desfase de 90 ms: el
+   ojo recorre la fila de izquierda a derecha en lugar de saltar de golpe.
+   El estilo se aplica con JS (--i = índice de la tarjeta dentro de su
+   sección) para que el mismo patrón sirva con cualquier número de tarjetas
+   y se respete prefers-reduced-motion (si no, todo queda visible). */
+@media (prefers-reduced-motion: no-preference) {
+  .js-anim #lista-productos .producto {
+    opacity: 0; transform: translateY(1.4rem) scale(.98);
+    transition: opacity var(--d-reveal) ease, transform var(--d-reveal) var(--e-salida);
+    transition-delay: calc(var(--i, 0) * 90ms);
+  }
+  .js-anim #lista-productos .producto.visible { opacity: 1; transform: none; }
+}
+
+/* Título de portada con aberración cromática tipo glitch (solo al cargar) */
+.js-anim .hero h1 { position: relative; }
+.js-anim .hero h1::before, .js-anim .hero h1::after {
+  content: attr(data-texto); position: absolute; inset: 0; pointer-events: none; opacity: .85; }
+.js-anim .hero h1::before { color: var(--diamante); animation: glitch-a 2.6s 0.3s steps(2) 3 both; mix-blend-mode: screen; }
+.js-anim .hero h1::after  { color: var(--corazon); animation: glitch-b 2.6s 0.3s steps(2) 3 both; mix-blend-mode: screen; }
+@keyframes glitch-a { 0%, 7%, 100% { transform: none; opacity: 0; } 8%, 12% { transform: translate(-3px, 1px); opacity: .8; } 14% { transform: none; opacity: 0; } }
+@keyframes glitch-b { 0%, 7%, 100% { transform: none; opacity: 0; } 9%, 13% { transform: translate(3px, -1px); opacity: .8; } 15% { transform: none; opacity: 0; } }
+
+/* Destello que sigue al mouse dentro de las tarjetas y pasos (lo pinta efectos.js) */
+#lista-productos .producto, .caja, .paso, .tarjeta { --dx: 50%; --dy: 50%; }
+/* En las tarjetas del catálogo el destello NO puede ser ::after (ese pseudo-elemento
+   ya pinta los chips del sprite del sabor): ahí va en el hijo .destello, de abajo.
+   En cajas y pasos sí se usa el pseudo-elemento porque no tienen sprite. */
+.caja::after, .paso::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(16rem 16rem at var(--dx) var(--dy), rgba(255, 243, 220, .14), transparent 55%);
+  transition: opacity var(--d-ui) ease; }
+@media (hover: hover) {
+  .caja:hover::after, .paso:hover::after { opacity: 1; }
+}
+/* La .producto ya usa ::before y ::after para el sprite: el destello va en un hijo real */
+#lista-productos .producto .destello { position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(16rem 16rem at var(--dx) var(--dy), rgba(255, 243, 220, .16), transparent 55%);
+  transition: opacity var(--d-ui) ease; z-index: 0; }
+@media (hover: hover) { #lista-productos .producto:hover .destello { opacity: 1; } }
+
+/* Halo vivo de marca: el borde inferior de la barra respira con el naranja */
+@keyframes halo-marca { 0%, 100% { box-shadow: 0 6px 22px rgba(245, 144, 47, .25); } 50% { box-shadow: 0 6px 30px rgba(245, 144, 47, .5); } }
+@media (prefers-reduced-motion: no-preference) { .barra.desplazada { animation: halo-marca 3.4s ease-in-out infinite; } }
+
+/* ===== Animaciones escalonadas =====
+   Las tres listas de tarjetas (pasos, cajas, misión) comparten la misma
+   gramática: los hijos aparecen en cascada de 120 en 120 ms. Una sola
+   regla base y tres selectores, en lugar de tres bloques duplicados. */
+.js-anim .pasos .paso, .js-anim .cajas .caja, .js-anim .mision-grid .mision-tarjeta {
+  opacity: 0; transform: translateY(1.2rem);
+}
+.js-anim .pasos.visible .paso, .js-anim .cajas.visible .caja,
+.js-anim .mision-grid.visible .mision-tarjeta {
+  opacity: 1; transform: none;
+  transition: opacity var(--d-reveal) ease, transform var(--d-reveal) var(--e-salida);
+}
+.js-anim .pasos.visible .paso:nth-child(2), .js-anim .cajas.visible .caja:nth-child(2),
+.js-anim .mision-grid.visible .mision-tarjeta:nth-child(2) { transition-delay: .12s; }
+.js-anim .pasos.visible .paso:nth-child(3), .js-anim .cajas.visible .caja:nth-child(3),
+.js-anim .mision-grid.visible .mision-tarjeta:nth-child(3) { transition-delay: .24s; }
+
+/* Precio con pulso lento: el ojo cae en el valor de compra */
+@keyframes pulso-precio { 0%, 100% { text-shadow: 2px 2px 0 rgba(0,0,0,.35), 0 0 10px rgba(245,144,47,.25); } 50% { text-shadow: 2px 2px 0 rgba(0,0,0,.35), 0 0 20px rgba(245,144,47,.55); } }
+@media (prefers-reduced-motion: no-preference) {
+  #lista-productos .producto > b, .caja-precio { animation: pulso-precio 3.6s ease-in-out infinite; }
+}
+
+/* Barra superior más delgada al hacer scroll: sin cambiar tamaños de fuente
+   (el nombre y el logo conservan su caja exacta en todo el recorrido). */
+
+/* El eslogan junto al nombre es un espacio que sobra en pantallas reales: se
+   oculta de forma limpia (sin colapsarlo a 1px absoluto) pero se conserva para
+   lectores de pantalla, igual que en el breakpoint móvil. */
+@media (min-width: 40.01rem) {
+  .marca > div > small { position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 62rem) {
+  .btn-menu { display: inline-flex; }
+  /* El menú pasa a panel desplegable bajo la barra */
+  .menu { position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch;
+    gap: 0; padding: var(--s-2) var(--s-4) var(--s-5); background: rgba(12, 5, 53, .98);
+    border-bottom: 4px solid var(--masa); box-shadow: 0 18px 30px rgba(0, 0, 0, .5);
+    transform-origin: top; }
+  .js-anim .menu { opacity: 0; transform: scaleY(.85) translateY(-.5rem); pointer-events: none;
+    transition: opacity var(--d-micro) ease, transform var(--d-micro) ease; }
+  .js-anim .menu.abierto { opacity: 1; transform: none; pointer-events: auto; }
+  /* Sin JS (o si efectos.js falla) el panel no puede depender de una clase:
+     se coloca en flujo normal para que el contenido no quede tapado. */
+  html:not(.js-anim) .menu { position: static; opacity: 1; transform: none; pointer-events: auto;
+    border-bottom: 0; box-shadow: none; padding: var(--s-2) 0 0; }
+  .menu a, .menu button { padding: var(--s-3) var(--s-3); border-bottom: 1px solid rgba(255, 243, 220, .12);
+    text-align: left; font-size: var(--t-md); }
+  .menu a.carrito-icono { margin: var(--s-2) 0 0; justify-content: center; border-bottom: 0; }
+  .menu #btn-acceso { margin-top: var(--s-2); text-align: center; }
+}
+
 @media (max-width: 40rem) {
-  .tarjeta { padding: 1.4rem; }
-  .barra { padding-block: .55rem; }
+  .tarjeta { padding: var(--s-5); }
+  .barra { padding-block: var(--s-2); }
   .marca img { width: 44px; height: 44px; }
-  /* El logo ya lleva el nombre: el texto queda solo para lectores de pantalla */
-  .marca div { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .menu { flex-wrap: nowrap; gap: .5rem; }
-  .menu a:not(.carrito-icono) { display: none; }
-  .menu a.carrito-icono { margin: 0 .2rem; padding: .4rem .6rem; }
-  #btn-acceso { padding: .5rem .7rem; font-size: .95rem; }
+  /* El logo ya lleva el nombre: el texto es redundante en una fila angosta y
+     solo se cortaba. Se oculta de la vista pero se conserva para lectores de
+     pantalla (nombre y eslogan). */
+  .marca > div { position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; }
   #lista-productos .producto { --sprite: 5.4rem; }
   #lista-productos .producto[data-foto] { --sprite: 7rem; }
-  .contenido { gap: 3.5rem; }
-  .hero-pegatina { left: auto; right: .8rem; bottom: -1rem; }
+  .contenido { gap: var(--s-8); }
+  .hero-pegatina { left: auto; right: var(--s-3); bottom: -1rem; }
   .paso:not(:last-child)::after { display: none; }
+  .filtros-contador { margin-left: 0; width: 100%; }
+  .barra-whatsapp span { display: none; }
+  .barra-whatsapp { padding: var(--s-3); }
 }
+
+/* =====================================================================
+   CAPA EDITORIAL PREMIUM
+   Patrones tomados del análisis de sitios profesionales (banda de acción
+   a sangre, tipografía póster, sello de artesanía, marcos HUD, resumen
+   flotante de compra y palabra gigante en el pie). Todo decorativo, con
+   los tokens existentes y respetando prefers-reduced-motion.
+   ===================================================================== */
+
+/* --- 1. Titular de portada a escala póster ---
+   El token --t-3xl estaba definido pero sin usar: el h1 de portada vivía
+   a la escala de h2. Un display grande (clamp, con text-wrap: balance)
+   es la palanca de mayor impacto visual con cero assets. */
+.hero h1 { max-width: 15ch; font-size: clamp(2.2rem, 5.6vw, 3.9rem);
+  line-height: 1.03; letter-spacing: -.01em; text-wrap: balance; }
+
+/* --- 2. Títulos de sección a su escala real ---
+   Los tokens ya reservaban --t-2xl ("h2 de sección"); los h2 la pedían. */
+section > h2 { font-size: var(--t-2xl); }
+
+/* --- 3. Sello de artesanía en la foto de portada ---
+   Un tampón circular que gira lentamente con el texto del oficio, como
+   el sello de una panadería de barrio. SVG puro (sin imágenes), el anillo
+   gira y la galleta del centro se queda quieta. */
+.sello { position: absolute; top: -1.6rem; right: -1.6rem; z-index: 2;
+  width: clamp(4.8rem, 10vw, 6.6rem); aspect-ratio: 1; line-height: 0;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, .5)); }
+.sello svg { display: block; width: 100%; height: 100%; }
+.sello-disco { fill: var(--noche); }
+.sello-marco { fill: none; stroke: var(--masa); stroke-width: 3; stroke-dasharray: 7 5; }
+.sello text { font-family: var(--titulos); font-size: 7.4px; letter-spacing: .4px; fill: var(--masa); }
+.sello-anillo { transform-origin: 50% 50%; }
+.js-anim .sello-anillo { animation: sello-girar 26s linear infinite; }
+@keyframes sello-girar { to { transform: rotate(360deg); } }
+
+/* --- 4. Efecto CRT sobre la foto de portada ---
+   Líneas de barrido finas y viñeta: la foto se lee como una pantalla de
+   máquina recreativa sin tocar la foto real (va en un pseudo-elemento). */
+.hero-pantalla::after { content: ""; position: absolute; inset: var(--s-3); pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(12, 5, 53, .17) 0 2px, transparent 2px 4px),
+    radial-gradient(130% 100% at 50% 40%, transparent 52%, rgba(6, 2, 24, .5));
+  opacity: .85; }
+
+/* --- 5. Paralaje con scroll-driven animations (progresivo) ---
+   Sin JavaScript: la foto de portada se desplaza al salir de pantalla y
+   la tira de la banda de acción corre según su posición en el visor.
+   Donde animation-timeline no existe, ambas cosas quedan estáticas. */
+@keyframes deriva-foto { from { translate: 0 0; } to { translate: 0 -7%; } }
+@keyframes desfile-vista { from { translate: 0 0; } to { translate: -20% 0; } }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-pantalla { animation: deriva-foto linear both;
+      animation-timeline: view(); animation-range: exit 0% exit 100%; }
+    .powerup-tira { animation: desfile-vista linear both;
+      animation-timeline: view(); animation-range: entry 0% exit 100%; }
+  }
+}
+
+/* --- 6. Banda de acción "Power up" ---
+   La única superficie naranja a sangre de la página: rompe el ritmo de
+   bandas índigo justo antes de "La marca" y concentra la llamada a la
+   acción. Borde superior e inferior con merlones pixel (dientes de 16px)
+   y una tira gigante de texto contorneado que se desliza con el scroll. */
+.powerup { position: relative; isolation: isolate; width: 100vw;
+  margin-inline: calc(50% - 50vw); padding: 0 var(--gutter) clamp(3rem, 6vw, 4.5rem);
+  background-color: var(--masa);
+  background-image:
+    repeating-linear-gradient(45deg, rgba(21, 9, 79, .07) 0 10px, transparent 10px 20px),
+    radial-gradient(70rem 22rem at 50% -6rem, rgba(255, 255, 255, .42), transparent 70%);
+  box-shadow: 0 0 60px rgba(245, 144, 47, .3); }
+.powerup::before, .powerup::after { content: ""; position: absolute; left: 0; right: 0;
+  height: 10px; z-index: 1; pointer-events: none;
+  background: repeating-linear-gradient(90deg, var(--masa) 0 16px, transparent 16px 34px); }
+.powerup::before { top: -10px; }
+.powerup::after { bottom: -10px; }
+.powerup-tira { display: flex; overflow: hidden;
+  margin-inline: calc(var(--gutter) * -1); padding-top: clamp(1.2rem, 2.6vw, 2rem); }
+.powerup-tira span { flex: none; white-space: nowrap; font-family: var(--titulos);
+  font-size: clamp(2.2rem, 6.4vw, 4.6rem); line-height: 1.15; letter-spacing: .02em;
+  color: transparent; -webkit-text-stroke: 2px rgba(21, 9, 79, .32); }
+.powerup > .etiqueta { margin-top: clamp(1.6rem, 3vw, 2.6rem);
+  color: var(--crema); background: var(--noche); box-shadow: var(--px-3-tinta); }
+.powerup h2 { margin-bottom: var(--s-3); font-size: clamp(1.9rem, 4.6vw, 3.2rem);
+  color: var(--noche); text-shadow: 3px 3px 0 rgba(255, 255, 255, .3); }
+.powerup-texto { max-width: 44rem; margin-bottom: var(--s-6); font-size: var(--t-md);
+  font-weight: 500; color: rgba(21, 9, 79, .88); }
+.powerup-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-5) var(--s-6); }
+.boton-noche { color: var(--crema); background: linear-gradient(180deg, #2A1785, var(--noche) 60%);
+  box-shadow: var(--px-4-tinta),
+    inset 4px 4px 0 0 rgba(255, 255, 255, .22), inset -4px -4px 0 0 rgba(0, 0, 0, .35); }
+.boton-noche:active:not(:disabled) { box-shadow: var(--px-4-tinta), inset 4px 4px 0 0 rgba(0, 0, 0, .4); }
+.powerup .enlace-secundario { color: var(--noche); font-weight: 700; }
+.powerup .enlace-secundario:hover { color: #6B3410; }
+
+/* --- 7. Marcos HUD en las tarjetas ---
+   Cuatro escuadras naranjas que aparecen al pasar el cursor, como los
+   corchetes de selección de una interfaz de juego. Se dibujan con gradientes
+   en ::before, sin elementos nuevos. */
+.mision-tarjeta { position: relative; transition: transform var(--d-ui) ease, box-shadow var(--d-ui) ease; }
+.mision-tarjeta:hover { transform: translateY(-4px);
+  box-shadow: var(--px-4-masa), 10px 14px 0 0 rgba(0, 0, 0, .4); }
+.caja::before, .paso::before, .mision-tarjeta::before, .bento > li::before {
+  content: ""; position: absolute; inset: .5rem; pointer-events: none; opacity: 0;
+  transition: opacity var(--d-ui) ease;
+  background:
+    linear-gradient(var(--masa), var(--masa)) 0 0 / 16px 3px no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 0 0 / 3px 16px no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 100% 0 / 16px 3px no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 100% 0 / 3px 16px no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 0 100% / 16px 3px no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 0 100% / 3px 16px no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 100% 100% / 16px 3px no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 100% 100% / 3px 16px no-repeat; }
+@media (hover: hover) {
+  .caja:hover::before, .paso:hover::before, .mision-tarjeta:hover::before,
+  .bento > li:hover::before { opacity: 1; }
+}
+
+/* --- 8. Resumen flotante del carrito ---
+   Patrón de e-commerce: cuando hay galletas en el carrito aparece abajo a
+   la izquierda un chip con cantidad, total y acceso directo al pedido.
+   Nunca tapa la acción fija de WhatsApp (que va a la derecha). Lo pinta
+   pedidos.js con la clase .activo. */
+.mini-carrito { position: fixed; left: var(--s-5); bottom: var(--s-5); z-index: 30;
+  /* El tope reserva el carril del botón fijo de WhatsApp, que en este ancho
+     lleva su texto (≈15rem) más su margen: sin la reserva, con galletas en el
+     carrito las dos piezas se pisaban entre 640 y 780 px. */
+  display: inline-flex; align-items: center; gap: var(--s-3); max-width: calc(100vw - 25rem);
+  padding: var(--s-3) var(--s-4); text-decoration: none; color: var(--crema);
+  background: rgba(12, 5, 53, .97); box-shadow: var(--px-3-masa), 8px 12px 24px rgba(0, 0, 0, .45);
+  font-family: var(--titulos); font-size: var(--t-sm);
+  visibility: hidden; opacity: 0; translate: 0 150%;
+  transition: translate .35s var(--e-salida), opacity .35s ease, visibility 0s .35s,
+    background-color var(--d-micro) ease; }
+.mini-carrito.activo { visibility: visible; opacity: 1; translate: 0 0; transition-delay: 0s, 0s, 0s, 0s; }
+.mini-carrito:hover { background: var(--pantalla-alta); }
+.mini-carrito-galleta svg { display: block; width: 1.5rem; height: 1.5rem; }
+.mini-carrito-resumen { color: var(--suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-carrito-cta { flex: none; padding: var(--s-1) var(--s-3); background: var(--masa); color: var(--noche); }
+
+/* --- 9. Palabra gigante en el pie ---
+   El remate editorial de las marcas premium: el nombre a todo el ancho,
+   en contorno, con relleno degradado naranja hacia arriba. Decorativa. */
+.pie-wordmark { max-width: var(--ancho); margin: var(--s-7) auto 0; text-align: center;
+  font-family: var(--titulos); font-weight: 700; line-height: .95; letter-spacing: .02em;
+  text-transform: uppercase; font-size: clamp(1.7rem, 8.4vw, 6.6rem);
+  color: transparent; -webkit-text-stroke: 2px rgba(255, 243, 220, .22);
+  background: linear-gradient(180deg, rgba(245, 144, 47, .55), rgba(245, 144, 47, 0) 78%);
+  -webkit-background-clip: text; background-clip: text; }
+
+/* Ajustes de la capa premium en pantallas angostas: el chip del carrito
+   se queda con texto + acción y el sello encoge para no desbordar la foto. */
+@media (max-width: 40rem) {
+  /* El tope de ancho deja sitio al botón fijo de WhatsApp, que aquí es solo el
+     icono (46 px) más su margen (24) y un aire de separación: 7rem cubren esos
+     82 px y los ~15 de la barra de desplazamiento, porque 100vw la incluye y el
+     ancho útil es innerWidth − scrollbar. Con menos reserva, un carrito lleno
+     metía el chip debajo del botón de WhatsApp. */
+  .mini-carrito { left: var(--s-4); bottom: var(--s-4); padding: var(--s-2) var(--s-3);
+    font-size: var(--t-xs); max-width: calc(100vw - 7rem);
+    /* Apilado en dos líneas: en una sola, el resumen ("2 galletas · $ 12.000",
+       182 px) quedaba recortado a 40 px al lado de la acción y el total
+       desaparecía. En columna entra entero y la acción se centra debajo. */
+    flex-direction: column; align-items: stretch; gap: var(--s-1); }
+  .mini-carrito-cta { text-align: center; }
+  .mini-carrito-galleta { display: none; }
+  .sello { top: -1.1rem; right: -1.1rem; }
+  .powerup-tira span { -webkit-text-stroke-width: 1.5px; }
+}
+
+/* =====================================================================
+   SALA DE JUEGOS, MAPA DE NIVELES Y VISOR DE FOTOS
+   Tres piezas nuevas con los tokens de arriba y el mismo píxel de siempre:
+     · .juego     — el minijuego de reflejos, hecho de botones de verdad
+     · .nivel-hud — el mapa de niveles, atado a la numeración "Nivel 0X"
+     · .visor     — visor de fotos a pantalla completa (<dialog> nativo)
+   Al final va una capa de "scroll como motor" con líneas de tiempo de scroll
+   dentro de @supports: donde el navegador no las entiende, todo se ve igual
+   que antes, porque solo anima adornos (raíl, esquinas, numeración), jamás
+   contenido. Nada de aquí anima con movimiento reducido: la regla global del
+   final del archivo apaga animaciones y transiciones, y juego.js tampoco
+   arranca el reloj.
+   ===================================================================== */
+
+/* --- 1. Sala de juegos ---
+   Un panel que se lee como la consola de la casa: marcador tipo HUD arriba,
+   caja de arena en medio y el control abajo. Todo con los mismos marcos
+   pixel que el resto del sitio. */
+.juego { margin-top: var(--s-6); padding: var(--s-5);
+  background: linear-gradient(170deg, rgba(21, 9, 79, .92), rgba(12, 5, 53, .98));
+  box-shadow: var(--sombra-caja); }
+
+/* Marcador: cuatro casillas de HUD. En móvil van de dos en dos. */
+.juego-marcador { display: grid; gap: var(--s-3); grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: var(--s-5); }
+@media (min-width: 44rem) { .juego-marcador { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.juego-dato { display: flex; flex-direction: column; gap: var(--s-1); margin: 0;
+  padding: var(--s-3) var(--s-4); background: var(--tinta); box-shadow: var(--px-3-suave);
+  font-family: var(--titulos); font-size: var(--t-xs); color: var(--suave);
+  text-transform: uppercase; letter-spacing: .08em; }
+.juego-dato b { font-family: var(--titulos); font-size: var(--t-num); color: var(--crema);
+  letter-spacing: 0; }
+.juego-dato-record b { color: #FFD21F; }
+/* Cuando el reloj corre, el marcador se marca con un latido sobrio: el pulso
+   de la máquina, no un parpadeo de feria. */
+.juego.en-marcha .juego-dato { box-shadow: var(--px-3-suave); }
+.juego.en-marcha .juego-dato:nth-child(3) b { color: var(--diamante); }
+.juego.en-marcha .juego-dato:nth-child(3) { box-shadow: var(--px-3-diamante); }
+
+/* Caja de arena: 4 columnas × 3 filas. Cada casilla es un botón; dentro vive
+   la galleta, invisible hasta que sale del horno. */
+.juego-arena { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: clamp(4rem, 13vw, 6.5rem); }
+.juego-arena li { display: grid; min-width: 0; }
+.hueco { position: relative; display: grid; place-items: center; width: 100%; height: 100%;
+  padding: 0; border: 0; cursor: pointer; background: rgba(35, 18, 118, .62);
+  box-shadow: var(--px-3-suave);
+  transition: background-color var(--d-micro) ease, box-shadow var(--d-micro) ease; }
+/* La casilla no salta al pasar el ratón ni al pulsarla: aquí el movimiento
+   sería el juego, no el adorno. Se anulan el brillo y el salto genéricos. */
+.juego-arena .hueco:hover:not(:disabled), .juego-arena .hueco:active:not(:disabled) {
+  transform: none; filter: none; }
+.juego-arena .hueco:hover:not(:disabled) { background: rgba(50, 32, 159, .7); }
+.juego-arena .hueco:focus-visible { outline: 3px solid var(--diamante); outline-offset: 3px; }
+/* Sin el barrido de luz de los botones rellenos: la casilla ya tiene su
+   propio destello cuando atrapa (::after con el "+puntos"). */
+.juego-arena .hueco::after { content: none !important; }
+/* La galleta se ajusta al ALTO de la casilla (62%) conservando su proporción.
+   Antes medía 64% del ANCHO: en una casilla de 254 × 104 px la galleta salía de
+   162 px, así que el recorte del botón (overflow: hidden) le cortaba ~29 px por
+   arriba y por abajo. Con el alto como referencia nunca toca los bordes y,
+   cuando la casilla es más estrecha que alta, max-width la contiene. */
+.hueco-galleta { height: 62%; width: auto; aspect-ratio: 1; max-width: 86%; opacity: 0; scale: .8;
+  filter: drop-shadow(0 0 12px rgba(245, 144, 47, .6));
+  transition: opacity var(--d-micro) ease, scale var(--d-micro) var(--e-rebote); }
+.hueco.listo { background: rgba(50, 32, 159, .95);
+  box-shadow: var(--px-3-masa), inset 0 0 24px rgba(245, 144, 47, .22); }
+.hueco.listo .hueco-galleta { opacity: 1; scale: 1; }
+/* Atrapada: la galleta salta y se desvanece, y el "+puntos" sube desde la
+   esquina. El texto del premio llega en el atributo data-mas (lo escribe
+   juego.js), así no hay que crear nodos por cada golpe. */
+.hueco.atrapada .hueco-galleta { animation: galleta-atrapada .3s steps(4) both; }
+@keyframes galleta-atrapada {
+  0% { opacity: 1; scale: 1; }
+  55% { opacity: 1; scale: 1.3; }
+  100% { opacity: 0; scale: .45; } }
+.hueco.atrapada::after { content: attr(data-mas); position: absolute; top: var(--s-1); right: var(--s-2);
+  font-family: var(--titulos); font-size: var(--t-sm); color: var(--diamante);
+  pointer-events: none; animation: premio-sube .6s ease-out both; }
+@keyframes premio-sube { 0% { opacity: 1; translate: 0 0; } 100% { opacity: 0; translate: 0 -1rem; } }
+/* Fallo: la casilla vacía tiembla y se apaga, como un botón que no responde. */
+.hueco.fallo { animation: casilla-fallo .28s steps(3) both; }
+@keyframes casilla-fallo {
+  0%, 100% { translate: 0 0; background: rgba(229, 65, 43, .35); }
+  50% { translate: 3px 0; background: rgba(229, 65, 43, .55); } }
+
+/* Pie del panel: control a la izquierda, mensaje a la derecha. */
+.juego-pie { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4); margin-top: var(--s-5); }
+.juego-estado { flex: 1 1 16rem; margin: 0; font-size: var(--t-sm); color: var(--suave); }
+.juego-final { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4);
+  margin-top: var(--s-5); padding-top: var(--s-5); border-top: 3px solid var(--linea-suave); }
+.juego-rango { flex: 1 1 16rem; margin: 0; font-family: var(--titulos); font-size: var(--t-md); color: var(--crema); }
+.juego-rango b { color: #FFD21F; }
+
+/* --- 2. Mapa de niveles (HUD) ---
+   El indicador de nivel vive abajo en el centro, donde no choca con el
+   carrito (izquierda) ni con WhatsApp (derecha). Solo aparece cuando la
+   ventana tiene ancho para sostenerlo: en pantallas angostas los tres
+   flotantes no caben y el menú del encabezado ya resuelve la navegación. */
+.nivel-hud { position: fixed; left: 50%; bottom: var(--s-5); translate: -50% 0; z-index: 26;
+  transition: bottom var(--d-ui) var(--e-salida), translate var(--d-ui) var(--e-salida),
+    opacity var(--d-ui) var(--e-salida); }
+/* En «Tu pedido» el HUD se aparta: ahí manda el botón de confirmar, y la placa
+   flotante se le sentaba encima del texto. Lo pone efectos.js al entrar en ese
+   nivel y vuelve solo al salir. */
+.nivel-hud.nivel-hud-fuera { translate: -50% 2rem; opacity: 0; pointer-events: none; }
+@media (max-width: 47.98rem) { .nivel-hud { display: none; } }
+/* La franja de abajo ya tiene dueño: el carrito flotante a la izquierda y el
+   botón de WhatsApp a la derecha. En ventanas medianas el HUD se sube una
+   fila, y cuando el carrito se asoma (con galletas dentro) se sube también en
+   las anchas. :has() solo se usa aquí; donde no exista, el HUD se queda donde
+   estaba: peor encaje, nunca un error. */
+@media (max-width: 82rem) { .nivel-hud { bottom: 5.5rem; } }
+body:has(.mini-carrito.activo) .nivel-hud { bottom: 5.5rem; }
+.nivel-hud-boton { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-4);
+  border: 0; cursor: pointer; background: rgba(12, 5, 53, .96); color: var(--crema);
+  box-shadow: var(--px-3-suave), 6px 8px 18px rgba(0, 0, 0, .4);
+  font-family: var(--titulos); font-size: var(--t-xs); }
+.nivel-hud-boton:hover { background: var(--pantalla-alta); filter: none; transform: none; }
+.nivel-hud-punto { flex: none; width: .65rem; height: .65rem; background: var(--masa);
+  box-shadow: 0 0 10px rgba(245, 144, 47, .85); }
+.nivel-hud-texto { white-space: nowrap; }
+.nivel-hud-texto b { color: var(--masa); }
+.nivel-hud-progreso { flex: none; width: 4rem; height: .5rem; background: rgba(255, 243, 220, .18);
+  overflow: hidden; }
+.nivel-hud-progreso i { display: block; width: 100%; height: 100%; background: var(--masa);
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform var(--d-ui) var(--e-salida); }
+.nivel-mapa { position: absolute; left: 50%; bottom: calc(100% + var(--s-3)); translate: -50% 0;
+  display: grid; gap: var(--s-1); width: max-content; min-width: 15rem; padding: var(--s-3);
+  background: rgba(12, 5, 53, .98); box-shadow: var(--px-3-masa), 8px 12px 24px rgba(0, 0, 0, .5);
+  max-height: min(56vh, 22rem); overflow: auto; }
+.nivel-mapa a { display: flex; align-items: baseline; gap: var(--s-3);
+  padding: var(--s-2) var(--s-3); text-decoration: none; color: var(--suave);
+  font-family: var(--titulos); font-size: var(--t-xs); }
+.nivel-mapa a b { color: var(--masa); }
+.nivel-mapa a:hover { background: rgba(255, 243, 220, .08); color: var(--crema); }
+.nivel-mapa a.activo { background: var(--masa); color: var(--noche); }
+.nivel-mapa a.activo b { color: var(--noche); }
+
+/* --- 3. Visor de fotos ---
+   <dialog> nativo: el navegador se encarga del foco, del Esc y del fondo.
+   Aquí solo se le da el marco pixel y el pie con el título de la foto. */
+.visor { width: min(94vw, 70rem); max-width: none; padding: var(--s-4); border: 0;
+  background: rgba(12, 5, 53, .99); color: var(--crema);
+  box-shadow: var(--px-4), 0 30px 70px rgba(0, 0, 0, .65); }
+.visor::backdrop { background: rgba(6, 2, 24, .88); }
+.visor-marco { display: grid; gap: var(--s-3); justify-items: center; margin: 0; }
+.visor-marco img { display: block; width: auto; max-width: 100%; max-height: 64vh; }
+.visor-marco figcaption { font-family: var(--titulos); font-size: var(--t-xs);
+  color: var(--suave); text-align: center; }
+.visor-controles { display: flex; justify-content: center; gap: var(--s-3); margin-top: var(--s-4); }
+.visor-controles button { min-width: 2.9rem; padding: var(--s-2) var(--s-3); border: 0; cursor: pointer;
+  background: var(--tinta); color: var(--crema); box-shadow: var(--px-3-suave); }
+.visor-controles button:hover:not(:disabled) { background: var(--pantalla-alta); color: var(--masa);
+  filter: none; transform: none; }
+.visor-controles button::after { content: none !important; }
+/* Pista de que las fotos se pueden abrir: el cursor lo dice, sin añadir un
+   cursor propio que estorbe al resto de la página. */
+img[data-zoom], #lista-productos img { cursor: zoom-in; }
+
+/* --- 4. Scroll como motor (mejora progresiva) ---
+   Con líneas de tiempo de scroll, el propio desplazamiento llena el raíl de
+   los tres pasos, enciende su numeración y hace entrar las esquinas de cada
+   banda. Son adornos: si el navegador no las entiende, no se pierde nada.
+   La línea de tiempo se declara DESPUÉS del atajo animation, que si no la
+   reinicia. Se cuelga de .js-anim (la clase que ya distingue "con JS" del
+   "sin JS" en todo el sitio). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Los tres pasos suben y se encienden conforme llegan: el recorrido del
+       pedido se lee como una secuencia, no como tres tarjetas quietas. Se
+       anima translate (propiedad aparte) para no pisar el salto del hover,
+       que va en transform. */
+    .js-anim .paso {
+      animation: paso-entra linear both; animation-timeline: view();
+      animation-range: entry 0% cover 40%; }
+    @keyframes paso-entra {
+      from { translate: 0 1.6rem; opacity: .55; }
+      to { translate: 0 0; opacity: 1; } }
+    /* El número de cada paso se enciende antes que su tarjeta: marca el orden
+       que sigue el pedido. */
+    .js-anim .paso-num {
+      animation: num-listo linear both; animation-timeline: view();
+      animation-range: entry 10% cover 34%; }
+    @keyframes num-listo {
+      from { opacity: .4; text-shadow: none; }
+      to { opacity: 1; } }
+    /* Las esquinas pixel de cada banda se despliegan al entrar. */
+    .js-anim .banda-esquinas::before, .js-anim .banda-esquinas::after {
+      animation: esquina-llega linear both; animation-timeline: view();
+      animation-range: entry 0% cover 26%;
+      transform-origin: left center; }
+    @keyframes esquina-llega { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    .js-anim .banda-esquinas::after { transform-origin: right center; }
+    /* La palabra gigante del pie deriva un poco con el scroll: el remate
+       editorial deja de estar pegado al fondo. */
+    .js-anim .pie-wordmark {
+      animation: marca-deriva linear both; animation-timeline: view();
+      animation-range: entry 0% exit 100%; }
+    @keyframes marca-deriva { from { translate: 0 2.5rem; } to { translate: 0 -1.5rem; } }
+  }
+}
+
+/* =====================================================================
+   ENTRADA: PANTALLA DE TÍTULO CON EL LOGO
+   La bienvenida del sitio, como la pantalla de título de un juego: el logo
+   cae con rebote de power-up, el nombre y el eslogan aparecen debajo y seis
+   iconos pixel (corazón, monedas que giran, estrellas y la galleta de la
+   marca) flotan alrededor. Todo el pixel-art es original, dibujado en la
+   retícula de 12×12: sin personajes ni signos de terceros.
+   Es decorativa: solo la muestra efectos.js, una vez por sesión y nunca con
+   movimiento reducido (sin JS sigue oculta en el HTML). La salida la rige el
+   menú de título (capa "modo atracción"), con red muerta a los 20 s. */
+/* Los iconos y la decoración van posicionados de forma absoluta, así que en el
+   grid solo hay dos hijos en flujo: la escena y la barra de carga. La escena se
+   centra en la fila que sobra y el relleno inferior reserva el hueco del menú
+   de título (absoluto), para que nada choque con el diálogo. */
+.entrada { position: fixed; inset: 0; z-index: 200; overflow: hidden;
+  /* Dos filas en columna: la escena (logo, nombre y eslogan) se centra en la
+     que sobra y la barra "Horneando…" queda justo debajo, en el hueco que se
+     reserva al fondo para el menú de título (absoluto, anclado abajo).
+     --reserva-menu lo mide efectos.js con el alto real del diálogo más su
+     margen inferior: así la barra queda siempre entre el logo y las opciones,
+     sin apelotonarse en ventanas cortas ni en pantallas angostas. */
+  padding: var(--s-6) var(--s-6) var(--reserva-menu, clamp(11rem, 34vh, 17rem));
+  display: grid; grid-template-rows: 1fr auto; place-items: center;
+  /* Cuánto se agranda el logo al confirmarse la opción elegida. Vive aquí
+     porque el vuelo arranca de ese mismo tamaño: cambiar uno sin el otro
+     daría un salto al despegar. */
+  --logo-cargado: 1.12;
+  background:
+    radial-gradient(56rem 36rem at 50% 44%, rgba(245, 144, 47, .18), transparent 62%),
+    linear-gradient(rgba(255, 243, 220, .04) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(255, 243, 220, .04) 2px, transparent 2px),
+    var(--noche);
+  background-size: auto, 34px 34px, 34px 34px, auto; }
+/* ===== Velo de sorpresa: la página no se asoma antes que la entrada =====
+   La clase html.velado la pone el script del <head> ANTES del primer
+   pintado, solo cuando la entrada le toca verse en esta sesión (misma
+   regla que usa efectos.js). Mientras dura: (1) los hijos de la página
+   quedan invisibles —el CRT se abre sobre el fondo índigo, jamás sobre el
+   catálogo—, (2) la escena se muestra a pesar del atributo hidden y (3) el
+   nombre espera a que efectos.js lo parta en letras (evita el parpadeo de
+   texto plano). El velo lo levanta efectos.js en cuanto el CRT termina de
+   abrir; si el módulo no llega, el <head> lo retira a los 4 s. */
+html.velado body > *:not(#entrada):not(svg) { visibility: hidden; }
+html.velado #entrada[hidden] { display: grid !important; }
+/* Enlace directo: el propio hidden de la escena gana al empuje del velo. */
+html.velado #entrada[data-directo][hidden] { display: none !important; }
+html.velado .entrada-nombre { visibility: hidden; }
+/* La decoración (iconos y lluvia) ya era absoluta por dentro: el envoltorio
+   también lo es para que no ocupe una fila del grid ni empuje a la escena. */
+.entrada-decor { position: absolute; inset: 0; pointer-events: none; }
+.entrada-escena { display: grid; justify-items: center; }
+/* ===== Insignia: el logo grande dentro del aro de presentación =====
+   La caja cuadrada del aro es la que manda en el alto de la escena; el logo
+   ocupa el 70 % de ella y se queda quieto dentro mientras el aro gira. */
+/* El aro crece con lo que sobra de ventana: al alto le descontamos el HUD, la
+   barra, el hueco del menú y el resto de la escena (nombre y eslogan) —unos
+   33rem— y lo que queda es su techo. min(70vw, …) lo contiene además en
+   pantallas estrechas, así que no hace falta un punto de ruptura por alto. */
+.entrada-insignia { position: relative; display: grid; place-items: center;
+  width: clamp(4.5rem, min(70vw, calc(100vh - 33rem)), 15rem); aspect-ratio: 1; }
+.entrada-logo { width: 70%; height: auto;
+  filter: drop-shadow(0 0 26px rgba(245, 144, 47, .5)) drop-shadow(0 8px 0 rgba(0, 0, 0, .35));
+  animation: entrada-logo .7s var(--e-rebote) both; }
+/* Aro de presentación: el sello de la portada abrazando al logo (disco índigo
+   translúcido, marco pixel punteado y texto girando lento). El giro sale del
+   mismo sello-girar que usa la portada. */
+.entrada-sello { position: absolute; inset: 0; line-height: 0;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .55)); }
+.entrada-sello svg { display: block; width: 100%; height: 100%; }
+.entrada-sello-disco { fill: rgba(12, 5, 53, .72); }
+.entrada-sello-marco { fill: none; stroke: var(--masa); stroke-width: 2.6; stroke-dasharray: 6 4.5; }
+.entrada-sello text { font-family: var(--titulos); font-size: 6.6px; letter-spacing: .4px; fill: var(--masa); }
+.entrada-sello-anillo { transform-origin: 50% 50%; }
+.js-anim .entrada-sello-anillo { animation: sello-girar 22s linear infinite; }
+@keyframes entrada-logo {
+  0% { opacity: 0; transform: scale(.35) translateY(2rem); }
+  60% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 1; transform: none; } }
+.entrada-nombre { margin: var(--s-3) 0 var(--s-1); font-family: var(--titulos);
+  font-size: clamp(1.6rem, 5vw, 2.6rem); letter-spacing: .04em; color: var(--crema);
+  text-shadow: 4px 4px 0 rgba(0, 0, 0, .45);
+  animation: entrada-subir .45s .55s var(--e-salida) both; }
+.entrada-eslogan { margin: 0; font-size: var(--t-sm); font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--masa);
+  animation: entrada-subir .45s .8s var(--e-salida) both; }
+@keyframes entrada-subir { from { opacity: 0; transform: translateY(1.2rem); } to { opacity: 1; transform: none; } }
+/* ===== Menú de título =====
+   Diálogo de juego: caja índigo con marco pixel, opciones en fuente de título
+   y un cursor ▶ que parpadea sobre la opción activa. Se navega con flechas y
+   Enter, con ratón o tacto; Esc o un toque en el fondo salen.
+   Ancho: la etiqueta más larga ("Empezar aventura") tiene que caber en UN solo
+   renglón dentro de la caja, también mientras la opción elegida late. Los
+   24rem (antes 22rem) son el presupuesto de esa etiqueta: caja 384px -padding
+   del menú (48) -padding de la opción (48) = 288px útiles, contra ~235px que
+   mide el texto con Silkscreen. En ventanas estrechas manda el viewport
+   (100vw - 1rem) y la etiqueta se encoge con el min() de .entrada-op, así que
+   tampoco ahí se parte en dos. */
+.entrada-menu { position: absolute; left: 50%; bottom: clamp(1.6rem, 5vh, 3rem); z-index: 2;
+  transform: translateX(-50%); width: min(24rem, calc(100vw - 1rem));
+  padding: var(--s-4) var(--s-5); display: grid; gap: var(--s-1);
+  background: rgba(12, 5, 53, .93); box-shadow: var(--px-4), 10px 14px 0 0 rgba(0, 0, 0, .42); }
+.js-anim .entrada-menu { animation: menu-entra .4s 2.25s var(--e-salida) both; }
+@keyframes menu-entra {
+  0% { opacity: 0; transform: translateX(-50%) translateY(1rem); pointer-events: none; }
+  1% { pointer-events: auto; }
+  100% { opacity: 1; transform: translateX(-50%); } }
+/* padding-left --s-6 (32px) en vez de --s-7: son 8px más para la etiqueta, y el
+   cursor ▶ (--s-2) sigue con aire de sobra. white-space: nowrap asegura el
+   renglón único que pide un menú de título; el font-size se recorta con el
+   viewport en móviles (4.6vw), que es lo que hace que quepa incluso a 320px. */
+.entrada-op { position: relative; display: block; width: 100%;
+  padding: var(--s-2) var(--s-4) var(--s-2) var(--s-6);
+  border: 0; background: transparent; box-shadow: none; text-align: left; cursor: pointer;
+  font-family: var(--titulos); font-size: min(var(--t-md), 4.6vw);
+  white-space: nowrap; color: var(--crema);
+  transition: color var(--d-micro) ease, background-color var(--d-micro) ease; }
+.entrada-op::after { content: none !important; }   /* sin barrido de brillo de botón */
+.entrada-op:hover { background: rgba(255, 243, 220, .06); }
+.entrada-op::before { content: "▶"; position: absolute; left: var(--s-2); top: 50%;
+  translate: 0 -50%; opacity: 0; color: var(--masa); }
+.entrada-op.activa { color: var(--masa); }
+.entrada-op.activa::before { opacity: 1; }
+.js-anim .entrada-op.activa::before { animation: entrada-parpadeo .8s steps(2) infinite; }
+.entrada-op-secreta { color: var(--diamante); }
+.entrada-op-secreta.activa, .entrada-op-secreta.activa::before { color: #FFD21F; }
+.entrada-menu-pista { margin: var(--s-2) 0 0; text-align: center;
+  font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .14em; color: var(--linea-suave); }
+.entrada-secreto-nota { display: none; margin: 0; text-align: center;
+  font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .14em; color: #FFD21F; }
+/* Selector con ID a propósito: la regla global de barrido de brillo
+   (button:not(.secundario):not(.filtro) vale (0,2,1)) impondría
+   position: relative a cualquier selector de solo clase y la ✕ se iría de
+   la esquina al flujo normal del grid, tapando la escena. */
+#entrada .entrada-saltar { position: absolute; top: var(--s-4); right: var(--s-4); z-index: 4;
+  width: 2.4rem; height: 2.4rem; padding: 0; font-size: var(--t-base); line-height: 1;
+  color: var(--suave); background: rgba(12, 5, 53, .55); box-shadow: var(--px-3-suave);
+  transition: background-color var(--d-micro) ease, color var(--d-micro) ease; }
+.entrada-saltar::after { content: none !important; }
+.entrada-saltar:hover { color: var(--noche); background: var(--masa); }
+@keyframes entrada-parpadeo { 50% { opacity: .3; } }
+
+/* Iconos gamer de la entrada: pixel-art propio. La entrada usa transform
+   (rebote de aparición) y el flotar usa translate (propiedad aparte), así que
+   las dos conviven sin pisarse, igual que en las galletas de la portada. */
+.entrada-icono { position: absolute; line-height: 0; opacity: 0;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .4));
+  animation: entrada-icono .45s var(--e-rebote) both, entrada-flotar 4.6s ease-in-out infinite; }
+.entrada-icono svg { display: block; width: 100%; height: 100%; }
+@keyframes entrada-icono { 0% { opacity: 0; transform: scale(.3); } 100% { opacity: 1; transform: none; } }
+@keyframes entrada-flotar { 0%, 100% { translate: 0 0; } 50% { translate: 0 -.7rem; } }
+.ei-corazon { top: 24%; left: 20%; width: 2rem; height: 2rem; background: var(--corazon);
+  filter: drop-shadow(0 0 10px rgba(229, 65, 43, .55));
+  -webkit-mask: var(--icono-corazon) center / 100% 100% no-repeat;
+  mask: var(--icono-corazon) center / 100% 100% no-repeat;
+  animation-delay: .9s, 0s; }
+.ei-moneda { top: 18%; right: 22%; width: 2.2rem; height: 2.2rem; animation-delay: 1s, 0s; }
+.ei-estrella { bottom: 26%; left: 26%; width: 1.8rem; height: 1.8rem; animation-delay: 1.1s, .4s; }
+.ei-galleta { bottom: 22%; right: 24%; width: 2.6rem; height: 2.6rem; animation-delay: 1.2s, .2s; }
+.ei-moneda2 { top: 54%; left: 11%; width: 1.5rem; height: 1.5rem; animation-delay: 1.3s, .6s; }
+.ei-estrella2 { top: 58%; right: 12%; width: 1.4rem; height: 1.4rem; animation-delay: 1.4s, .8s; }
+/* Las monedas giran sobre su eje (steps(4): cuatro estados por vuelta, como
+   las monedas de arcade). Va en el svg interior para no chocar con el resto. */
+.ei-moneda svg, .ei-moneda2 svg { transform-origin: 50% 50%; animation: moneda-girar .9s steps(4) infinite; }
+@keyframes moneda-girar { 0% { transform: scaleX(1); } 100% { transform: scaleX(-1); } }
+@media (max-width: 40rem) { .ei-corazon, .ei-moneda2, .ei-estrella2 { display: none; } }
+
+/* ===== Entrada épica: la misma pantalla de título, pero como escena =====
+   La capa anterior (iconos, pista, eslogan) sigue siendo el cimiento; esta la
+   convierte en una secuencia de título de arcade con cronómetro corrido en
+   CSS — si JS falla a mitad, la escena termina sola igualmente:
+     0.00s  el monitor se enciende (apertura CRT: de una línea a toda pantalla)
+     0.30s  impacto del logo: destello, onda cuadrada y sacudida de pantalla
+     0.60s  las vidas (cinco corazones) entran como en un HUD
+     0.72s  el nombre entra letra a letra con rebote (los desfases los pone JS)
+     1.20s  barra "Horneando…" que se llena en 12 bloques (steps)
+     2.50s  lluvia de monedas de celebración
+     2.95s  salida con iris de píxeles (steps) y fundido de seguridad */
+/* Sin auto-cierre: el menú espera al jugador, como la pantalla de título de un
+   juego, y espera TODO lo que haga falta. Antes vivía aquí una red muerta de
+   20 s que disolvía la escena sola, y hacía daño justo a quien se la estaba
+   mirando: a los 20 s la entrada quedaba con opacity 0, visibility hidden y
+   pointer-events none, así que pulsar una categoría ya no entraba en ninguna
+   rama del JS y el logo no llegaba a volar. Tampoco cubría al JS roto, porque
+   .js-anim se retira a los 4 s si efectos.js no llega. La red de verdad vive
+   en el <head>: si a los 4 s el módulo no ha avisado, ese script saca la
+   entrada del DOM. Aquí el iris de salida lo dispara JS con
+   .entrada-terminando, y las salidas del jugador son la ✕, Esc y el fondo. */
+.js-anim .entrada { animation: entrada-crt .45s ease-out both; }
+/* ===== Elección: la confirmación es una escena, no un corte =====
+   Al elegir CUALQUIERA de las categorías —aventura, sabores o créditos— JS
+   añade .entrada-elegida: la opción elegida se ilumina a lo 8 bits —parpadeo
+   duro y salto de escala por pasos, como un personaje seleccionado— mientras
+   las demás se apagan y el logo se carga de brillo. Los 3,5 s de selección
+   así dan paso a .entrada-terminando, con --iris-* / --vuela-* apuntando al
+   logo real de la barra (los mide JS con los dos rectángulos reales, en el
+   despegue): el logo vuela hasta él y el iris se cierra ENCIMA —"irse hasta
+   donde está el logo"—. steps() por todos lados para que los saltos se
+   sientan de píxel. */
+.entrada.entrada-elegida .entrada-op:not(.elegida) {
+  opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+/* El pista y la barra se apagan con una animación propia: un opacity normal
+   quedaría anulado por el fill de entrada-subir (los valores de animación
+   ganan a las declaraciones normales del autor). */
+@keyframes elegido-fuera { to { opacity: 0; } }
+.entrada.entrada-elegida .entrada-menu-pista,
+.entrada.entrada-elegida .entrada-carga { animation: elegido-fuera .3s ease-in both; }
+/* La opción elegida se anima mientras dura la espera: parpadeo a lo 8 bits,
+   pulso de escala y una barra interna que se llena de 0 a 100 % en los 3,5 s
+   de la selección (background-size, sin tocar el HTML de la opción). Así el
+   arranque no se siente instantáneo ni "colgado". */
+.entrada.entrada-elegida .entrada-op.elegida {
+  color: var(--masa);
+  text-shadow: 0 0 20px rgba(245, 144, 47, .85), 4px 4px 0 rgba(0, 0, 0, .45);
+  background-image: linear-gradient(var(--masa), var(--masa));
+  background-repeat: no-repeat; background-position: 0 100%; background-size: 0% .2rem;
+  animation: elegido-luz .6s steps(1) infinite,
+             elegido-alto .45s steps(3) infinite alternate,
+             op-carga 3.5s linear forwards; }
+@keyframes op-carga { to { background-size: 100% .2rem; } }
+@keyframes elegido-luz {
+  0% { color: var(--masa); text-shadow: 0 0 22px rgba(245, 144, 47, .95), 4px 4px 0 rgba(0, 0, 0, .45); }
+  50% { color: var(--diamante); text-shadow: 0 0 30px rgba(77, 232, 208, .95), 4px 4px 0 rgba(0, 0, 0, .45); }
+  100% { color: var(--masa); text-shadow: 0 0 22px rgba(245, 144, 47, .95), 4px 4px 0 rgba(0, 0, 0, .45); } }
+/* Solo escala, a propósito. Antes este pulso también movía el letter-spacing
+   (.04em → .14em) y eso SÍ cambia el ancho de maquetación: al confirmar
+   "Empezar aventura" la etiqueta crecía ~40px, no cabía en la caja y se partía
+   en dos renglones, subiendo y bajando el alto del menú en cada latido. La
+   escala es una transformación: engorda el texto en pantalla sin reflow, así
+   que el latido se ve igual de vivo y el renglón ya nunca se parte. */
+@keyframes elegido-alto {
+  from { scale: 1; }
+  to { scale: 1.12; } }
+/* El logo se carga de brillo y crece solo un 12% —lo justo para no meterse
+   en las vidas ni en el nombre durante los 4 s de la selección—; su vuelo
+   arranca exactamente desde ese tamaño. */
+.entrada.entrada-elegida .entrada-logo {
+  animation: logo-reacercar .85s .2s steps(9) both; }
+@keyframes logo-reacercar {
+  from { transform: scale(1);
+    filter: drop-shadow(0 0 26px rgba(245, 144, 47, .5)) drop-shadow(0 8px 0 rgba(0, 0, 0, .35)); }
+  to { transform: scale(var(--logo-cargado, 1.12));
+    filter: drop-shadow(0 0 64px rgba(255, 210, 31, .95)) drop-shadow(0 8px 0 rgba(0, 0, 0, .35)); } }
+.entrada.entrada-terminando { animation:
+  entrada-iris 1s steps(16) both,
+  entrada-salir .2s .95s ease-in forwards; }
+@keyframes entrada-crt {
+  0% { clip-path: inset(50% 0 50% 0); filter: brightness(3.2) saturate(.4); }
+  55% { clip-path: inset(0); filter: brightness(1.8) saturate(.8); }
+  100% { clip-path: inset(0); filter: none; } }
+@keyframes entrada-iris {
+  from { clip-path: circle(160% at var(--iris-x, 50%) var(--iris-y, 50%)); }
+  to { clip-path: circle(0% at var(--iris-x, 50%) var(--iris-y, 50%)); } }
+/* El logo es el único que viaja: vuela 1 s hasta su hueco real de la cabecera
+   —al lado del nombre PIXEL GALLETAS— encogiendo hasta el tamaño del logo de
+   la barra (--vuela-* lo mide JS), mientras el resto de la escena se apaga en
+   su sitio, sin arrastrar al protagonista. */
+.entrada.entrada-terminando .entrada-vidas,
+.entrada.entrada-terminando .entrada-nombre,
+.entrada.entrada-terminando .entrada-eslogan,
+.entrada.entrada-terminando .entrada-sello {
+  animation: escena-apagado .55s .2s ease-in both; }
+@keyframes escena-apagado { to { opacity: 0; } }
+.entrada.entrada-terminando .entrada-logo {
+  animation: logo-vuela 1s cubic-bezier(.33, 0, .2, 1) both; }
+/* FLIP de verdad: el rectángulo actual del logo contra el rectángulo del logo
+   de la barra. --vuela-base es el tamaño con el que el logo despega (lo mide
+   JS: rect actual / caja de maquetación) y transform lo mantiene fijo de
+   principio a fin, mientras translate y scale —propiedades aparte— hacen el
+   delta. Así encaja exacto y sin salto, se mida cuando se mida. */
+@keyframes logo-vuela {
+  from { transform: scale(var(--vuela-base, 1)); translate: 0 0; scale: 1;
+    filter: drop-shadow(0 0 64px rgba(255, 210, 31, .95)) drop-shadow(0 8px 0 rgba(0, 0, 0, .35)); }
+  to { transform: scale(var(--vuela-base, 1));
+    translate: var(--vuela-x, -42vw) var(--vuela-y, -40vh);
+    scale: var(--vuela-escala, .3);
+    filter: drop-shadow(0 0 8px rgba(245, 144, 47, .35)) drop-shadow(2px 2px 0 rgba(0, 0, 0, .3)); } }
+/* Si el destino no se pudo medir (cabecera sin logo visible, reflujo a
+   medias), no se vuela a ciegas: el logo se apaga con el resto de la escena,
+   que se lee mucho mejor que un salto a un punto al azar. */
+.entrada.entrada-terminando.entrada-sin-destino .entrada-logo {
+  animation: escena-apagado .55s .2s ease-in both; }
+/* Relevo del vuelo: cuando el logo de la escena aterriza en la cabecera, el
+   logo real da un latido dorado —la misma luz con la que llegó el otro— para
+   que se lea como UNA llegada y no como dos logos distintos. Va en scale
+   (transformación propia): no toca el layout de la barra. */
+.marca img.marca-latido { animation: marca-latido .5s steps(5) both; }
+@keyframes marca-latido {
+  0% { scale: 1.4; filter: drop-shadow(0 0 24px rgba(255, 210, 31, .95)); }
+  60% { scale: 1.08; filter: drop-shadow(0 0 12px rgba(255, 210, 31, .6)); }
+  100% { scale: 1; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, .45)); } }
+.entrada.entrada-terminando .entrada-menu {
+  animation: menu-iva .5s .1s ease-in both; }
+@keyframes menu-iva { to { opacity: 0; translate: 0 1.4rem; } }
+@keyframes entrada-salir { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+.entrada-lienzo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.entrada-escena { position: relative; row-gap: var(--s-2); }
+.js-anim .entrada-escena { animation: entrada-sacudida .38s .3s ease-out; }
+@keyframes entrada-sacudida {
+  0% { transform: none; } 20% { transform: translate(-7px, 4px); } 40% { transform: translate(6px, -3px); }
+  60% { transform: translate(-4px, 2px); } 80% { transform: translate(2px, -1px); } 100% { transform: none; } }
+.entrada-flash { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: #FFF3DC; opacity: 0; }
+.js-anim .entrada-flash { animation: entrada-flash .3s .3s ease-out; }
+@keyframes entrada-flash { 0% { opacity: .8; } 100% { opacity: 0; } }
+.entrada-onda { position: absolute; top: 50%; left: 50%; width: 10rem; height: 10rem;
+  margin: -5rem 0 0 -5rem; border: 4px solid rgba(245, 144, 47, .85); opacity: 0; pointer-events: none; }
+.js-anim .entrada-onda { animation: entrada-onda .7s .3s steps(8) forwards; }
+@keyframes entrada-onda { 0% { transform: scale(.15); opacity: 1; } 100% { transform: scale(3); opacity: 0; } }
+/* El logo ya no se limita a aparecer: cae desde arriba y aterriza con rebote
+   en el mismo instante del destello, la onda y la sacudida (0.3s). */
+.js-anim .entrada-logo { animation: entrada-logo-impacto .65s .1s var(--e-rebote) both; }
+@keyframes entrada-logo-impacto {
+  0% { opacity: 0; transform: translateY(-55%) scale(1.25); }
+  45% { opacity: 1; transform: translateY(0) scale(1.14); }
+  62% { transform: translateY(0) scale(.93); }
+  80% { transform: translateY(0) scale(1.04); }
+  100% { opacity: 1; transform: none; } }
+.entrada-vidas { display: flex; gap: var(--s-1); margin: 0; }
+.entrada-vidas span { width: 1.4rem; height: 1.4rem; background: var(--corazon);
+  filter: drop-shadow(0 0 8px rgba(229, 65, 43, .55));
+  -webkit-mask: var(--icono-corazon) center / 100% 100% no-repeat;
+  mask: var(--icono-corazon) center / 100% 100% no-repeat; }
+.js-anim .entrada-vidas span { animation: entrada-vida .3s calc(.6s + var(--i, 0) * .13s) var(--e-rebote) backwards; }
+@keyframes entrada-vida { 0% { opacity: 0; transform: translateY(.6rem) scale(.4); } 100% { opacity: 1; transform: none; } }
+/* El nombre ya no entra de golpe: cada letra cae con su propio desfase
+   (--l lo asigna efectos.js al partir el texto en <span>). */
+.js-anim .entrada-nombre { animation: none; }
+.entrada-nombre span { display: inline-block; }
+.js-anim .entrada-nombre span { opacity: 0;
+  animation: entrada-letra .42s calc(.72s + var(--l, 0) * .05s) var(--e-rebote) both; }
+@keyframes entrada-letra {
+  0% { opacity: 0; transform: translateY(-1.5rem) scale(.5); }
+  60% { opacity: 1; transform: translateY(.12rem) scale(1.1); }
+  100% { opacity: 1; transform: none; } }
+.js-anim .entrada-eslogan { animation-delay: 1.5s; }
+/* Barra "Horneando…": doce bloques (steps) y un destello diamante al llenarse.
+   Es la segunda fila del grid de la entrada (justo debajo de la escena y por
+   encima del hueco reservado al menú), así que tiene su propio aire en
+   cualquier altura de ventana y no se apelotona ni con el eslogan ni con las
+   opciones. El margen inferior reparte el hueco que le queda al menú. */
+.entrada-carga { position: relative; z-index: 2; margin: 0 0 var(--s-6);
+  display: grid; justify-items: center; gap: var(--s-2); }
+.js-anim .entrada-carga { animation: entrada-subir .4s 1.2s var(--e-salida) both; }
+.entrada-carga-barra { display: block; width: min(15rem, 62vw); height: .85rem; padding: 2px;
+  background: var(--tinta); box-shadow: var(--px-3-suave); }
+.entrada-carga-barra i { display: block; height: 100%; width: 0;
+  background: repeating-linear-gradient(90deg, var(--masa) 0 .78rem, var(--masa-clara) .78rem 1rem); }
+.js-anim .entrada-carga-barra i { animation: entrada-cargar .95s 1.3s steps(12) forwards; }
+@keyframes entrada-cargar { to { width: 100%; } }
+.js-anim .entrada-carga-barra { animation: entrada-listo .45s 2.28s ease-out; }
+@keyframes entrada-listo { 40% { box-shadow: var(--px-3-diamante), 0 0 26px rgba(77, 232, 208, .55); } }
+.entrada-carga-texto { font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .24em;
+  text-transform: uppercase; color: var(--suave); }
+/* El porcentaje lo escribe efectos.js (0 → 100). Ancho fijo y cifras
+   tabulares para que el rótulo no baile mientras cuenta. */
+.entrada-carga-texto b { display: inline-block; min-width: 3ch; text-align: right;
+  color: var(--masa); font-weight: 700; font-variant-numeric: tabular-nums; }
+/* Lluvia de monedas: caen con giro durante el iris de salida */
+.entrada-lluvia { position: absolute; top: -14%; z-index: 1; width: 1.7rem; height: 1.7rem;
+  line-height: 0; opacity: 0; pointer-events: none; }
+.entrada-lluvia svg { display: block; width: 100%; height: 100%; }
+.js-anim .entrada-lluvia { animation: entrada-lluvia .95s calc(2.5s + var(--c, 0) * .13s) cubic-bezier(.35, .1, .7, 1) forwards; }
+@keyframes entrada-lluvia {
+  0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 1; transform: translateY(128vh) rotate(300deg); } }
+.ec-1 { left: 8%; } .ec-2 { left: 31%; } .ec-3 { left: 58%; } .ec-4 { left: 84%; }
+
+/* ===== Entrada legendaria: modo atracción de arcade =====
+   El acabado de una máquina recreativa en modo atracción, sobre la escena
+   épica anterior: barrido CRT sobre toda la pantalla, ráfaga de sol girando
+   detrás del logo, HUD de puntuación que cuenta hacia arriba, consola de
+   arranque que teclea, doble onda y esquirlas pixel en el impacto, barra de
+   horneado con galleta sobre el relleno y lluvia de monedas y estrellas. */
+.entrada-vista { position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(6, 2, 24, .16) 0 2px, transparent 2px 4px),
+    radial-gradient(120% 95% at 50% 45%, transparent 52%, rgba(6, 2, 24, .55)); }
+.entrada-sol { position: absolute; top: 50%; left: 50%; width: 46vmax; height: 46vmax;
+  margin: -23vmax 0 0 -23vmax; opacity: 0; pointer-events: none;
+  background: repeating-conic-gradient(from 0deg, rgba(245, 144, 47, .22) 0 6deg, transparent 6deg 12deg);
+  -webkit-mask: radial-gradient(closest-side, #000 26%, transparent 70%);
+  mask: radial-gradient(closest-side, #000 26%, transparent 70%); }
+/* Aparecer usa opacity/scale y girar usa rotate: propiedades independientes,
+   así que las dos animaciones conviven sin pisarse. */
+.js-anim .entrada-sol { animation: entrada-sol-aparecer .5s .3s ease-out both,
+  entrada-sol-girar 16s .3s linear infinite; }
+@keyframes entrada-sol-aparecer { from { opacity: 0; scale: .5; } to { opacity: 1; scale: 1; } }
+@keyframes entrada-sol-girar { to { rotate: 360deg; } }
+.entrada-hud { position: absolute; top: var(--s-5); left: var(--s-5); right: var(--s-5); z-index: 2;
+  display: flex; justify-content: space-between; gap: var(--s-4);
+  font-family: var(--titulos); font-size: var(--t-sm); letter-spacing: .1em; text-transform: uppercase; }
+.js-anim .entrada-hud { animation: entrada-subir .4s .2s var(--e-salida) both; }
+.entrada-hud span { display: inline-flex; gap: var(--s-2); padding: var(--s-1) var(--s-3);
+  background: rgba(12, 5, 53, .55); box-shadow: var(--px-3-suave); color: var(--suave); }
+.entrada-hud b { color: var(--masa); font-weight: 700; }
+/* El RÉCORD va al centro superior (como en los arcade clásicos) para
+   liberar la esquina superior derecha, donde vive el botón de saltar. */
+.entrada-hud .hud-record { position: absolute; left: 50%; top: 0; translate: -50% 0; }
+.entrada-hud .hud-record b { color: var(--diamante); }
+.entrada-boot { position: absolute; left: var(--s-5); bottom: var(--s-5); z-index: 2; margin: 0;
+  display: grid; gap: var(--s-1); font-family: var(--titulos); font-size: var(--t-xs);
+  letter-spacing: .06em; color: rgba(77, 232, 208, .75); }
+.entrada-boot span { display: block; overflow: hidden; white-space: nowrap; width: 0; }
+.js-anim .entrada-boot span:nth-child(1) { animation: entrada-tipear .3s .05s steps(20) forwards; }
+.js-anim .entrada-boot span:nth-child(2) { animation: entrada-tipear .35s .38s steps(26) forwards; }
+.js-anim .entrada-boot span:nth-child(3) { animation: entrada-tipear .3s .76s steps(22) forwards; }
+@keyframes entrada-tipear { to { width: 30ch; } }
+.entrada-onda2 { position: absolute; top: 48%; left: 50%; width: 7rem; height: 7rem;
+  margin: -3.5rem 0 0 -3.5rem; border: 3px solid rgba(255, 243, 220, .9); opacity: 0; pointer-events: none; }
+.js-anim .entrada-onda2 { animation: entrada-onda .6s .42s steps(6) forwards; }
+.entrada-shard { position: absolute; top: 48%; left: 50%; z-index: 1; width: 0; height: 0; pointer-events: none; }
+.entrada-shard span { position: absolute; width: .55rem; height: .55rem; background: var(--masa);
+  opacity: 0; transform: rotate(var(--a)) translateX(0); }
+.js-anim .entrada-shard span { animation: entrada-shard .6s calc(.3s + var(--d, 0) * .04s) steps(6) forwards; }
+@keyframes entrada-shard {
+  0% { opacity: 1; transform: rotate(var(--a)) translateX(1.2rem) scale(1); }
+  100% { opacity: 0; transform: rotate(var(--a)) translateX(var(--dist, 11rem)) scale(.4); } }
+.entrada-carga-barra i { position: relative; }
+.entrada-carga-galleta { position: absolute; top: 50%; right: -.45rem; width: 1.35rem; height: 1.35rem;
+  transform: translateY(-50%); filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .5)); }
+.entrada-carga-texto { position: relative; }
+.entrada-carga-texto em { position: absolute; left: 0; right: 0; top: 0; font-style: normal;
+  color: var(--diamante); opacity: 0; }
+.js-anim .entrada-carga-texto { animation: entrada-texto-fuera .2s 2.3s ease-in forwards; }
+.js-anim .entrada-carga-texto em { animation: entrada-texto-dentro .3s 2.32s var(--e-rebote) forwards; }
+@keyframes entrada-texto-fuera { to { opacity: 0; } }
+@keyframes entrada-texto-dentro {
+  0% { opacity: 0; transform: translateY(.5rem) scale(.7); }
+  100% { opacity: 1; transform: none; } }
+/* ===== Modo secreto (Konami dentro del menú) =====
+   Toda la escena se tiñe de oro: sol brillante, título con halo cálido,
+   marcador dorado, lluvia doble (cuatro piezas extra) y una nota de logro. */
+.entrada-lluvia-extra { display: none; }
+.entrada-secreto .entrada-lluvia-extra { display: block; }
+.entrada-secreto .entrada-sol {
+  background: repeating-conic-gradient(from 0deg, rgba(255, 210, 31, .3) 0 6deg, transparent 6deg 12deg); }
+.entrada-secreto .entrada-nombre { color: var(--masa);
+  text-shadow: 0 0 24px rgba(245, 144, 47, .75), 4px 4px 0 rgba(0, 0, 0, .45); }
+.entrada-secreto .entrada-hud b { color: #FFD21F; }
+.entrada-secreto .entrada-lluvia { filter: brightness(1.25) saturate(1.3)
+  drop-shadow(0 0 8px rgba(255, 210, 31, .5)); }
+.entrada-secreto .entrada-secreto-nota { display: block;
+  animation: entrada-texto-dentro .35s var(--e-rebote) both; }
+.ec-5 { left: 20%; } .ec-6 { left: 45%; } .ec-7 { left: 70%; } .ec-8 { left: 92%; }
+@media (max-width: 52rem) { .entrada-boot { display: none; } }
+@media (max-width: 40rem) {
+  .entrada-hud { font-size: var(--t-xs); }
+  /* En pantallas angostas el chip central chocaría con el de PUNTOS */
+  .entrada-hud .hud-record { display: none; }
+  /* Aquí vivía un .entrada-menu a 20rem (320px) que "encogía" el diálogo en
+     móvil, y era justo lo que partía "Empezar aventura" en dos renglones: con
+     la caja a 320px solo quedaban 216px para una etiqueta de 235. Ya no hace
+     falta: el clamp del propio .entrada-menu la ajusta al viewport (100vw -
+     1rem) y .entrada-op recorta el tipo con 4.6vw, así que en angosto manda la
+     pantalla sin que la etiqueta pierda el renglón. */
+}
+/* Ventanas bajas (portátiles con barras del navegador): a tamaño completo, la
+   escena, la barra y el menú ya no caben con aire a la vez y el logo se pega
+   al HUD. La escena encoge lo justo para conservar el hueco de la barra. */
+@media (max-height: 47rem) {
+  .entrada-carga { margin-bottom: var(--s-5); }
+  .entrada-vidas span { width: 1.1rem; height: 1.1rem; }
+  .entrada-nombre { font-size: clamp(1.3rem, 4.6vw, 2rem); }
+  .entrada-eslogan { font-size: var(--t-xs); letter-spacing: .12em; }
+}
+
+/* =====================================================================
+   CAPA DE PANTALLA: EL SITIO COMO MONITOR DE ARCADE
+   Cinco acabados que convierten la página entera en la pantalla de una
+   máquina recreativa, sin sumar ni una imagen:
+     1. .crt          — barrido, rejilla de fósforo y viñeta (capa fija)
+     2. .ambiente     — cielo de estrellas en dos capas y sprites flotando
+     3. .marco-nivel  — escuadras pixel en las esquinas de cada nivel
+     4. .sello-sabor  — el sello de familia de cada tarjeta del catálogo
+     5. .pie-maquina  — la franja de moneda del pie
+   Todas son decorativas (aria-hidden en el HTML) y ninguna recibe clics.
+   Nada de aquí anima con movimiento reducido: lo apaga la regla global del
+   final del archivo, salvo la barra rodante del CRT, que se retira porque
+   parada se leería como una mancha.
+   ===================================================================== */
+
+/* --- 1. Pantalla CRT ---
+   Tres texturas superpuestas: líneas de barrido horizontales, rejilla
+   vertical de fósforo (aperture grille) y una viñeta que hunde los cantos.
+   Los dos niveles están calibrados para no comerse el contraste: medido con
+   píxeles reales, el barrido oscurece un 11 % como mucho y la viñeta no llega
+   al texto de la columna de contenido (empieza al 66 % del radio de la
+   ventana). Así el cuerpo de la página y la única banda a sangre con tinta
+   oscura (Power up) se quedan por encima del 4,5:1 de AA. Va por debajo de
+   todo el cromo interactivo (barra z 20, HUD z 26, flotantes z 30) para que
+   nunca se coma un botón, y por encima del lienzo de contenido. */
+.crt { position: fixed; inset: 0; z-index: 16; pointer-events: none; }
+.crt::before, .crt::after { content: ""; position: absolute; inset: 0; }
+.crt::before { background:
+    repeating-linear-gradient(0deg, rgba(6, 2, 24, .11) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .022) 0 1px, transparent 1px 3px); }
+.crt::after { background:
+    radial-gradient(122% 96% at 50% 46%, transparent 66%, rgba(4, 1, 16, .16) 92%, rgba(4, 1, 16, .26)); }
+/* Barra de refresco: una banda apenas más clara que baja por la pantalla cada
+   9 s, como el retrazo de un tubo de rayos. Se mueve en translate (propiedad
+   propia) para que el navegador la componga sin repintar la textura. */
+.crt-barrido { position: absolute; left: 0; right: 0; height: 22vh;
+  background: linear-gradient(180deg, transparent,
+    rgba(255, 243, 220, .05) 45%, rgba(255, 243, 220, .07) 55%, transparent);
+  animation: crt-barrido 9s linear infinite; }
+@keyframes crt-barrido { from { translate: 0 -24vh; } to { translate: 0 104vh; } }
+@media (prefers-reduced-motion: reduce) { .crt-barrido { display: none; } }
+
+/* --- 2. Ambiente de fondo ---
+   Cielo de estrellas pixel en dos capas de paralaje (la de delante, más
+   grande y rápida; la de atrás, menuda y lenta) más seis sprites de arcade
+   flotando por los márgenes. El cielo se mueve en translate por un mosaico
+   entero de su patrón, así que el bucle no tiene costura; la capa es mucho
+   más grande que la ventana, de modo que el desplazamiento nunca descubre el
+   borde. Los sprites solo salen cuando la ventana tiene márgenes de verdad a
+   los lados (≥ 82rem): en pantallas estrechas taparían el texto. */
+.ambiente { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.ambiente-cielo { position: absolute; inset: -60%; background-repeat: repeat; }
+.ambiente-cielo-1 { background-image:
+    radial-gradient(2px 2px at 30px 40px, rgba(255, 243, 220, .55), transparent 60%),
+    radial-gradient(1px 1px at 130px 90px, rgba(255, 243, 220, .35), transparent 60%),
+    radial-gradient(1px 1px at 200px 170px, rgba(77, 232, 208, .38), transparent 60%),
+    radial-gradient(2px 2px at 90px 210px, rgba(245, 144, 47, .34), transparent 60%);
+  background-size: 240px 240px;
+  animation: cielo-1 150s linear infinite; }
+.ambiente-cielo-2 { background-image:
+    radial-gradient(1px 1px at 60px 20px, rgba(255, 243, 220, .5), transparent 60%),
+    radial-gradient(1px 1px at 160px 120px, rgba(185, 166, 255, .42), transparent 60%);
+  background-size: 120px 120px;
+  animation: cielo-2 80s linear infinite; }
+@keyframes cielo-1 { to { translate: -240px 240px; } }
+@keyframes cielo-2 { to { translate: 120px 120px; } }
+.ambiente-sprite { position: absolute; line-height: 0; display: none;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .45));
+  animation: ambiente-flota 8s ease-in-out infinite; }
+.ambiente-sprite svg { display: block; width: 100%; height: 100%; }
+@media (min-width: 82rem) {
+  .ambiente-sprite { display: block; }
+  .am-1 { top: 11%; left: 1.5%; width: 2.2rem; height: 2.2rem; opacity: .42; }
+  .am-2 { top: 26%; right: 1.8%; width: 1.9rem; height: 1.9rem; opacity: .38; animation-delay: -1.4s; }
+  .am-3 { top: 43%; left: 2.2%; width: 2.6rem; height: 2.6rem; opacity: .3; animation-delay: -2.6s; }
+  .am-4 { top: 59%; right: 1.5%; width: 2.4rem; height: 2.4rem; opacity: .4; animation-delay: -3.4s; }
+  .am-5 { top: 74%; left: 1.8%; width: 2rem; height: 2rem; opacity: .42; animation-delay: -4.6s; }
+  .am-6 { top: 87%; right: 2.4%; width: 2.1rem; height: 2.1rem; opacity: .4; animation-delay: -5.8s; }
+}
+@keyframes ambiente-flota { 0%, 100% { translate: 0 0; rotate: -3deg; } 50% { translate: 0 -1.3rem; rotate: 4deg; } }
+
+/* --- 3. Marcos de nivel ---
+   Cuatro escuadras pixel en las esquinas de cada nivel (las coloca efectos.js
+   sobre el mismo listado que numera los niveles). Las secciones con relleno
+   propio —bandas y ventanas— las llevan pegadas al canto; las de flujo
+   continuo se separan un dedo para no tocar el texto. Al pasar el ratón se
+   encienden: la misma respuesta que tiene cualquier panel de selección. */
+main > section { position: relative; }
+.marco-nivel { position: absolute; inset: -1rem; z-index: 1; pointer-events: none;
+  --esc: 1.1rem; --gru: 3px; opacity: .5;
+  background:
+    linear-gradient(var(--masa), var(--masa)) 0 0 / var(--esc) var(--gru) no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 0 0 / var(--gru) var(--esc) no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 100% 0 / var(--esc) var(--gru) no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 100% 0 / var(--gru) var(--esc) no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 0 100% / var(--esc) var(--gru) no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 0 100% / var(--gru) var(--esc) no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 100% 100% / var(--esc) var(--gru) no-repeat,
+    linear-gradient(var(--masa), var(--masa)) 100% 100% / var(--gru) var(--esc) no-repeat;
+  transition: opacity var(--d-ui) ease; }
+.banda > .marco-nivel, .tarjeta > .marco-nivel { inset: 0; }
+@media (hover: hover) { section:hover > .marco-nivel { opacity: .85; } }
+
+/* --- 4. Sello de familia del catálogo ---
+   Una placa de sprite en la esquina de cada tarjeta que dice, sin palabras, a
+   qué familia de colección pertenece el sabor: la galleta de las clásicas, la
+   gema de las fusiones y la estrella de la edición especial. La tarjeta no la
+   pide quien no tenga familia declarada, así que nunca se etiqueta un sabor
+   con algo que no es (un sabor creado desde el panel se queda sin sello). */
+.sello-sabor { position: absolute; top: var(--s-3); right: var(--s-3); z-index: 1;
+  display: grid; place-items: center; width: 2.1rem; height: 2.1rem; padding: .32rem;
+  background: rgba(12, 5, 53, .82); box-shadow: var(--px-3-suave); }
+.sello-sabor svg { display: block; width: 100%; height: 100%; }
+.sello-sabor[data-familia="fusion"] { box-shadow: var(--px-3-diamante); }
+.sello-sabor[data-familia="edicion"] { box-shadow: var(--px-3-masa); }
+@media (prefers-reduced-motion: no-preference) {
+  .sello-sabor[data-familia="edicion"] { animation: sello-oro 3.2s ease-in-out infinite; }
+}
+@keyframes sello-oro {
+  0%, 100% { filter: drop-shadow(0 0 3px rgba(255, 210, 31, .3)); }
+  50% { filter: drop-shadow(0 0 13px rgba(255, 210, 31, .7)); } }
+
+/* --- 5. Franja arcade del pie --- */
+.pie-maquina { max-width: var(--ancho); margin: var(--s-5) auto 0;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--s-3);
+  font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .3em;
+  text-transform: uppercase; color: var(--masa); }
+.pie-maquina-sprite { line-height: 0; opacity: .8; }
+.pie-maquina-sprite svg { display: block; width: 1.1rem; height: 1.1rem; }
+.pie-maquina-texto { animation: maquina-parpadeo 1.4s steps(2) infinite; }
+@keyframes maquina-parpadeo { 50% { opacity: .25; } }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
+  /* Doble red de seguridad: la entrada no es esencial y con movimiento
+     reducido jamás debe aparecer (efectos.js tampoco la muestra). */
+  .entrada { display: none !important; }
 }
