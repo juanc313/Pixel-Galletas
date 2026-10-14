@@ -9,7 +9,11 @@ require("dotenv").config();
 function construirSSL() {
   if (process.env.DB_SSL !== "true") return undefined;
   const ssl = { rejectUnauthorized: process.env.DB_SSL_VERIFY !== "false" };
-  if (process.env.DB_SSL_CA && fs.existsSync(process.env.DB_SSL_CA)) {
+  // En Vercel no hay archivos locales: el certificado puede llegar como texto en DB_SSL_CA_PEM.
+  if (process.env.DB_SSL_CA_PEM) {
+    // Vercel guarda el PEM en una sola línea: los \n literales se convierten en saltos reales.
+    ssl.ca = process.env.DB_SSL_CA_PEM.replace(/\\n/g, "\n");
+  } else if (process.env.DB_SSL_CA && fs.existsSync(process.env.DB_SSL_CA)) {
     ssl.ca = fs.readFileSync(process.env.DB_SSL_CA);
   }
   return ssl;

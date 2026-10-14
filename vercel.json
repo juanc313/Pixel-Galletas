@@ -1,7 +1,9 @@
 {
+  "framework": null,
   "outputDirectory": "public",
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" }
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/sitemap.xml", "destination": "/api" }
   ],
   "headers": [
     {

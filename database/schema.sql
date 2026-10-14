@@ -190,7 +190,7 @@ DEALLOCATE PREPARE stmt_visita;
 SET @tiene_entrega := (SELECT COUNT(*) FROM information_schema.COLUMNS
   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'pedidos' AND COLUMN_NAME = 'entrega');
 SET @sql_entrega := IF(@tiene_entrega = 0,
-  "ALTER TABLE pedidos ADD COLUMN entrega ENUM('recoger', 'cucuta', 'municipios') NOT NULL DEFAULT 'recoger' AFTER descuento",
+  'ALTER TABLE pedidos ADD COLUMN entrega ENUM(''recoger'', ''cucuta'', ''municipios'') NOT NULL DEFAULT ''recoger'' AFTER descuento',
   'DO 0');
 PREPARE stmt_entrega FROM @sql_entrega;
 EXECUTE stmt_entrega;
