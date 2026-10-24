@@ -23,6 +23,34 @@ export const DESCUENTOS = [
   { desde: 48, porcentaje: 10 },
 ];
 
+// Combos Pixel Special Edition: la MISMA regla que el servidor
+// (src/config/descuentos.js y detectarCombo en pedidoController.js). El combo
+// se cobra a precio fijo solo cuando las galletas del carrito coinciden
+// exactamente con uno; prueba de paridad en tests.
+export const NOMBRE_SPECIAL = "Pixel Special Edition";
+export const COMBOS = [
+  { nombre: "Combo Pixel x1", especiales: 1, normales: 2, precio: 26000 },
+  { nombre: "Combo Pixel x2", especiales: 2, normales: 2, precio: 36000 },
+  { nombre: "Combo Pixel x3", especiales: 3, normales: 3, precio: 52000 },
+];
+
+// items: [{ nombre, precio, cantidad }]. Devuelve el combo que aplica o null.
+export function comboDe(items) {
+  const numEspeciales = items.filter((i) => i.nombre === NOMBRE_SPECIAL).reduce((s, i) => s + i.cantidad, 0);
+  const numNormales = items.filter((i) => i.nombre !== NOMBRE_SPECIAL).reduce((s, i) => s + i.cantidad, 0);
+  if (numEspeciales === 0) return null;
+  // Mejor combo para el conjunto: el de mayor precio que cabe exactamente.
+  let mejor = null;
+  for (const combo of COMBOS) {
+    if (numEspeciales % combo.especiales !== 0) continue;
+    const veces = numEspeciales / combo.especiales;
+    if (numNormales !== veces * combo.normales) continue;
+    if (!mejor || combo.precio > mejor.combo.precio) mejor = { combo, veces };
+  }
+  if (!mejor) return null;
+  return { nombre: mejor.combo.nombre, veces: mejor.veces, precio: mejor.veces * mejor.combo.precio };
+}
+
 // Formas de entrega: la MISMA tabla que aplica el servidor al guardar el
 // pedido (src/config/envio.js). El navegador la usa para mostrar el total antes
 // de pedir; el que se guarda siempre lo calcula el servidor. Hay una prueba que
@@ -74,12 +102,43 @@ export function descuentoPara(unidades, subtotal) {
   return { porcentaje, valor: Math.round((subtotal * porcentaje) / 100), siguiente };
 }
 
+// Habla con /api/carrito para guardar el carrito en la cuenta del cliente.
+// Sin sesión no hace nada: el carrito queda solo en el navegador.
+export class CarritoServicio {
+  constructor(api) { this.api = api; }
+
+  hayCuenta() { return !!Sesion.obtener()?.token; }
+
+  // Devuelve las líneas con la forma que usa Carrito.
+  async obtener() {
+    const filas = await this.api.get("/carrito");
+    return filas.map((f) => ({
+      producto_id: f.producto_id,
+      nombre: f.nombre_sabor,
+      precio: Number(f.precio_venta),
+      disponible: f.cantidad_disponible,
+      cantidad: f.cantidad,
+    }));
+  }
+
+  guardar(items) {
+    return this.api.put("/carrito", {
+      items: items.map((i) => ({ producto_id: i.producto_id, cantidad: i.cantidad })),
+    });
+  }
+}
+
 // Carrito de compras: guarda en el navegador qué quiere comprar el cliente.
 // Se persiste en localStorage para que no se pierda si recargan la página.
 export class Carrito {
   static CLAVE = "pixel_galletas_carrito";
+  static CLAVE_UNION = "pixel_galletas_carrito_union";
 
-  constructor() {
+  #temporizador = null;
+
+  // servicioCuenta (opcional) sabe si hay sesión y habla con /api/carrito.
+  constructor(servicioCuenta = null) {
+    this.servicioCuenta = servicioCuenta;
     this.items = this.#recuperar();
     // Forma de entrega elegida en el formulario. Vive con el carrito porque el
     // total depende de ella, pero no se guarda en el navegador: cada visita
@@ -102,7 +161,69 @@ export class Carrito {
     } catch {
       /* sin localStorage el carrito solo vive en memoria */
     }
+    this.#programarEnvio();
     window.dispatchEvent(new Event("carrito-cambio"));
+  }
+
+  // Con sesión, el carrito también se guarda en la cuenta. Se agrupan los cambios
+  // seguidos en una sola petición para no enviar una por cada clic.
+  #programarEnvio() {
+    if (!this.servicioCuenta?.hayCuenta()) return;
+    clearTimeout(this.#temporizador);
+    this.#temporizador = setTimeout(() => this.#enviar(), 400);
+  }
+
+  async #enviar() {
+    if (!this.servicioCuenta?.hayCuenta()) return;
+    try {
+      await this.servicioCuenta.guardar(this.items);
+    } catch {
+      /* sin conexión: el carrito local sigue guardado y se reintenta en el próximo cambio */
+    }
+  }
+
+  // Al iniciar sesión: se une el carrito local con el de la cuenta. Las cantidades
+  // se suman por sabor y el servidor recorta al inventario disponible.
+  async unirConCuenta() {
+    if (!this.servicioCuenta?.hayCuenta()) {
+      // Al cerrar sesión, el carrito que era de la cuenta sale del navegador:
+      // si no, el siguiente cliente que entre lo heredaría.
+      if (localStorage.getItem(Carrito.CLAVE_UNION) !== null) {
+        this.items = [];
+        localStorage.removeItem(Carrito.CLAVE_UNION);
+        try { localStorage.setItem(Carrito.CLAVE, "[]"); } catch { /* modo privado */ }
+        window.dispatchEvent(new Event("carrito-cambio"));
+      }
+      return;
+    }
+    try {
+      const idCuenta = String(Sesion.obtener()?.usuario?.id);
+      const delServidor = await this.servicioCuenta.obtener();
+      // Solo se suma la primera vez que esta cuenta entra en este navegador.
+      // Después el servidor manda: sumar en cada carga duplicaba el carrito.
+      const yaUnida = localStorage.getItem(Carrito.CLAVE_UNION) === idCuenta;
+      if (yaUnida) {
+        this.items = delServidor;
+      } else {
+        const union = new Map();
+        for (const item of [...delServidor, ...this.items]) {
+          const previo = union.get(item.producto_id);
+          if (previo) previo.cantidad += item.cantidad;
+          else union.set(item.producto_id, { ...item });
+        }
+        this.items = [...union.values()];
+        try {
+          localStorage.setItem(Carrito.CLAVE_UNION, idCuenta);
+        } catch { /* modo privado: se volverá a unir en la próxima carga */ }
+        await this.servicioCuenta.guardar(this.items);
+      }
+      try {
+        localStorage.setItem(Carrito.CLAVE, JSON.stringify(this.items));
+      } catch { /* modo privado: solo en memoria */ }
+      window.dispatchEvent(new Event("carrito-cambio"));
+    } catch {
+      /* sin conexión se queda el carrito local */
+    }
   }
 
   // Tope de una línea: el límite de la API (100) y, si el sabor lleva control
@@ -162,18 +283,32 @@ export class Carrito {
     this.#guardar();
   }
 
-  // Precio de las galletas sin descuento.
-  get subtotal() {
-    return this.items.reduce((suma, i) => suma + i.precio * i.cantidad, 0);
-  }
-
   get cantidadTotal() {
     return this.items.reduce((suma, i) => suma + i.cantidad, 0);
   }
 
+  // Precio de las galletas por sabor, sin combo ni descuento.
+  get subtotalSinCombo() {
+    return this.items.reduce((suma, i) => suma + i.precio * i.cantidad, 0);
+  }
+
+  // Combo que reconoce el carrito (igual que el servidor), o null.
+  get combo() {
+    return comboDe(this.items);
+  }
+
+  // Galletas que entran al descuento por volumen: un combo no descuenta.
+  get cantidadSueltas() {
+    return this.combo ? 0 : this.cantidadTotal;
+  }
+
+  get subtotal() {
+    return this.combo ? this.combo.precio : this.subtotalSinCombo;
+  }
+
   // Descuento por volumen que le toca al carrito ahora mismo.
   get descuento() {
-    return descuentoPara(this.cantidadTotal, this.subtotal);
+    return descuentoPara(this.cantidadSueltas, this.combo ? 0 : this.subtotalSinCombo);
   }
 
   // Costo del domicilio según la zona elegida y lo que hay en el carrito.
@@ -360,13 +495,22 @@ class PedidoVista {
     // hueco: "¡Gratis!" es parte de lo que el cliente está comprando.
     this.$("carrito-envio").textContent = envio > 0 ? pesos(envio) : "¡Gratis!";
     // Aviso del tramo siguiente: es lo que empuja a subir la cantidad.
-    const faltan = siguiente ? siguiente.desde - unidades : 0;
+    // Un combo se cobra a precio fijo y no cuenta para el descuento: el aviso
+    // de tramo solo habla de las galletas sueltas.
+    const combo = this.carrito.combo;
+    const sueltas = this.carrito.cantidadSueltas;
+    const faltan = siguiente ? siguiente.desde - sueltas : 0;
     const aviso = this.$("aviso-descuento");
-    aviso.hidden = !this.carrito.items.length || !faltan;
-    if (!aviso.hidden) {
-      aviso.textContent = hayDescuento
-        ? `Con ${siguiente.desde} galletas el descuento sube al ${siguiente.porcentaje}%: te faltan ${faltan}.`
-        : `Suma ${faltan} galleta${faltan === 1 ? "" : "s"} más y el pedido lleva ${siguiente.porcentaje}% de descuento.`;
+    if (combo) {
+      aviso.hidden = false;
+      aviso.textContent = `${combo.nombre} aplicado: precio fijo de ${pesos(combo.precio)}, sin descuento por volumen.`;
+    } else {
+      aviso.hidden = !this.carrito.items.length || !faltan;
+      if (!aviso.hidden) {
+        aviso.textContent = hayDescuento
+          ? `Con ${siguiente.desde} galletas el descuento sube al ${siguiente.porcentaje}%: te faltan ${faltan}.`
+          : `Suma ${faltan} galleta${faltan === 1 ? "" : "s"} más y el pedido lleva ${siguiente.porcentaje}% de descuento.`;
+      }
     }
     this.$("carrito-total").textContent = pesos(this.carrito.total);
     // Resumen flotante (chip fijo abajo a la izquierda): plural correcto y total.
@@ -528,8 +672,199 @@ class PedidosAdminVista {
   }
 }
 
+// Calculadora automática: según cuántas Special y normales elija el cliente,
+// calcula el combo que aplica, su precio y lo que se ahorra frente a comprar
+// las galletas sueltas. Usa la misma regla del servidor (comboDe).
+export function calcularCombo(especiales, normales, precioSueltaEspecial, precioSueltaNormal) {
+  const items = [
+    { nombre: NOMBRE_SPECIAL, precio: precioSueltaEspecial, cantidad: especiales },
+    { nombre: "normal", precio: precioSueltaNormal, cantidad: normales },
+  ];
+  const combo = comboDe(items);
+  const sueltas = especiales * precioSueltaEspecial + normales * precioSueltaNormal;
+  const galletas = especiales + normales;
+  if (!combo) return { valido: false, galletas, sueltas };
+  return {
+    valido: true,
+    nombre: combo.nombre,
+    veces: combo.veces,
+    galletas,
+    precio: combo.precio,
+    sueltas,
+    ahorro: sueltas - combo.precio,
+    porGalleta: Math.round(combo.precio / galletas),
+  };
+}
+
+// Vista de la calculadora: lee el catálogo real (precio de la Special y de una
+// normal) y recalcula cada vez que el cliente cambia las cantidades.
+export class CalculadoraCombos {
+  constructor(carrito) {
+    this.carrito = carrito;
+    this.$ = (id) => document.getElementById(id);
+    this.productos = [];
+    // En la página del combo personalizado el armador va siempre visible y se
+    // rehace al cambiar las cantidades; en la portada no existe.
+    const armador = () => { if (this.$("btn-armador-agregar") && this.productos.length) this.abrirArmador(); };
+    this.$("calc-especiales").addEventListener("input", () => { this.pintar(); armador(); });
+    this.$("calc-normales").addEventListener("input", () => { this.pintar(); armador(); });
+    if (this.$("btn-armador-agregar")) {
+      this.$("btn-armador-agregar").addEventListener("click", () => this.agregarArmador());
+      this.$("armador-sabores").addEventListener("change", () => this.pintarArmador());
+    }
+  }
+
+  // Armador: un selector de sabor por cada galleta normal del combo.
+  abrirArmador() {
+    const { especiales, normales } = this.cantidades();
+    const area = this.$("armador-sabores");
+    area.replaceChildren();
+    const sabores = this.productos.filter((p) => p.nombre_sabor !== NOMBRE_SPECIAL);
+    for (let i = 0; i < normales; i++) {
+      const label = document.createElement("label");
+      label.textContent = `Galleta normal ${i + 1}`;
+      const select = document.createElement("select");
+      select.dataset.indice = String(i);
+      for (const p of sabores) {
+        const o = document.createElement("option");
+        o.value = String(p.id);
+        o.textContent = `${p.nombre_sabor} (${pesos(Number(p.precio_venta))})`;
+        select.append(o);
+      }
+      label.append(select);
+      area.append(label);
+    }
+    this.$("armador-combo").hidden = normales === 0 || especiales === 0;
+    this.pintarArmador();
+  }
+
+  pintarArmador() {
+    const { especiales } = this.cantidades();
+    const special = this.productos.find((p) => p.nombre_sabor === NOMBRE_SPECIAL);
+    const selects = [...this.$("armador-sabores").querySelectorAll("select")];
+    const total = selects.reduce((s, sel) => {
+      const p = this.productos.find((x) => String(x.id) === sel.value);
+      return s + (p ? Number(p.precio_venta) : 0);
+    }, 0);
+    const combo = special && comboDe([
+      { nombre: NOMBRE_SPECIAL, cantidad: especiales },
+      { nombre: "normal", cantidad: selects.length },
+    ]);
+    const txt = this.$("armador-total");
+    this.$("btn-armador-agregar").disabled = !combo;
+    txt.textContent = combo
+      ? `${combo.nombre}: ${pesos(combo.precio)} (sabores elegidos: ${pesos(total)} sueltos)`
+      : "Este número de galletas no forma un combo: revisa la cantidad de Special y de normales.";
+  }
+
+  // Agrega las galletas del armador (cada normal con su sabor elegido).
+  agregarArmador() {
+    const { especiales } = this.cantidades();
+    const special = this.productos.find((p) => p.nombre_sabor === NOMBRE_SPECIAL);
+    const selects = [...this.$("armador-sabores").querySelectorAll("select")];
+    const aCarrito = (p) => ({ id: p.id, nombre: p.nombre_sabor, precio: Number(p.precio_venta), cantidadDisponible: p.cantidad_disponible ?? null });
+    const elegidos = selects.map((sel) => this.productos.find((x) => String(x.id) === sel.value)).filter(Boolean);
+    if (!special || !comboDe([
+      { nombre: NOMBRE_SPECIAL, cantidad: especiales },
+      { nombre: "normal", cantidad: elegidos.length },
+    ])) return;
+    for (let i = 0; i < especiales; i++) this.carrito.agregar(aCarrito(special));
+    for (const p of elegidos) this.carrito.agregar(aCarrito(p));
+  }
+
+  // productos: los que devuelve GET /productos (ya con precio_venta real).
+  cargarProductos(productos) {
+    this.productos = productos;
+    this.pintar();
+    if (this.$("btn-armador-agregar")) this.abrirArmador();
+  }
+
+  #precios() {
+    const special = this.productos.find((p) => p.nombre_sabor === NOMBRE_SPECIAL);
+    // Las normales tienen precios distintos: para lo suelto se usa su promedio.
+    const normales = this.productos.filter((p) => p.nombre_sabor !== NOMBRE_SPECIAL);
+    const promedio = normales.length
+      ? normales.reduce((s, p) => s + Number(p.precio_venta), 0) / normales.length
+      : null;
+    return {
+      special, normal: normales[0],
+      precioSpecial: special ? Number(special.precio_venta) : null,
+      precioNormal: promedio,
+    };
+  }
+
+  cantidades() {
+    const leer = (id) => Math.max(0, Math.min(30, Math.floor(Number(this.$(id).value) || 0)));
+    return { especiales: leer("calc-especiales"), normales: leer("calc-normales") };
+  }
+
+  // Un cuadrito pixel por galleta: amarillo para la Special, naranja para la normal.
+  #marcador(especiales, normales) {
+    const m = this.$("calc-marcador");
+    m.replaceChildren();
+    const piezas = [
+      ...Array(especiales).fill("special"),
+      ...Array(normales).fill("normal"),
+    ];
+    piezas.forEach((tipo, i) => {
+      const s = document.createElement("span");
+      s.className = `calc-pieza calc-pieza-${tipo}`;
+      s.style.setProperty("--i", String(i));
+      m.append(s);
+    });
+  }
+
+  pintar() {
+    const { especiales, normales } = this.cantidades();
+    const { special, normal, precioSpecial, precioNormal } = this.#precios();
+    const res = this.$("calc-resultado");
+    const det = this.$("calc-detalle");
+    const tabla = this.$("calc-tabla-cuerpo");
+    tabla.replaceChildren();
+    if (!special || !normal) {
+      res.textContent = "Cargando precios…";
+      det.textContent = "";
+      return;
+    }
+    const c = calcularCombo(especiales, normales, precioSpecial, precioNormal);
+    this.#marcador(especiales, normales);
+    if (c.galletas === 0) {
+      res.textContent = "Elige al menos una galleta.";
+      det.textContent = "";
+    } else if (!c.valido) {
+      res.textContent = `${c.galletas} galleta${c.galletas === 1 ? "" : "s"} sueltas: ${pesos(c.sueltas)}`;
+      det.textContent = "Para precio de combo lleva 1 Special + 2 normales, 2 Special + 2 normales o 3 Special + 3 normales.";
+    } else {
+      res.textContent = `${c.nombre} · ${c.galletas} galletas · ${pesos(c.precio)}`;
+      det.textContent = c.ahorro > 0
+        ? `Ahorras ${pesos(c.ahorro)} frente a comprarlas sueltas (${pesos(c.porGalleta)} por galleta).`
+        : `Precio de combo: ${pesos(c.porGalleta)} por galleta.`;
+    }
+    // Tabla: los tres combos, para comparar sin cambiar los números.
+    for (const combo of COMBOS) {
+      const fila = document.createElement("tr");
+      const galletas = combo.especiales + combo.normales;
+      for (const texto of [combo.nombre, String(galletas), pesos(combo.precio), pesos(Math.round(combo.precio / galletas))]) {
+        const td = document.createElement("td");
+        td.textContent = texto;
+        fila.append(td);
+      }
+      tabla.append(fila);
+    }
+  }
+
+}
+
 // Solo arrancan cuando existe la página (así los módulos también se prueban sin navegador).
 if (typeof document !== "undefined") {
-  new PedidoVista(new PedidoServicio(new ApiClient()), new Carrito());
-  new PedidosAdminVista(new PedidoServicio(new ApiClient()));
+  const carrito = new Carrito(new CarritoServicio(new ApiClient()));
+  carrito.unirConCuenta(); // si ya hay sesión al cargar, une los dos carritos
+  window.addEventListener("sesion-cambio", () => carrito.unirConCuenta());
+  if (document.getElementById("form-pedido")) new PedidoVista(new PedidoServicio(new ApiClient()), carrito);
+  if (document.getElementById("lista-pedidos")) new PedidosAdminVista(new PedidoServicio(new ApiClient()));
+  const calculadora = new CalculadoraCombos(carrito);
+  const url = new URLSearchParams(location.search);
+  if (url.has("especiales")) calculadora.$("calc-especiales").value = url.get("especiales");
+  if (url.has("normales")) calculadora.$("calc-normales").value = url.get("normales");
+  new ApiClient().get("/productos").then((p) => calculadora.cargarProductos(p));
 }

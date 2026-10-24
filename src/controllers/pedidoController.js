@@ -1,11 +1,45 @@
 const Pedido = require("../models/Pedido");
 const errorInterno = require("../util/errorInterno");
 const Producto = require("../models/Producto");
-const { descuentoDe } = require("../config/descuentos");
+const { descuentoDe, COMBOS } = require("../config/descuentos");
 const { ENTREGAS, envioDe } = require("../config/envio");
 const { notificarPedido } = require("../config/telegram");
 
 const ESTADOS_VALIDOS = ["pendiente", "en_preparacion", "listo", "entregado", "cancelado"];
+
+const NOMBRE_SPECIAL = "Pixel Special Edition";
+
+// Busca cuántos combos trae el pedido. Cada combo es `especiales` Special y
+// `normales` galletas normales. Si el pedido trae exactamente esas galletas
+// (ni más ni menos), devuelve los combos, sus unidades y el precio total de
+// los combos. Si no, devuelve null y el pedido se cobra por sabor.
+function detectarCombo(detalle) {
+  const especiales = detalle.filter((d) => d.nombre_sabor === NOMBRE_SPECIAL);
+  const normales = detalle.filter((d) => d.nombre_sabor !== NOMBRE_SPECIAL);
+  const numEspeciales = especiales.reduce((s, d) => s + d.cantidad, 0);
+  const numNormales = normales.reduce((s, d) => s + d.cantidad, 0);
+  if (numEspeciales === 0) return null;
+
+  // Mejor combo para el conjunto: el de mayor precio que cabe exactamente.
+  // Con 3 Special y 3 normales se cobra el combo x3, no tres combos x1.
+  let mejor = null;
+  for (const combo of COMBOS) {
+    if (numEspeciales % combo.especiales !== 0) continue;
+    const veces = numEspeciales / combo.especiales;
+    if (numNormales !== veces * combo.normales) continue;
+    if (!mejor || combo.precio > mejor.precio) mejor = combo;
+  }
+  if (!mejor) return null;
+
+  const veces = numEspeciales / mejor.especiales;
+  const subtotalDetalle = especiales.reduce((s, d) => s + d.precio_unitario * d.cantidad, 0)
+    + normales.reduce((s, d) => s + d.precio_unitario * d.cantidad, 0);
+  return {
+    precio: veces * mejor.precio,
+    unidades: numEspeciales + numNormales,
+    subtotalDetalle,
+  };
+}
 
 class PedidoController {
   // Crear un pedido (público: cualquier cliente puede pedir sin cuenta).
@@ -19,6 +53,10 @@ class PedidoController {
       // igual: la medición nunca puede impedir una compra.
       const visita = /^[A-Za-z0-9]{8,16}$/.test(String(req.body.visita ?? "")) ? String(req.body.visita) : null;
 
+      // Solo texto en los campos del cliente: un objeto o una lista llegaría como "[object Object]" o se guardaría mal.
+      if ([cliente_nombre, cliente_telefono, direccion, notas, entrega].some((v) => v !== undefined && v !== null && typeof v !== "string")) {
+        return res.status(400).json({ error: "Los datos del pedido deben ser texto" });
+      }
       if (!cliente_nombre || !String(cliente_nombre).trim()) {
         return res.status(400).json({ error: "cliente_nombre es obligatorio" });
       }
@@ -83,7 +121,15 @@ class PedidoController {
       // galletas del pedido, y no en el navegador: el cliente puede calcularlo
       // mal (o saltárselo) y el pedido guardado tiene que ser el correcto.
       const unidades = detalle.reduce((suma, d) => suma + d.cantidad, 0);
-      const { porcentaje, valor: descuento, total: totalGalletas } = descuentoDe(unidades, subtotal);
+      // Combos Pixel Special Edition: el combo cobra su precio fijo y no entra
+      // al descuento por volumen. Solo se aplica si las galletas del pedido
+      // coinciden exactamente con un combo (la Special y las normales).
+      const combo = detectarCombo(detalle);
+      const subtotalSueltas = combo ? subtotal - combo.subtotalDetalle : subtotal;
+      const unidadesSueltas = combo ? unidades - combo.unidades : unidades;
+      const { porcentaje, valor: descuentoSueltas, total: totalSueltas } = descuentoDe(unidadesSueltas, subtotalSueltas);
+      const descuento = descuentoSueltas;
+      const totalGalletas = totalSueltas + (combo ? combo.precio : 0);
 
       // El domicilio también se calcula aquí y nunca se acepta el precio que
       // mande el navegador: recoger es gratis siempre, cada zona tiene su

@@ -1,6 +1,6 @@
 // Base de datos simulada en memoria: permite probar la API sin MySQL.
 function instalarDbFalsa() {
-  const usuarios = [], productos = [], pedidos = [], detalles = [], eventos = [];
+  const usuarios = [], productos = [], pedidos = [], detalles = [], eventos = [], carrito = [];
   let uid = 1, pid = 1, did = 1, dtdid = 1, eid = 1;
   const sinClave = ({ contrasena, ...resto }) => resto;
   const pool = {
@@ -69,6 +69,29 @@ function instalarDbFalsa() {
       }
       if (sql.startsWith("SELECT producto_id, cantidad, nombre_sabor FROM pedido_detalles")) {
         return [detalles.filter((d) => d.pedido_id == p[0]).map(({ id, pedido_id, ...resto }) => resto)];
+      }
+      // ---------- Carrito guardado en la cuenta ----------
+      if (sql.startsWith("SELECT cantidad_disponible FROM productos WHERE id")) {
+        const x = productos.find((y) => y.id == p[0]);
+        return [x ? [{ cantidad_disponible: x.cantidad_disponible }] : []];
+      }
+      if (sql.startsWith("SELECT c.producto_id, p.nombre_sabor")) {
+        return [carrito
+          .filter((c) => c.usuario_id == p[0])
+          .map((c) => {
+            const x = productos.find((y) => y.id == c.producto_id);
+            return { producto_id: c.producto_id, nombre_sabor: x.nombre_sabor, precio_venta: x.precio_venta, cantidad_disponible: x.cantidad_disponible, cantidad: c.cantidad, pid: x.id };
+          })
+          .sort((a, b) => a.pid - b.pid)
+          .map(({ pid, ...r }) => r)];
+      }
+      if (sql.startsWith("DELETE FROM carrito_items")) {
+        for (let i = carrito.length - 1; i >= 0; i--) if (carrito[i].usuario_id == p[0]) carrito.splice(i, 1);
+        return [{ affectedRows: 0 }];
+      }
+      if (sql.startsWith("INSERT INTO carrito_items")) {
+        carrito.push({ usuario_id: p[0], producto_id: p[1], cantidad: p[2] });
+        return [{ insertId: carrito.length }];
       }
       throw new Error("Consulta SQL no contemplada en la base simulada: " + sql);
     },

@@ -7,6 +7,7 @@ const usuarioRoutes = require("./routes/usuarioRoutes");
 const productoRoutes = require("./routes/productoRoutes");
 const pedidoRoutes = require("./routes/pedidoRoutes");
 const eventoRoutes = require("./routes/eventoRoutes");
+const carritoRoutes = require("./routes/carritoRoutes");
 const { limiteApi, limiteLogin, limiteRegistro, limitePedidos, limiteEstado } = require("./middlewares/limites");
 
 const app = express();
@@ -14,7 +15,11 @@ const app = express();
 // Detrás de un proxy (nginx, Cloudflare…) Express debe confiar en su cabecera
 // X-Forwarded-For para que los límites de tasa cuenten al cliente real y no al
 // proxy. Sin proxy, la variable no existe y no se confía en nadie.
-if (process.env.TRUST_PROXY) app.set("trust proxy", Number(process.env.TRUST_PROXY) || 1);
+// En Vercel (VERCEL=1) el proxy es la propia plataforma, así que también se confía
+// en él: sin esto, todos los visitantes compartirían el mismo contador de límites.
+if (process.env.TRUST_PROXY || process.env.VERCEL) {
+  app.set("trust proxy", Number(process.env.TRUST_PROXY) || 1);
+}
 
 // Cabeceras de seguridad (helmet). La CSP es estricta: todo sale de este
 // dominio (fuentes e imágenes incluidas), sin scripts ni estilos inline. Los
@@ -83,6 +88,7 @@ app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/productos", productoRoutes);
 app.use("/api/pedidos", limitePedidos, limiteEstado, pedidoRoutes);
 app.use("/api/eventos", eventoRoutes);
+app.use("/api/carrito", carritoRoutes);
 
 // Sitemap: el dominio final no vive en el código, así que sale de SITIO_URL.
 // Sin esa variable no hay sitemap (404), en vez de publicar una URL inventada.

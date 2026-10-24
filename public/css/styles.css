@@ -21,6 +21,7 @@
   --masa-clara: #FFB25C;
   --crema: #FFF3DC;          /* texto principal */
   --corazon: #E5412B;
+  --moneda: #FFD21F;            /* monedas pixel: la Special y la lluvia de monedas */
   --diamante: #4DE8D0;       /* confirmaciones y foco del teclado */
   --linea: rgba(255, 243, 220, .55);
   --linea-suave: rgba(255, 243, 220, .2);
@@ -804,6 +805,45 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .mensual-planes b { color: var(--crema); }
 .mensual-planes span { color: var(--diamante); font-weight: 500; }
 .mensual-nota { font-size: var(--t-xs); }
+/* Calculadora gamer: marcador de galletas, contadores tipo arcade y armador */
+.calculadora-combos { margin-top: var(--s-6); padding: var(--s-6); background: var(--pantalla);
+  box-shadow: var(--sombra-caja); display: grid; gap: var(--s-4); }
+.calculadora-combos h3 { margin: 0; }
+.calc-contadores { display: grid; gap: var(--s-4); }
+@media (min-width: 40rem) { .calc-contadores { grid-template-columns: 1fr 1fr; } }
+.calc-contadores label { display: grid; gap: var(--s-2); font-family: var(--titulos); font-size: var(--t-sm);
+  color: var(--crema); letter-spacing: .04em; text-transform: uppercase; }
+.calc-contadores input, .armador-combo select { font: inherit; font-family: var(--texto); font-size: var(--t-md);
+  padding: var(--s-2) var(--s-3); background: var(--tinta); color: var(--crema); border: 0;
+  box-shadow: inset 0 0 0 2px var(--masa); border-radius: var(--radio); }
+.calc-contadores input:focus, .armador-combo select:focus { outline: 2px solid var(--diamante); outline-offset: 2px; }
+.calc-resultado { margin: 0; padding: var(--s-4); background: var(--tinta); color: var(--masa-clara);
+  font-family: var(--titulos); font-size: var(--t-lg); box-shadow: var(--px-inferior-masa); }
+.calc-marcador { display: flex; flex-wrap: wrap; gap: var(--s-2); min-height: 2.5rem; }
+.calc-pieza { width: 1.75rem; height: 1.75rem; box-shadow: var(--px-inferior-masa); }
+.calc-pieza-special { background: var(--moneda); }
+.calc-pieza-normal { background: var(--masa); }
+/* Al cambiar el combo, cada galleta cae con un pequeño rebote de moneda. */
+@keyframes calc-caer { 0% { transform: translateY(-.6rem) scale(.6); opacity: 0; } 70% { transform: translateY(.15rem); opacity: 1; } 100% { transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .calc-pieza { animation: calc-caer var(--d-ui) var(--e-rebote) both; animation-delay: calc(var(--i, 0) * 45ms); }
+}
+.calc-detalle { margin: 0; font-size: var(--t-xs); color: var(--suave); }
+.calc-tabla { width: 100%; border-collapse: collapse; font-size: var(--t-xs); }
+.calc-tabla th, .calc-tabla td { padding: var(--s-2); text-align: left; border-bottom: 1px dashed var(--linea-suave); }
+.calc-tabla th { font-family: var(--titulos); color: var(--diamante); font-weight: 700; }
+.calc-tabla td { color: var(--suave); }
+.calculadora-combos > button { justify-self: start; font-family: var(--titulos); padding: var(--s-3) var(--s-5);
+  background: var(--masa); color: var(--noche); border: 0; box-shadow: var(--sombra-dura); cursor: pointer; }
+.calculadora-combos > button:hover { background: var(--masa-clara); }
+.armador-combo { display: grid; gap: var(--s-3); padding: var(--s-4); background: rgba(12, 5, 53, .5);
+  box-shadow: var(--px-inferior-masa); }
+.armador-combo[hidden] { display: none; }
+.armador-combo h4 { margin: 0; }
+.armador-combo label { display: grid; gap: var(--s-1); font-size: var(--t-sm); color: var(--crema); }
+.armador-combo > button { justify-self: start; font-family: var(--titulos); padding: var(--s-3) var(--s-5);
+  background: var(--diamante); color: var(--noche); border: 0; box-shadow: var(--sombra-dura); cursor: pointer; }
+.armador-combo > button:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
 /* ===== Cómo funciona ===== */
 .pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap-fila); counter-reset: pasos; }
@@ -857,6 +897,13 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .estado-resultado ul { margin: var(--s-2) 0; padding-left: 1.2rem; color: var(--suave); font-size: var(--t-sm); }
 .estado-siguiente { margin: 0; font-size: var(--t-sm); color: var(--diamante); }
 .pie-privacidad { margin-top: var(--s-2); color: var(--suave); font-size: var(--t-xs); opacity: .9; }
+
+/* Aviso de seguridad: fijo y sobrio, con el borde de píxeles de la marca. Sin parpadeos
+   ni rojos de alarma: un aviso con cara de urgencia se confunde con la propia estafa. */
+.aviso-seguridad { margin: var(--s-4) 0 0; padding: var(--s-3) var(--s-4); background: var(--tinta); color: var(--suave);
+  font-size: var(--t-sm); line-height: 1.5; box-shadow: var(--px-3-masa); }
+.aviso-seguridad strong { font-family: var(--titulos); font-weight: 400; color: var(--diamante); letter-spacing: .04em; }
+.aviso-pie { max-width: var(--ancho); margin: var(--s-5) auto 0; }
 
 /* ===== Preguntas frecuentes ===== */
 .faq { display: grid; gap: var(--s-4); max-width: 48rem; }

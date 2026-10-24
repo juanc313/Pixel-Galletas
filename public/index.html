@@ -495,6 +495,54 @@
           <p class="caja-detalle">Doce galletas para reuniones, cumpleaños y equipos, ya con el 5% de descuento por volumen. Preparación con anticipo y plazo acordado.</p>
         </li>
       </ul>
+      <div class="combos-special">
+        <h3>Combos Pixel Special Edition</h3>
+        <p class="subtitulo">La Special Edition se vende dentro de un combo con galletas normales. Cada combo viene con un sticker por galleta.</p>
+        <ul class="cajas">
+          <li class="caja">
+            <h3>Combo Pixel x1</h3>
+            <p class="caja-para">1 Special + 2 normales</p>
+            <p class="caja-precio">$ 26.000</p>
+            <p class="caja-detalle">Una Pixel Special Edition con dos galletas normales de tu elección.</p>
+            <a class="boton-grande" href="/combo-personalizado.html?especiales=1&normales=2">Elegir</a>
+          </li>
+          <li class="caja">
+            <h3>Combo Pixel x2</h3>
+            <p class="caja-para">2 Special + 2 normales</p>
+            <p class="caja-precio">$ 36.000</p>
+            <p class="caja-detalle">Dos Pixel Special Edition con dos galletas normales de tu elección.</p>
+            <a class="boton-grande" href="/combo-personalizado.html?especiales=2&normales=2">Elegir</a>
+          </li>
+          <li class="caja caja-destacada">
+            <span class="caja-insignia">Mayor utilidad</span>
+            <h3>Combo Pixel x3</h3>
+            <p class="caja-para">3 Special + 3 normales</p>
+            <p class="caja-precio">$ 52.000</p>
+            <p class="caja-detalle">Tres Pixel Special Edition con tres galletas normales de tu elección.</p>
+            <a class="boton-grande" href="/combo-personalizado.html?especiales=3&normales=3">Elegir</a>
+          </li>
+        </ul>
+      </div>
+      <div class="calculadora-combos" id="calculadora-combos">
+        <h3>Calcula tu combo</h3>
+        <p class="subtitulo">Elige cuántas Special y cuántas galletas normales llevas. El precio se calcula solo.</p>
+        <div class="calc-contadores">
+          <label>Special Edition
+            <input id="calc-especiales" type="number" min="0" max="30" value="1" inputmode="numeric">
+          </label>
+          <label>Normales
+            <input id="calc-normales" type="number" min="0" max="30" value="2" inputmode="numeric">
+          </label>
+        </div>
+        <div class="calc-marcador" id="calc-marcador" aria-hidden="true"></div>
+        <p class="calc-resultado" aria-live="polite" id="calc-resultado"></p>
+        <p class="calc-detalle" id="calc-detalle"></p>
+        <table class="calc-tabla" aria-label="Precio por cantidad de combos">
+          <thead><tr><th>Combo</th><th>Galletas</th><th>Total</th><th>Por galleta</th></tr></thead>
+          <tbody id="calc-tabla-cuerpo"></tbody>
+        </table>
+        <a class="boton-grande" id="btn-combo-personalizado" href="/combo-personalizado.html">Combo personalizado</a>
+      </div>
       <div class="volumen">
         <h3>Descuentos por volumen</h3>
         <ul>
@@ -743,6 +791,9 @@
           </form>
           <p id="mensaje-pedido" role="alert"></p>
 
+          <aside class="aviso-seguridad" aria-label="Aviso de seguridad">
+            <p><span aria-hidden="true">🛡️</span> <strong>Aviso de seguridad:</strong> nunca te pediremos un captcha, una descarga ni un código para pagar. Si ves algo así, no sigas y escríbenos al <strong>313 783 9935</strong> por WhatsApp.</p>
+          </aside>
           <div id="confirmacion" class="confirmacion" hidden>
             <p><svg class="icono" viewBox="0 0 9 7" aria-hidden="true"  shape-rendering="crispEdges"><path fill="currentColor" d="M8 0h1v1h-1zM7 1h2v1h-2zM6 2h2v1h-2zM0 3h1v1h-1zM5 3h2v1h-2zM0 4h2v1h-2zM4 4h2v1h-2zM1 5h4v1h-4zM2 6h2v1h-2z"/></svg> <span>Tu pedido quedó registrado. Ahora envíanoslo por WhatsApp para coordinar el pago y la entrega:</span></p>
             <a id="btn-whatsapp-pedido" class="boton-whatsapp" target="_blank" rel="noopener" href="#">Enviar por WhatsApp</a>
@@ -857,6 +908,9 @@
       <span class="pie-maquina-sprite"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#gema-pixel"/></svg></span>
     </p>
     <p class="pie-legal pie-privacidad">Aquí no hay cookies ni publicidad de terceros: la medición de visitas es propia, anónima y no guardamos datos de quien navega (sí guardamos tu nombre y teléfono si decides hacer un pedido, para poder entregártelo).</p>
+    <aside class="aviso-seguridad aviso-pie" aria-label="Aviso de seguridad">
+      <p><span aria-hidden="true">🛡️</span> <strong>Aviso de seguridad:</strong> nunca te pediremos un captcha, una descarga ni un código para pagar. Si ves algo así, no sigas y escríbenos al <strong>313 783 9935</strong> por WhatsApp.</p>
+    </aside>
     <p class="pie-legal">© 2026 Pixel Galletas · Cúcuta, Colombia · Hecho con ♥ y muchos píxeles</p>
     <p class="pie-secreto" aria-hidden="true">↑ ↑ ↓ ↓ ← → ← → B A</p>
   </footer>

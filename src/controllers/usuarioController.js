@@ -3,15 +3,19 @@ const errorInterno = require("../util/errorInterno");
 const jwt = require("jsonwebtoken");
 const Usuario = require("../models/Usuario");
 
+// Hash de referencia: si el correo no existe, se compara igual contra este hash
+// para que la respuesta tarde lo mismo y no se pueda averiguar qué cuentas existen.
+const HASH_REFERENCIA = bcrypt.hashSync("referencia-tiempos-login", 10);
+
 class UsuarioController {
   static async registrar(req, res) {
     try {
       const { nombre, correo, contrasena } = req.body;
-      if (!nombre || !correo || !contrasena) {
+      if (!nombre || !correo || !contrasena || typeof nombre !== "string" || typeof correo !== "string" || typeof contrasena !== "string" || nombre.length > 100 || correo.length > 254) {
         return res.status(400).json({ error: "nombre, correo y contrasena son obligatorios" });
       }
-      if (contrasena.length < 6) {
-        return res.status(400).json({ error: "La contrasena debe tener al menos 6 caracteres" });
+      if (contrasena.length < 8 || contrasena.length > 72) {
+        return res.status(400).json({ error: "La contrasena debe tener entre 8 y 72 caracteres" });
       }
       const existente = await Usuario.buscarPorCorreoConClave(correo);
       if (existente) {
@@ -28,14 +32,12 @@ class UsuarioController {
   static async login(req, res) {
     try {
       const { correo, contrasena } = req.body;
-      if (!correo || !contrasena) {
+      if (!correo || !contrasena || typeof correo !== "string" || typeof contrasena !== "string") {
         return res.status(400).json({ error: "correo y contrasena son obligatorios" });
       }
       const usuario = await Usuario.buscarPorCorreoConClave(correo);
-      if (!usuario) return res.status(401).json({ error: "Credenciales inválidas" });
-
-      const coincide = await bcrypt.compare(contrasena, usuario.contrasena);
-      if (!coincide) return res.status(401).json({ error: "Credenciales inválidas" });
+      const coincide = await bcrypt.compare(contrasena, usuario ? usuario.contrasena : HASH_REFERENCIA);
+      if (!usuario || !coincide) return res.status(401).json({ error: "Credenciales inválidas" });
 
       const token = jwt.sign(
         { id: usuario.id, correo: usuario.correo, rol: usuario.rol },
@@ -76,7 +78,11 @@ class UsuarioController {
     try {
       const existente = await Usuario.buscarPorId(req.params.id);
       if (!existente) return res.status(404).json({ error: "Usuario no encontrado" });
-      const { rol } = req.body;
+      const { rol, nombre, correo } = req.body;
+      // Solo texto: un objeto aquí llegaría a la consulta SQL como pares columna = valor.
+      if ((nombre !== undefined && typeof nombre !== "string") || (correo !== undefined && typeof correo !== "string")) {
+        return res.status(400).json({ error: "nombre y correo deben ser texto" });
+      }
       if (rol !== undefined && !["cliente", "admin"].includes(rol)) {
         return res.status(400).json({ error: "rol debe ser 'cliente' o 'admin'" });
       }

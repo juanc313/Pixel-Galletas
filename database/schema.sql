@@ -204,3 +204,17 @@ SET @sql_envio := IF(@tiene_envio = 0,
 PREPARE stmt_envio FROM @sql_envio;
 EXECUTE stmt_envio;
 DEALLOCATE PREPARE stmt_envio;
+
+-- Carrito guardado en la cuenta del cliente. Una fila por sabor y usuario:
+-- el combo se calcula contando galletas, así que no se guarda como línea aparte.
+CREATE TABLE IF NOT EXISTS carrito_items (
+  usuario_id  INT UNSIGNED NOT NULL,
+  producto_id INT UNSIGNED NOT NULL,
+  cantidad    INT UNSIGNED NOT NULL,
+  actualizado TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (usuario_id, producto_id),
+  CONSTRAINT fk_carrito_usuario FOREIGN KEY (usuario_id)
+    REFERENCES usuarios (id) ON DELETE CASCADE,
+  CONSTRAINT fk_carrito_producto FOREIGN KEY (producto_id)
+    REFERENCES productos (id) ON DELETE CASCADE
+) ENGINE=InnoDB;

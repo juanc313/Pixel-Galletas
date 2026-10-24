@@ -13,6 +13,16 @@ const DESCUENTOS = [
   { desde: 48, porcentaje: 10 },
 ];
 
+// Combos Pixel Special Edition: precio fijo, sin descuento por volumen. Cada
+// combo son `especiales` Special + `normales` galletas normales (el cliente
+// elige los sabores). El servidor cobra el precio del combo solo cuando el
+// pedido trae exactamente esas galletas.
+const COMBOS = [
+  { nombre: "Combo Pixel x1", especiales: 1, normales: 2, precio: 26000 },
+  { nombre: "Combo Pixel x2", especiales: 2, normales: 2, precio: 36000 },
+  { nombre: "Combo Pixel x3", especiales: 3, normales: 3, precio: 52000 },
+];
+
 // Descuento que le toca a un pedido de `unidades` galletas con `subtotal` pesos.
 // Devuelve el porcentaje aplicado, cuánto se ahorra y el total final.
 function descuentoDe(unidades, subtotal) {
@@ -24,4 +34,4 @@ function descuentoDe(unidades, subtotal) {
   return { porcentaje, valor, total: subtotal - valor };
 }
 
-module.exports = { DESCUENTOS, descuentoDe };
+module.exports = { DESCUENTOS, COMBOS, descuentoDe };

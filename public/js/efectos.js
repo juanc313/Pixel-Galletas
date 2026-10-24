@@ -63,9 +63,15 @@ try {
       // el salto de palabra no se desmonte durante la animación.
       const nombreEntrada = entrada.querySelector(".entrada-nombre");
       if (nombreEntrada) {
-        nombreEntrada.innerHTML = [...nombreEntrada.textContent]
-          .map((c, i) => `<span style="--l:${i}">${c === " " ? "&nbsp;" : c}</span>`)
-          .join("");
+        // Se construye con DOM, no con innerHTML: cada letra es texto, nunca HTML.
+        nombreEntrada.replaceChildren(
+          ...[...nombreEntrada.textContent].map((c, i) => {
+            const letra = document.createElement("span");
+            letra.style.setProperty("--l", String(i));
+            letra.textContent = c === " " ? "\u00A0" : c;
+            return letra;
+          })
+        );
       }
 
       // Brasas y píxeles detrás de la escena: el mismo lenguaje de la portada,
@@ -606,8 +612,16 @@ try {
           .map((p) => p.nombre_sabor ?? p.nombre)
           .filter(Boolean);
         if (!nombres.length) return;
-        const items = nombres.map((n) => `<span>${n}</span><b aria-hidden="true">◆</b>`).join("");
-        pista.innerHTML = items + items; // dos copias: el desplazamiento -50% queda sin costura
+        // Los nombres vienen de la API: se pintan como texto (textContent), nunca como HTML.
+        const nodo = (tag, texto, attrs = {}) => {
+          const el = document.createElement(tag);
+          el.textContent = texto;
+          for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+          return el;
+        };
+        const items = nombres.flatMap((n) => [nodo("span", n), nodo("b", "◆", { "aria-hidden": "true" })]);
+        // dos copias: el desplazamiento -50% queda sin costura
+        pista.replaceChildren(...items, ...items.map((el) => el.cloneNode(true)));
       })
       .catch(() => {});
   }
@@ -987,7 +1001,9 @@ try {
       g.setAttribute("viewBox", "0 0 16 16");
       g.setAttribute("aria-hidden", "true");
       g.style.cssText = `position:absolute;top:-12%;left:${12 + i * 22}%;width:3.2rem;height:3.2rem;filter:drop-shadow(0 0 12px rgba(245,144,47,.6));animation:konami-caer ${2.6 + i * .4}s cubic-bezier(.35,.1,.6,1) ${i * .18}s forwards`;
-      g.innerHTML = '<use href="#galleta-pixel"/>';
+      const uso = document.createElementNS("http://www.w3.org/2000/svg", "use");
+      uso.setAttribute("href", "#galleta-pixel");
+      g.append(uso);
       capa.append(g);
     }
     setTimeout(() => { capa.remove(); lluviaActiva = false; }, 5200);

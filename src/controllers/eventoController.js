@@ -8,6 +8,15 @@ const Producto = require("../models/Producto");
 const VISITA = /^[A-Za-z0-9]{8,16}$/;
 const normalizarVisita = (valor) => (VISITA.test(String(valor ?? "")) ? String(valor) : null);
 
+// Compara el secreto del cron en tiempo constante: una comparación normal
+// filtra, por tiempos de respuesta, cuántos caracteres del secreto son correctos.
+const crypto = require("crypto");
+function secretoCoincide(cabecera, secreto) {
+  const esperado = Buffer.from(`Bearer ${secreto}`);
+  const recibido = Buffer.from(String(cabecera ?? ""));
+  return recibido.length === esperado.length && crypto.timingSafeEqual(recibido, esperado);
+}
+
 class EventoController {
   // Registrar un evento es público (el sitio mide sin pedir cuenta) y nunca
   // debe romperle la compra a nadie, pero tampoco acepta cualquier cosa: una
@@ -42,7 +51,7 @@ class EventoController {
   // server.js). Solo responde con el secreto CRON_SECRET: sin él, no existe.
   static async purgarAntiguos(req, res) {
     const secreto = process.env.CRON_SECRET;
-    if (!secreto || req.headers.authorization !== `Bearer ${secreto}`) {
+    if (!secreto || !secretoCoincide(req.headers.authorization, secreto)) {
       return res.status(404).json({ error: "Ruta no encontrada" });
     }
     try {

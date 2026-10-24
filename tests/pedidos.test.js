@@ -56,6 +56,104 @@ test("Carrito: agrupa por producto, calcula total y persiste en el navegador", a
   assert.equal(new Carrito().cantidadTotal, 0);
 });
 
+test("CarritoServicio: convierte las filas de la API a la forma del carrito", async () => {
+  const { CarritoServicio } = await cargar();
+  const rutas = [];
+  const api = { get: async (ruta) => { rutas.push(ruta); return [{ producto_id: 7, nombre_sabor: "Pixel Monster", precio_venta: "6000.00", cantidad_disponible: null, cantidad: 2 }]; } };
+  const servicio = new CarritoServicio(api);
+  const items = await servicio.obtener();
+  assert.deepEqual(rutas, ["/carrito"]);
+  assert.deepEqual(items, [{ producto_id: 7, nombre: "Pixel Monster", precio: 6000, disponible: null, cantidad: 2 }]);
+});
+
+test("Carrito con sesión: guarda en la cuenta tras una pausa corta, sin una petición por clic", async () => {
+  const { Carrito, Sesion } = await cargar();
+  Sesion.guardar("token-de-prueba", { nombre: "Ana" });
+  const guardados = [];
+  const cuenta = { hayCuenta: () => true, guardar: async (items) => { guardados.push(items.map((i) => [i.producto_id, i.cantidad])); } };
+  const c = new Carrito(cuenta);
+  const galleta = { id: 7, nombre: "Pixel Monster", precio: 6000 };
+  c.agregar(galleta);
+  c.agregar(galleta);
+  c.agregar(galleta);
+  assert.equal(guardados.length, 0);
+  await new Promise((r) => setTimeout(r, 500));
+  assert.deepEqual(guardados, [[[7, 3]]]);
+  Sesion.limpiar();
+});
+
+test("Carrito sin sesión: no llama al servidor", async () => {
+  const { Carrito, Sesion } = await cargar();
+  Sesion.limpiar();
+  let llamo = false;
+  const cuenta = { hayCuenta: () => false, guardar: async () => { llamo = true; }, obtener: async () => { llamo = true; return []; } };
+  const c = new Carrito(cuenta);
+  c.agregar({ id: 7, nombre: "Pixel Monster", precio: 6000 });
+  await c.unirConCuenta();
+  await new Promise((r) => setTimeout(r, 500));
+  assert.equal(llamo, false);
+});
+
+test("Carrito al iniciar sesión: une el carrito local con el de la cuenta sumando cantidades", async () => {
+  const { Carrito, Sesion } = await cargar();
+  Sesion.guardar("token-de-prueba", { nombre: "Ana" });
+  const enviado = [];
+  const cuenta = {
+    hayCuenta: () => true,
+    obtener: async () => [
+      { producto_id: 7, nombre: "Pixel Monster", precio: 6000, disponible: null, cantidad: 2 },
+      { producto_id: 9, nombre: "Pixel Klim", precio: 6000, disponible: null, cantidad: 1 },
+    ],
+    guardar: async (items) => { enviado.push(items.map((i) => [i.producto_id, i.cantidad])); },
+  };
+  const c = new Carrito(cuenta);
+  c.agregar({ id: 7, nombre: "Pixel Monster", precio: 6000 });
+  await c.unirConCuenta();
+  assert.equal(c.cantidadTotal, 4);
+  assert.deepEqual(enviado, [[[7, 3], [9, 1]]]);
+  assert.equal(new Carrito().cantidadTotal, 4);
+  Sesion.limpiar();
+});
+
+test("Carrito: recargar la página con la misma cuenta no duplica el carrito", async () => {
+  const { Carrito, Sesion } = await cargar();
+  Sesion.guardar("token-de-prueba", { id: 5, nombre: "Ana" });
+  // El servidor guarda lo que el cliente envió: así simulamos la cuenta entre cargas.
+  let servidor = [];
+  const cuenta = {
+    hayCuenta: () => true,
+    obtener: async () => servidor,
+    guardar: async (items) => { servidor = items.map((i) => ({ producto_id: i.producto_id, nombre: "Pixel Monster", precio: 6000, disponible: null, cantidad: i.cantidad })); },
+  };
+  const primera = new Carrito(cuenta);
+  primera.agregar({ id: 7, nombre: "Pixel Monster", precio: 6000 });
+  await primera.unirConCuenta();
+  for (let n = 0; n < 3; n++) {
+    const recarga = new Carrito(cuenta);
+    await recarga.unirConCuenta();
+  }
+  const recargada = new Carrito(cuenta);
+  await recargada.unirConCuenta();
+  assert.equal(recargada.cantidadTotal, 1);
+  assert.deepEqual(servidor.map((f) => [f.producto_id, f.cantidad]), [[7, 1]]);
+  Sesion.limpiar();
+});
+
+test("Carrito: al cerrar sesión sale el carrito de la cuenta del navegador", async () => {
+  const { Carrito, Sesion } = await cargar();
+  Sesion.guardar("token-a", { id: 21, nombre: "Ana" });
+  const cuenta = { hayCuenta: () => true, obtener: async () => [], guardar: async () => {} };
+  const c = new Carrito(cuenta);
+  c.agregar({ id: 7, nombre: "Pixel Monster", precio: 6000 });
+  await c.unirConCuenta();
+  Sesion.limpiar();
+  const sinSesion = { hayCuenta: () => false, obtener: async () => [], guardar: async () => {} };
+  const despues = new Carrito(sinSesion);
+  await despues.unirConCuenta();
+  assert.equal(despues.cantidadTotal, 0);
+  assert.equal(localStorage.getItem(Carrito.CLAVE_UNION), null);
+});
+
 test("Carrito: la cantidad nunca baja de 1 ni pasa de 100", async () => {
   const { Carrito } = await cargar();
   const c = new Carrito();
@@ -136,6 +234,85 @@ test("Descuento: la escalera del front y la del servidor son la misma", async ()
   // calcula el servidor: si alguien cambia un tramo en un solo lado, el cliente
   // vería un precio y pagaría otro. Esta prueba lo caza antes de que pase.
   assert.deepEqual(DESCUENTOS, servidor.DESCUENTOS);
+});
+
+// ---------- Combos Pixel Special Edition ----------
+
+test("Combos: la lista del front y la del servidor son la misma", async () => {
+  const { COMBOS } = await cargar();
+  const servidor = require("../src/config/descuentos");
+  assert.deepEqual(COMBOS, servidor.COMBOS);
+});
+
+test("Combos: el carrito cobra el combo a precio fijo y sin descuento por volumen", async () => {
+  const { Carrito } = await cargar();
+  const carrito = new Carrito();
+  carrito.items = [
+    { producto_id: 1, nombre: "Pixel Special Edition", precio: 4849, cantidad: 1 },
+    { producto_id: 2, nombre: "Galleta A", precio: 5000, cantidad: 2 },
+  ];
+  assert.equal(carrito.combo.nombre, "Combo Pixel x1");
+  assert.equal(carrito.total, 26000);
+  assert.equal(carrito.descuento.valor, 0);
+});
+
+test("Combos: 3 Special + 3 normales cobran el combo x3, no tres x1", async () => {
+  const { Carrito } = await cargar();
+  const carrito = new Carrito();
+  carrito.items = [
+    { producto_id: 1, nombre: "Pixel Special Edition", precio: 4849, cantidad: 3 },
+    { producto_id: 2, nombre: "Galleta A", precio: 5000, cantidad: 3 },
+  ];
+  assert.equal(carrito.combo.nombre, "Combo Pixel x3");
+  assert.equal(carrito.subtotal, 52000);
+});
+
+test("Combos: sin el número exacto de normales no se aplica el combo", async () => {
+  const { Carrito } = await cargar();
+  const carrito = new Carrito();
+  carrito.items = [
+    { producto_id: 1, nombre: "Pixel Special Edition", precio: 4849, cantidad: 1 },
+    { producto_id: 2, nombre: "Galleta A", precio: 5000, cantidad: 1 },
+  ];
+  assert.equal(carrito.combo, null);
+});
+
+test("Calculadora: calcula el combo, el ahorro y el precio por galleta; sin mezcla válida no ofrece combo", async () => {
+  const { calcularCombo } = await cargar();
+  const x2 = calcularCombo(2, 2, 4849, 5000);
+  assert.equal(x2.valido, true);
+  assert.equal(x2.nombre, "Combo Pixel x2");
+  assert.equal(x2.precio, 36000);
+  assert.equal(x2.sueltas, 2 * 4849 + 2 * 5000);
+  assert.equal(x2.ahorro, x2.sueltas - 36000);
+  assert.equal(x2.porGalleta, Math.round(36000 / 4));
+  const suelta = calcularCombo(1, 1, 4849, 5000);
+  assert.equal(suelta.valido, false);
+  assert.equal(suelta.sueltas, 4849 + 5000);
+});
+
+test("Calculadora: el carrito cobra exactamente el total que muestra la calculadora", async () => {
+  const { Carrito, calcularCombo } = await cargar();
+  const carrito = new Carrito();
+  const special = { id: 1, nombre: "Pixel Special Edition", precio: 4849, cantidadDisponible: null };
+  const normal = { id: 2, nombre: "Galleta A", precio: 5000, cantidadDisponible: null };
+  for (let i = 0; i < 2; i++) carrito.agregar(special);
+  for (let i = 0; i < 2; i++) carrito.agregar(normal);
+  assert.equal(carrito.total, calcularCombo(2, 2, 4849, 5000).precio);
+});
+
+test("Armador: cada galleta normal entra con el sabor que el cliente eligió", async () => {
+  const { Carrito, comboDe } = await cargar();
+  const carrito = new Carrito();
+  const special = { id: 1, nombre: "Pixel Special Edition", precio: 4849, cantidadDisponible: null };
+  const monster = { id: 3, nombre: "Monster", precio: 4500, cantidadDisponible: null };
+  const redVelvet = { id: 4, nombre: "Red Velvet", precio: 5200, cantidadDisponible: null };
+  carrito.agregar(special);
+  carrito.agregar(monster);
+  carrito.agregar(redVelvet);
+  assert.equal(carrito.items.length, 3);
+  assert.equal(comboDe(carrito.items).nombre, "Combo Pixel x1");
+  assert.equal(carrito.total, 26000);
 });
 
 // ---------- Domicilio ----------
