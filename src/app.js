@@ -41,6 +41,10 @@ app.use(
         baseUri: ["'self'"],
         formAction: ["'self'"],
         frameAncestors: ["'none'"],
+        // Helmet añade upgrade-insecure-requests por defecto, y eso hace que el navegador
+        // pida CSS y JS por HTTPS. En local (HTTP, p. ej. desde el celular en la red
+        // Wi-Fi) rompe la página. En producción se mantiene como estaba.
+        upgradeInsecureRequests: process.env.NODE_ENV === "production" ? [] : null,
       },
     },
     crossOriginEmbedderPolicy: false, // no se cargan recursos de otros orígenes
@@ -63,6 +67,13 @@ app.use(
 );
 
 app.use(express.json({ limit: "100kb" })); // un pedido pesa gramos, no megas
+
+// Sin cuerpo (p. ej. POST vacío), Express 5 deja req.body indefinido y los
+// controladores fallaban con 500 al leer sus campos. Se normaliza a {}.
+app.use((req, res, next) => {
+  if (req.body === undefined) req.body = {};
+  next();
+});
 
 app.use(express.static(path.join(__dirname, "..", "public")));
 
@@ -100,6 +111,10 @@ app.get(["/sitemap.xml", "/api/sitemap.xml"], (req, res) => {
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
       `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
       `  <url><loc>${base}/</loc></url>\n` +
+      `  <url><loc>${base}/seguimiento-pedido.html</loc></url>\n` +
+      `  <url><loc>${base}/preguntas-gamer.html</loc></url>\n` +
+      `  <url><loc>${base}/historia-marca.html</loc></url>\n` +
+      `  <url><loc>${base}/memoria-8bit.html</loc></url>\n` +
       `</urlset>\n`
   );
 });
@@ -110,6 +125,18 @@ app.use((req, res) => {
     return res.status(404).json({ error: "Ruta no encontrada" });
   }
   res.status(404).sendFile(path.join(__dirname, "..", "public", "404.html"));
+});
+
+// Errores de petición (p. ej. JSON mal formado): sin esto Express devuelve su
+// página con la traza completa del servidor, con rutas internas del equipo.
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  const status = err.status || err.statusCode || 500;
+  if (status >= 500) console.error("[error]", err);
+  if (req.path.startsWith("/api") || !req.accepts("html")) {
+    return res.status(status).json({ error: status >= 500 ? "Error interno del servidor" : "Petición no válida" });
+  }
+  res.status(status).type("text/plain").send("Error");
 });
 
 module.exports = app;

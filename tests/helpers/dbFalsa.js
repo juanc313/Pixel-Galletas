@@ -128,6 +128,12 @@ function instalarDbFalsa() {
   };
   const ruta = require.resolve("../../src/config/db.js");
   require.cache[ruta] = { id: ruta, filename: ruta, loaded: true, exports: pool };
-  return { agregarUsuario(nombre, correo, contrasena, rol) { usuarios.push({ id: uid, nombre, correo, contrasena, rol, creado_en: new Date() }); return uid++; } };
+  return {
+    agregarUsuario(nombre, correo, contrasena, rol) { usuarios.push({ id: uid, nombre, correo, contrasena, rol, creado_en: new Date() }); return uid++; },
+    async agregarProducto({ nombre_sabor, descripcion, precio_venta, cantidad_disponible = null }) {
+      productos.push({ id: pid, nombre_sabor, descripcion, precio_venta, cantidad_disponible, creado_en: new Date() });
+      return pid++;
+    },
+  };
 }
 module.exports = { instalarDbFalsa };

@@ -51,6 +51,22 @@ export function comboDe(items) {
   return { nombre: mejor.combo.nombre, veces: mejor.veces, precio: mejor.veces * mejor.combo.precio };
 }
 
+// Si hay Special sueltas y faltan galletas normales para cerrar un combo exacto,
+// devuelve cuántas faltan. Solo sugiere combos que se cierran agregando normales.
+export function sugerirCombo(items) {
+  const numEspeciales = items.filter((i) => i.nombre === NOMBRE_SPECIAL).reduce((s, i) => s + i.cantidad, 0);
+  const numNormales = items.filter((i) => i.nombre !== NOMBRE_SPECIAL).reduce((s, i) => s + i.cantidad, 0);
+  if (numEspeciales === 0) return null;
+  let mejor = null;
+  for (const combo of COMBOS) {
+    if (numEspeciales % combo.especiales !== 0) continue;
+    const faltan = (numEspeciales / combo.especiales) * combo.normales - numNormales;
+    if (faltan <= 0) continue;
+    if (!mejor || faltan < mejor.faltan) mejor = { nombre: combo.nombre, precio: combo.precio, faltan };
+  }
+  return mejor;
+}
+
 // Formas de entrega: la MISMA tabla que aplica el servidor al guardar el
 // pedido (src/config/envio.js). El navegador la usa para mostrar el total antes
 // de pedir; el que se guarda siempre lo calcula el servidor. Hay una prueba que
@@ -70,6 +86,14 @@ export const ENTREGAS = {
   },
 };
 export const ENVIO_GRATIS_DESDE = 12;
+
+// Cargo por distancia del domicilio: la MISMA tabla que src/config/distancia.js.
+// El cliente elige el rango en el formulario; el servidor vuelve a validarlo.
+export const RANGOS_DISTANCIA = {
+  "0-3": 2000,
+  "3-6": 4000,
+  "6+": 6000,
+};
 
 // Costo del envío de un pedido de `unidades` galletas con la forma de entrega
 // `entrega`. Devuelve null si la forma de entrega no existe (igual que el
@@ -144,6 +168,8 @@ export class Carrito {
     // total depende de ella, pero no se guarda en el navegador: cada visita
     // empieza con "recoger", que es gratis y no cambia nada por sí solo.
     this.entrega = "recoger";
+    // Cargo por distancia de la dirección escrita, que consulta la vista.
+    this.distancia = 0;
   }
 
   #recuperar() {
@@ -312,8 +338,11 @@ export class Carrito {
   }
 
   // Costo del domicilio según la zona elegida y lo que hay en el carrito.
+  // Con domicilio y sin galletas gratis se suma el cargo por distancia que
+  // calculó el servidor para la dirección escrita (0 hasta que la consulte).
   get envio() {
-    return envioDe(this.cantidadTotal, this.entrega) ?? 0;
+    const zona = envioDe(this.cantidadTotal, this.entrega) ?? 0;
+    return zona > 0 ? zona + this.distancia : 0;
   }
 
   // Lo que se paga de verdad: subtotal menos el descuento por volumen y más el
@@ -402,6 +431,11 @@ class PedidoVista {
     // sale gratis desde 12 galletas): al elegirla se vuelve a pintar el carrito
     // para que el cliente vea el precio real antes de confirmar.
     this.$("form-pedido").addEventListener("change", (e) => {
+      if (e.target?.name === "distancia") {
+        this.carrito.distancia = RANGOS_DISTANCIA[e.target.value] ?? 0;
+        this.pintarCarrito();
+        return;
+      }
       if (e.target?.name !== "entrega") return;
       this.carrito.entrega = e.target.value;
       this.pintarCarrito();
@@ -505,8 +539,12 @@ class PedidoVista {
       aviso.hidden = false;
       aviso.textContent = `${combo.nombre} aplicado: precio fijo de ${pesos(combo.precio)}, sin descuento por volumen.`;
     } else {
-      aviso.hidden = !this.carrito.items.length || !faltan;
-      if (!aviso.hidden) {
+      const sugerido = sugerirCombo(this.carrito.items);
+      aviso.hidden = !this.carrito.items.length || (!sugerido && !faltan);
+      if (sugerido) {
+        aviso.hidden = false;
+        aviso.textContent = `Te faltan ${sugerido.faltan} galleta${sugerido.faltan === 1 ? "" : "s"} normal${sugerido.faltan === 1 ? "" : "es"} para armar el ${sugerido.nombre} a ${pesos(sugerido.precio)}.`;
+      } else if (!aviso.hidden) {
         aviso.textContent = hayDescuento
           ? `Con ${siguiente.desde} galletas el descuento sube al ${siguiente.porcentaje}%: te faltan ${faltan}.`
           : `Suma ${faltan} galleta${faltan === 1 ? "" : "s"} más y el pedido lleva ${siguiente.porcentaje}% de descuento.`;
@@ -556,12 +594,18 @@ class PedidoVista {
     if (entrega !== "recoger" && !direccion) {
       return this.mensaje("Para el domicilio necesitamos la dirección de entrega.");
     }
+    // Igual que el servidor: la distancia solo se cobra si el domicilio tiene cargo de zona.
+    const cobraDomicilio = (envioDe(this.carrito.cantidadTotal, entrega) ?? 0) > 0;
+    if (cobraDomicilio && !f.get("distancia")) {
+      return this.mensaje("Elige la distancia del domicilio desde La Estrella.");
+    }
 
     const datos = {
       cliente_nombre: String(f.get("nombre") || "").trim(),
       cliente_telefono: String(f.get("telefono") || "").trim(),
       entrega: String(f.get("entrega") || "recoger"),
       direccion: String(f.get("direccion") || "").trim() || undefined,
+      distancia: String(f.get("distancia") || "") || undefined,
       notas: String(f.get("notas") || "").trim() || undefined,
       items: this.carrito.paraApi(),
     };
@@ -574,6 +618,7 @@ class PedidoVista {
     try {
       const pedido = await this.servicio.crear(datos);
       this.carrito.vaciar();
+      this.carrito.distancia = 0;
       e.target.reset();
       this.prefill();
       this.#confirmar(new Pedido(pedido));

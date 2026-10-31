@@ -109,6 +109,81 @@ test("Sello de familia: cada familia del catálogo tiene sigilo y todo sabor lo 
   assert.equal(familiaDe("sabor-inventado"), null);
 });
 
+test("Pixel Radio: playlist, controles y silencio persistente", async () => {
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const vm = require("node:vm");
+  const espera = () => new Promise((resolver) => setImmediate(resolver));
+  const crearElemento = () => ({
+    eventos: {}, atributos: {}, dataset: {}, textContent: "", hidden: false,
+    addEventListener(tipo, fn) { this.eventos[tipo] = fn; },
+    setAttribute(nombre, valor) { this.atributos[nombre] = valor; },
+    removeAttribute(nombre) { delete this.atributos[nombre]; },
+    focus() {}, isConnected: true,
+  });
+  const botones = [crearElemento(), crearElemento()];
+  const canciones = ["Still Life", "Lofi Hip Hop Loop", "Lucid"].map((titulo, i) => {
+    const el = crearElemento();
+    el.dataset = { pista: ["/audio/still-life.mp3", "/audio/lofi-hip-hop-loop.ogg", "/audio/lucid.mp3"][i], artista: "Artista" };
+    el.querySelector = () => ({ textContent: titulo });
+    return el;
+  });
+  const ids = ["musica-audio", "musica-panel", "musica-volumen", "musica-progreso", "musica-estado", "musica-titulo", "musica-artista", "musica-tiempo", "musica-duracion", "musica-reproducir", "musica-cerrar", "musica-anterior", "musica-retroceder", "musica-adelantar", "musica-siguiente"];
+  const elementos = Object.fromEntries(ids.map((id) => [`#${id}`, crearElemento()]));
+  const audio = elementos["#musica-audio"];
+  audio.duration = 120; audio.currentTime = 30; audio.canPlayType = () => "";
+  audio.play = () => { audio.eventos.playing(); return Promise.resolve(); };
+  audio.pause = () => audio.eventos.pause();
+  elementos["#musica-panel"].hidden = true;
+  elementos["#musica-volumen"].value = "0.3";
+  const eventosDocumento = {}, eventosVentana = {}, memoriaRadio = {};
+  const document = {
+    querySelector: (selector) => elementos[selector] || null,
+    querySelectorAll: (selector) => selector === ".musica-boton" ? botones : canciones,
+    addEventListener: (tipo, fn) => { eventosDocumento[tipo] = fn; },
+  };
+  const window = { addEventListener: (tipo, fn) => { eventosVentana[tipo] = fn; } };
+  const localStorage = { getItem: (clave) => memoriaRadio[clave] ?? null, setItem: (clave, valor) => { memoriaRadio[clave] = valor; } };
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, "..", "public", "js", "musica.js"), "utf8"), { document, window, localStorage, setTimeout });
+
+  botones[0].eventos.click();
+  assert.equal(elementos["#musica-panel"].hidden, false);
+  assert.equal(botones[1].atributos["aria-expanded"], "true");
+  elementos["#musica-reproducir"].eventos.click();
+  await espera();
+  assert.equal(botones[0].dataset.sonando, "true");
+  elementos["#musica-adelantar"].eventos.click();
+  assert.equal(audio.currentTime, 40);
+  elementos["#musica-retroceder"].eventos.click();
+  assert.equal(audio.currentTime, 30);
+  audio.currentTime = 115;
+  elementos["#musica-adelantar"].eventos.click();
+  assert.equal(audio.currentTime, 120);
+  audio.eventos.loadedmetadata();
+  assert.equal(elementos["#musica-duracion"].textContent, "2:00");
+  elementos["#musica-progreso"].value = "15";
+  elementos["#musica-progreso"].eventos.input();
+  assert.equal(audio.currentTime, 15);
+  elementos["#musica-volumen"].value = "0.5";
+  elementos["#musica-volumen"].eventos.input();
+  assert.equal(audio.volume, 0.5);
+  canciones[1].eventos.click();
+  await espera();
+  assert.equal(audio.src, "/audio/lofi-hip-hop-loop.mp3");
+  assert.equal(elementos["#musica-titulo"].textContent, "Lofi Hip Hop Loop");
+  assert.equal(canciones[1].atributos["aria-current"], "true");
+  audio.eventos.ended();
+  await espera();
+  assert.equal(elementos["#musica-titulo"].textContent, "Lucid");
+  elementos["#musica-reproducir"].eventos.click();
+  assert.equal(memoriaRadio.pixel_galletas_musica_apagada, "1");
+  assert.equal(botones[0].dataset.sonando, "false");
+  elementos["#musica-siguiente"].eventos.click();
+  assert.equal(botones[0].dataset.sonando, "false", "cambiar de pista en pausa no debe activar música");
+  elementos["#musica-cerrar"].eventos.click();
+  assert.equal(elementos["#musica-panel"].hidden, true);
+});
+
 test("Sello de familia: cada sigilo apunta a un sprite definido en la página", async () => {
   const fs = require("node:fs");
   const path = require("node:path");

@@ -1,0 +1,6 @@
+// Registra el service worker para que la web sea instalable como app.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}

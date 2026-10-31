@@ -1,0 +1,49 @@
+/* Páginas 8 bits (memoria, seguimiento, preguntas y historia).
+   Se carga después de styles.css y reutiliza sus tokens: colores, sombras
+   pixel y escalas de texto. Sin estilos en línea (la CSP lo bloquea). */
+
+body.pagina-8bit {
+  font-family: var(--titulos);
+  font-size: var(--t-md);
+  letter-spacing: .04em;
+  line-height: 1.7;
+}
+body.pagina-8bit h1 {
+  font-size: var(--t-3xl);
+  text-transform: uppercase;
+  color: var(--masa);
+  text-shadow: 4px 4px 0 var(--tinta);
+}
+body.pagina-8bit h2 { font-size: var(--t-xl); color: var(--crema); }
+body.pagina-8bit p, body.pagina-8bit li, body.pagina-8bit .faq-item p { font-size: var(--t-md); }
+body.pagina-8bit .faq-item summary { font-family: var(--titulos); font-size: var(--t-md); }
+body.pagina-8bit #form-estado input { font-family: var(--titulos); font-size: var(--t-md); }
+body.pagina-8bit .estado-resultado { font-family: var(--titulos); }
+
+.retro-pagina { max-width: 68rem; margin: 0 auto; padding: var(--s-6) var(--gutter) var(--s-9); }
+.retro-volver { display: inline-block; margin-bottom: var(--s-5); color: var(--diamante); text-decoration: none; }
+.retro-volver:hover { color: var(--masa-clara); }
+.retro-caja { background: var(--pantalla); box-shadow: var(--sombra-caja); padding: var(--s-6); margin-bottom: var(--s-6); }
+.retro-lista { padding-left: 1.2rem; }
+.retro-lista li { margin-bottom: var(--s-3); }
+
+/* Memoria */
+.memoria-marcador { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+  gap: var(--s-4); margin-bottom: var(--s-5); color: var(--moneda); }
+.memoria-tablero { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3); }
+.memoria-carta { aspect-ratio: 1; padding: 0; font-family: var(--titulos); font-size: var(--t-2xl);
+  background: var(--tinta); color: var(--crema); box-shadow: var(--px-3-masa); }
+.memoria-carta.abierta { background: var(--masa); color: var(--noche); }
+.memoria-carta.encontrada { background: var(--diamante); color: var(--noche); box-shadow: var(--px-3-diamante); }
+.memoria-estado { min-height: 1.6em; margin-top: var(--s-5); color: var(--diamante); text-align: center; }
+
+/* Historia por capítulos */
+.retro-capitulo { border-left: 6px solid var(--masa); padding-left: var(--s-5); margin-bottom: var(--s-7); }
+.retro-capitulo h2 { color: var(--masa); font-size: var(--t-lg); }
+.retro-capitulo-numero { color: var(--diamante); font-size: var(--t-sm); margin: 0; }
+.retro-capitulo p, .retro-capitulo li { font-family: var(--texto); letter-spacing: .01em; text-transform: none; line-height: 1.6; }
+
+@media (max-width: 34rem) {
+  .memoria-tablero { gap: var(--s-2); }
+  .memoria-carta { font-size: var(--t-lg); }
+}

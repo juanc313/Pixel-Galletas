@@ -6,3 +6,7 @@ node_modules/
 .edge-cdp/
 .vercel
 .env*
+
+# Certificado CA de la base en la nube: no se sube al repositorio
+certs/
+*.pem

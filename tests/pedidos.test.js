@@ -331,6 +331,15 @@ test("Armador: cada galleta normal entra con el sabor que el cliente eligió", a
   }
 });
 
+test("Distancia: la tabla de rangos del front y la del servidor son la misma", async () => {
+  const { RANGOS_DISTANCIA } = await cargar();
+  const { RANGOS_DISTANCIA: servidor } = require("../src/config/distancia");
+  // El cargo que ve el cliente sale de la tabla del navegador y el que se guarda
+  // sale de la del servidor: si cambian en un solo lado, el total no coincide.
+  const costosServidor = Object.fromEntries(Object.entries(servidor).map(([k, r]) => [k, r.costo]));
+  assert.deepEqual(RANGOS_DISTANCIA, costosServidor);
+});
+
 test("Envío: recoger es gratis, cada zona cuesta lo suyo y desde 12 galletas todo sale gratis", async () => {
   const { envioDe } = await cargar();
   assert.equal(envioDe(1, "recoger"), 0, "recoger es gratis siempre");

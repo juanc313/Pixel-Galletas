@@ -1,0 +1,14 @@
+.env*
+certs/
+*.pem
+*.xlsx
+.freebuff/
+.postman/
+postman/
+.vscode/
+tests/
+scripts/
+database/
+docs/
+.github/
+README.md

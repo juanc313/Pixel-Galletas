@@ -209,17 +209,20 @@ test("Domicilio: el costo del envío lo calcula el servidor según la zona y la 
   assert.equal(Number(recogiendo.datos.envio), 0);
   assert.equal(Number(recogiendo.datos.total), 12000);
 
-  // Cúcuta con menos de 12 galletas: +$5.000. El navegador manda envío y total
-  // falsos: se ignoran, igual que el precio_unitario.
-  const cucuta = await pedir({ entrega: "cucuta", direccion: "Calle 5 # 3-2", envio: 0, total: 1 });
+  // Cúcuta con menos de 12 galletas: $5.000 de zona + $2.000 del rango 0-3 km.
+  // El navegador manda envío y total falsos: se ignoran, igual que el precio_unitario.
+  const cucuta = await pedir({ entrega: "cucuta", direccion: "Calle 5 # 3-2", distancia: "0-3", envio: 0, total: 1 });
   assert.equal(cucuta.estado, 201);
-  assert.equal(Number(cucuta.datos.envio), 5000);
-  assert.equal(Number(cucuta.datos.total), 17000);
+  assert.equal(Number(cucuta.datos.envio), 7000);
+  assert.equal(Number(cucuta.datos.total), 19000);
 
-  // Municipios: +$7.000.
-  const municipios = await pedir({ entrega: "municipios", direccion: "Villa del Rosario" });
-  assert.equal(Number(municipios.datos.envio), 7000);
-  assert.equal(Number(municipios.datos.total), 19000);
+  // Municipios: $7.000 de zona + $4.000 del rango 3-6 km.
+  const municipios = await pedir({ entrega: "municipios", direccion: "Villa del Rosario", distancia: "3-6" });
+  assert.equal(Number(municipios.datos.envio), 11000);
+  assert.equal(Number(municipios.datos.total), 23000);
+
+  // Domicilio sin rango elegido: 400, no se adivina el cargo.
+  assert.equal((await pedir({ entrega: "cucuta", direccion: "Calle 5 # 3-2", distancia: "99" })).estado, 400);
 
   // Desde 12 galletas el domicilio sale gratis, en cualquier zona, y el
   // descuento por volumen se aplica igual.

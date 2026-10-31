@@ -10,7 +10,7 @@ Node.js, Express y MySQL) y **frontend** (HTML, CSS y JavaScript con clases), co
 
 ## Puesta en marcha
 1. Instalar dependencias: `npm install`
-2. Crear la base de datos: abrir `database/schema.sql` en MySQL Workbench y ejecutarlo completo.
+2. Para una base nueva y vacía, abrir `database/schema.sql` en MySQL Workbench y ejecutarlo completo. **No ejecutar el script completo sobre una base existente sin revisarlo y respaldarla:** contiene `DELETE` y `UPDATE` que pueden borrar sabores y modificar precios o descripciones. Para actualizar una base existente, revisar y aplicar únicamente las migraciones necesarias.
 3. Copiar `.env.example` como `.env` y completar los valores (contraseña de MySQL y un `JWT_SECRET` propio).
 4. Crear el primer administrador: `npm run crear-admin`
 5. Iniciar el servidor: `npm start` y abrir `http://localhost:3000`
@@ -103,8 +103,9 @@ un nodo, más el dominio al registrador (unos US$10-15 al año).
 3. **Variables de entorno** (Settings → Environment): `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`,
    `DB_NAME`, `JWT_SECRET` y **`DB_SSL=true`** (la base gestionada exige TLS; `db.js` ya lo soporta).
    Si además quieres el aviso por Telegram: `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID`.
-4. **Esquema:** ejecutar `database/schema.sql` una vez contra el clúster nuevo (se puede repetir sin daño:
-   es idempotente y agrega las columnas que falten).
+4. **Esquema:** ejecutar `database/schema.sql` contra un clúster nuevo y vacío. No volver a ejecutar el script
+   completo sobre datos existentes sin revisar y respaldar la base: incluye operaciones que borran sabores y
+   modifican algunos precios o descripciones. Para una base existente, aplicar solo las migraciones necesarias.
 5. **Administrador:** correr `npm run crear-admin` apuntando a esa base (o crearlo desde la consola del
    contenedor) para poder entrar al panel.
 6. **Dominio:** añadirlo en el App Platform y apuntar los DNS del registrador; el certificado TLS se emite solo.

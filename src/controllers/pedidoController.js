@@ -4,6 +4,7 @@ const Producto = require("../models/Producto");
 const { descuentoDe, COMBOS } = require("../config/descuentos");
 const { ENTREGAS, envioDe } = require("../config/envio");
 const { notificarPedido } = require("../config/telegram");
+const { cargoDeRango, RANGOS_DISTANCIA } = require("../config/distancia");
 
 const ESTADOS_VALIDOS = ["pendiente", "en_preparacion", "listo", "entregado", "cancelado"];
 
@@ -42,12 +43,19 @@ function detectarCombo(detalle) {
 }
 
 class PedidoController {
+  // Tabla de rangos de distancia, para que el formulario la muestre.
+  static tarifasDistancia(req, res) {
+    return res.json(
+      Object.entries(RANGOS_DISTANCIA).map(([clave, r]) => ({ clave, etiqueta: r.etiqueta, costo: r.costo })),
+    );
+  }
+
   // Crear un pedido (público: cualquier cliente puede pedir sin cuenta).
   // El total SIEMPRE se calcula aquí con los precios vigentes del catálogo,
   // nunca se acepta el precio que envíe el navegador.
   static async crear(req, res) {
     try {
-      const { cliente_nombre, cliente_telefono, direccion, entrega, notas, items } = req.body;
+      const { cliente_nombre, cliente_telefono, direccion, entrega, notas, items, distancia } = req.body;
       // Visita anónima que cierra el embudo de la medición propia (misma forma
       // que valida el controlador de eventos). Si no viene, el pedido se guarda
       // igual: la medición nunca puede impedir una compra.
@@ -135,7 +143,18 @@ class PedidoController {
       // mande el navegador: recoger es gratis siempre, cada zona tiene su
       // costo y desde 12 galletas el envío sale gratis (ver
       // src/config/envio.js, que es la misma tabla que usa el carrito).
-      const envio = envioDe(unidades, formaEntrega);
+      // Con domicilio y sin galletas gratis, se suma el cargo del rango de
+      // distancia que eligió el cliente (src/config/distancia.js).
+      const envioZona = envioDe(unidades, formaEntrega);
+      let envioDistancia = 0;
+      if (formaEntrega !== "recoger" && envioZona > 0) {
+        const costoRango = cargoDeRango(distancia);
+        if (costoRango === null) {
+          return res.status(400).json({ error: "Elige la distancia del domicilio" });
+        }
+        envioDistancia = costoRango;
+      }
+      const envio = envioZona + envioDistancia;
       const total = totalGalletas + envio;
 
       const pedido = await Pedido.crear({

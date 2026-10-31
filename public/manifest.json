@@ -1,0 +1,17 @@
+{
+  "name": "Pixel Galletas",
+  "short_name": "Pixel Galletas",
+  "description": "Galletas Nueva York gamer hechas en Cúcuta. Elige tus sabores y pide por WhatsApp.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#15094F",
+  "theme_color": "#15094F",
+  "icons": [
+    { "src": "/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/img/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/img/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

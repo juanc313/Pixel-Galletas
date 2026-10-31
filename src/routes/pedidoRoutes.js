@@ -19,6 +19,9 @@ router.post("/", verificarTokenOpcional, PedidoController.crear);
 // solo donde debe viajar.
 router.post("/estado", PedidoController.consultarEstado);
 
+// Tabla de rangos de distancia del domicilio (pública, para el formulario).
+router.get("/tarifas-distancia", PedidoController.tarifasDistancia);
+
 // La gestión de pedidos es exclusiva del administrador.
 router.get("/", verificarToken, verificarRol("admin"), PedidoController.listar);
 router.get("/:id", verificarToken, verificarRol("admin"), PedidoController.obtener);

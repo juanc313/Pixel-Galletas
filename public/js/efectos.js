@@ -381,6 +381,8 @@ try {
       };
 
       const teclas = (e) => {
+        // Los controles de la radio reciben teclas sin activar el menú de entrada.
+        if (e.target.closest?.(".musica-boton, .musica-panel")) return;
         const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
         paso = k === secuencia[paso] ? paso + 1 : (k === secuencia[0] ? 1 : 0);
         if (paso === secuencia.length) { paso = 0; desbloquearSecreto(); return; }
@@ -410,7 +412,7 @@ try {
       // Ratón y tacto: pasar por encima elige, pulsar confirma; un toque en el
       // fondo (fuera del diálogo) sale, como al principio.
       entrada.addEventListener("pointerdown", (e) => {
-        if (e.target.closest(".entrada-menu")) return;
+        if (e.target.closest(".entrada-menu, .musica-boton")) return;
         // En plena secuencia de salida solo la ✕ (saltar) cierra de una vez.
         if (eligiendo && !e.target.closest(".entrada-saltar")) return;
         cerrar();
@@ -432,7 +434,10 @@ try {
       });
       // El foco arranca en el menú para que ↑ ↓ y Enter funcionen de inmediato
       // (esperando al menú: antes no existe en pantalla).
-      setTimeout(() => { if (menu && menu.isConnected) menu.focus({ preventScroll: true }); }, 2300);
+      setTimeout(() => {
+        const radio = document.getElementById("musica-panel");
+        if (menu && menu.isConnected && (!radio || radio.hidden)) menu.focus({ preventScroll: true });
+      }, 2300);
       pintarActiva();
     }
   }

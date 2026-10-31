@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seguimiento de pedido — Pixel Galletas</title>
+  <meta name="description" content="Revisa el estado de tu pedido de Pixel Galletas con tu número de pedido y tu teléfono. No necesitas cuenta.">
+  <meta name="theme-color" content="#15094F">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/png" sizes="64x64" href="/img/favicon.png">
+  <link rel="stylesheet" href="/css/fuentes.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/paginas-8bit.css">
+</head>
+<body class="pagina-8bit">
+  <main class="retro-pagina">
+    <a class="retro-volver" href="/">← Volver al inicio</a>
+    <h1>Seguimiento de pedido</h1>
+    <p>Pon el número de pedido y el teléfono con el que pediste. No necesitas cuenta ni registro.</p>
+
+    <section class="retro-caja" aria-labelledby="titulo-seguimiento">
+      <h2 id="titulo-seguimiento">¿Dónde va mi pedido?</h2>
+      <form id="form-estado">
+        <label>Número de pedido <input type="number" name="id" id="estado-id" min="1" required placeholder="12" inputmode="numeric"></label>
+        <label>Teléfono con el que pediste <input type="tel" name="telefono" id="estado-telefono" required minlength="7" maxlength="20" pattern="[0-9+\s\-]{7,20}" placeholder="313 783 9935" inputmode="tel"></label>
+        <button type="submit" class="boton-grande">Ver estado</button>
+      </form>
+      <p id="mensaje-estado" role="alert"></p>
+      <div id="estado-resultado" class="estado-resultado" hidden></div>
+    </section>
+  </main>
+
+  <script type="module" src="/js/estado.js"></script>
+</body>
+</html>
