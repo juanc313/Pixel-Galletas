@@ -1,4 +1,5 @@
 import { ApiClient, Sesion } from "./api.js";
+import { escucharGlobal } from "./registro-global.js";
 
 // Modelo: un producto del catálogo. Convierte el precio (la API lo envía como texto "4500.00").
 export class Producto {
@@ -112,7 +113,7 @@ class ProductosVista {
     this.$("btn-cancelar").addEventListener("click", () => this.limpiarForm());
     this.$("lista-productos").addEventListener("click", (e) => this.accion(e));
     this.$("filtros-catalogo").addEventListener("click", (e) => this.alFiltrar(e));
-    window.addEventListener("sesion-cambio", () => this.pintar());
+    escucharGlobal("productos:sesion", "sesion-cambio", () => this.pintar());
     this.cargar();
   }
 

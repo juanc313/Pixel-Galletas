@@ -528,24 +528,9 @@
           </li>
         </ul>
       </div>
-      <div class="calculadora-combos" id="calculadora-combos">
-        <h3>Calcula tu combo</h3>
-        <p class="subtitulo">Elige cuántas Special y cuántas galletas normales llevas. El precio se calcula solo.</p>
-        <div class="calc-contadores">
-          <label>Special Edition
-            <input id="calc-especiales" type="number" min="0" max="30" value="1" inputmode="numeric">
-          </label>
-          <label>Normales
-            <input id="calc-normales" type="number" min="0" max="30" value="2" inputmode="numeric">
-          </label>
-        </div>
-        <div class="calc-marcador" id="calc-marcador" aria-hidden="true"></div>
-        <p class="calc-resultado" aria-live="polite" id="calc-resultado"></p>
-        <p class="calc-detalle" id="calc-detalle"></p>
-        <table class="calc-tabla" aria-label="Precio por cantidad de combos">
-          <thead><tr><th>Combo</th><th>Galletas</th><th>Total</th><th>Por galleta</th></tr></thead>
-          <tbody id="calc-tabla-cuerpo"></tbody>
-        </table>
+      <div class="calculadora-combos" id="combo-personalizado">
+        <h3>Combo personalizado</h3>
+        <p class="subtitulo">Elige cuántas Special y cuántas galletas normales llevas, y el sabor de cada una. El precio se calcula solo.</p>
         <a class="boton-grande" id="btn-combo-personalizado" href="/combo-personalizado.html">Combo personalizado</a>
       </div>
       <div class="volumen">
@@ -1018,6 +1003,7 @@
   <script type="module" src="/js/analitica.js"></script>
   <script type="module" src="/js/estado.js"></script>
   <script type="module" src="/js/efectos.js"></script>
+  <script type="module" src="/js/navegacion.js"></script>
   <script src="/js/musica.js" defer></script>
 </body>
 </html>

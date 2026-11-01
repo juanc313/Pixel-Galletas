@@ -1,4 +1,5 @@
 import { ApiClient, Sesion } from "./api.js";
+import { escucharGlobal } from "./registro-global.js";
 
 // ============================================================================
 // Medición propia del sitio
@@ -64,7 +65,7 @@ export class ResumenVista {
   constructor(cliente = new ApiClient()) {
     this.cliente = cliente;
     this.$ = (id) => document.getElementById(id);
-    window.addEventListener("sesion-cambio", () => this.actualizar());
+    escucharGlobal("analitica:sesion", "sesion-cambio", () => this.actualizar());
     this.actualizar();
   }
 
@@ -121,10 +122,10 @@ export class ResumenVista {
 if (typeof document !== "undefined") {
   const medicion = new Medicion();
   // Las tarjetas avisan cuando entran en pantalla (las revela productos.js).
-  window.addEventListener("sabor-visto", (e) => medicion.registrar("sabor_visto", { producto_id: e.detail?.id }));
+  escucharGlobal("analitica:sabor-visto", "sabor-visto", (e) => medicion.registrar("sabor_visto", { producto_id: e.detail?.id }));
   // Agregar al carrito se cuenta cada vez: interesa cuánto se agrega, y el
   // embudo usa visitas distintas, así que no se infla por repetir clics.
-  window.addEventListener("agregar-al-carrito", (e) =>
+  escucharGlobal("analitica:agregar-al-carrito", "agregar-al-carrito", (e) =>
     medicion.registrar("carrito_agregar", { producto_id: e.detail?.id, cantidad: 1 })
   );
   // Tocar los datos de entrega es la señal de que el pedido va en serio.

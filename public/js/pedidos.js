@@ -1,6 +1,7 @@
 import { ApiClient, Sesion } from "./api.js";
 import { CONTACTO, urlWhatsApp } from "./config.js";
 import { idVisita } from "./analitica.js";
+import { escucharGlobal } from "./registro-global.js";
 
 // Etiquetas legibles de los estados del pedido.
 export const ESTADOS = {
@@ -442,11 +443,11 @@ class PedidoVista {
     });
     this.$("btn-vaciar-carrito").addEventListener("click", () => this.carrito.vaciar());
     this.$("lista-carrito").addEventListener("click", (e) => this.accionesCarrito(e));
-    window.addEventListener("carrito-cambio", () => this.pintarCarrito());
+    escucharGlobal("pedidos:carrito-cambio", "carrito-cambio", () => this.pintarCarrito());
     // El carrito responde si pudo agregar: cuando el sabor está agotado o ya se
     // llevó todas las unidades disponibles, el cliente se entera al instante en
     // vez de descubrirlo al confirmar el pedido.
-    window.addEventListener("agregar-al-carrito", (e) => {
+    escucharGlobal("pedidos:agregar-al-carrito", "agregar-al-carrito", (e) => {
       if (this.carrito.agregar(e.detail)) return;
       this.mensaje(
         e.detail?.cantidadDisponible === 0
@@ -454,7 +455,7 @@ class PedidoVista {
           : `Ya llevas todas las unidades disponibles de ${e.detail?.nombre}.`
       );
     });
-    window.addEventListener("sesion-cambio", () => this.prefill());
+    escucharGlobal("pedidos:prefill-sesion", "sesion-cambio", () => this.prefill());
     this.prefill();
     this.pintarCarrito();
   }
@@ -644,7 +645,7 @@ class PedidosAdminVista {
     this.pedidos = [];
     this.$ = (id) => document.getElementById(id);
     this.$("lista-pedidos").addEventListener("change", (e) => this.cambiarEstado(e));
-    window.addEventListener("sesion-cambio", () => this.alCambiarSesion());
+    escucharGlobal("pedidos-admin:sesion", "sesion-cambio", () => this.alCambiarSesion());
     this.alCambiarSesion();
   }
 
@@ -904,12 +905,15 @@ export class CalculadoraCombos {
 if (typeof document !== "undefined") {
   const carrito = new Carrito(new CarritoServicio(new ApiClient()));
   carrito.unirConCuenta(); // si ya hay sesión al cargar, une los dos carritos
-  window.addEventListener("sesion-cambio", () => carrito.unirConCuenta());
+  escucharGlobal("carrito:unir-sesion", "sesion-cambio", () => carrito.unirConCuenta());
   if (document.getElementById("form-pedido")) new PedidoVista(new PedidoServicio(new ApiClient()), carrito);
   if (document.getElementById("lista-pedidos")) new PedidosAdminVista(new PedidoServicio(new ApiClient()));
-  const calculadora = new CalculadoraCombos(carrito);
-  const url = new URLSearchParams(location.search);
-  if (url.has("especiales")) calculadora.$("calc-especiales").value = url.get("especiales");
-  if (url.has("normales")) calculadora.$("calc-normales").value = url.get("normales");
-  new ApiClient().get("/productos").then((p) => calculadora.cargarProductos(p));
+  // La calculadora solo existe en la página del combo personalizado.
+  if (document.getElementById("calc-especiales")) {
+    const calculadora = new CalculadoraCombos(carrito);
+    const url = new URLSearchParams(location.search);
+    if (url.has("especiales")) calculadora.$("calc-especiales").value = url.get("especiales");
+    if (url.has("normales")) calculadora.$("calc-normales").value = url.get("normales");
+    new ApiClient().get("/productos").then((p) => calculadora.cargarProductos(p));
+  }
 }

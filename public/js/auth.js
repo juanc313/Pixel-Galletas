@@ -1,4 +1,5 @@
 import { ApiClient, Sesion } from "./api.js";
+import { escucharGlobal } from "./registro-global.js";
 
 // Controla la pantalla de acceso (login, registro y panel de sesión).
 class AuthVista {
@@ -16,7 +17,7 @@ class AuthVista {
     this.$("form-registro").addEventListener("submit", (e) => this.registrar(e));
     this.$("btn-salir").addEventListener("click", () => this.cerrarSesion());
     this.$("btn-acceso").addEventListener("click", () => this.alternarAcceso());
-    window.addEventListener("sesion-vencida", () => {
+    escucharGlobal("auth:sesion-vencida", "sesion-vencida", () => {
       this.mostrarSegunSesion();
       this.alternarAcceso(true);
       this.mensaje("Tu sesión venció. Inicia sesión de nuevo.");

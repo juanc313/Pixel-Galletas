@@ -4,6 +4,8 @@
 // que vuela hacia el carrito. Si algo falla aquí, se desactiva el modo
 // animación para que todo siga visible.
 
+if (!window.__efectosIniciados) {
+window.__efectosIniciados = true;
 try {
   const reducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const puedeTocar = matchMedia("(hover: hover)").matches;
@@ -1020,3 +1022,4 @@ try {
     document.documentElement.classList.remove("js-anim");
     document.documentElement.classList.remove("velado");
   }
+}

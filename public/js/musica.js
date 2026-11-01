@@ -1,7 +1,7 @@
 // Pixel Radio: el navegador puede exigir un gesto antes de permitir sonido.
 const audio = document.querySelector("#musica-audio");
 const panelMusica = document.querySelector("#musica-panel");
-const botonesMusica = [...document.querySelectorAll(".musica-boton")];
+const botonesMusica = () => [...document.querySelectorAll(".musica-boton")];
 const canciones = [...document.querySelectorAll(".musica-lista [data-pista]")];
 const volumen = document.querySelector("#musica-volumen");
 const progreso = document.querySelector("#musica-progreso");
@@ -12,7 +12,8 @@ const tiempoMusica = document.querySelector("#musica-tiempo");
 const duracionMusica = document.querySelector("#musica-duracion");
 const reproducirMusica = document.querySelector("#musica-reproducir");
 
-if (audio && panelMusica && botonesMusica.length && canciones.length && volumen && progreso && estadoMusica && tituloMusica && artistaMusica && tiempoMusica && duracionMusica && reproducirMusica) {
+if (!window.__musicaIniciada && audio && panelMusica && botonesMusica().length && canciones.length && volumen && progreso && estadoMusica && tituloMusica && artistaMusica && tiempoMusica && duracionMusica && reproducirMusica) {
+window.__musicaIniciada = true;
   const CLAVE_SILENCIO = "pixel_galletas_musica_apagada";
   let apagada = false;
   try { apagada = localStorage.getItem(CLAVE_SILENCIO) === "1"; } catch { /* sin almacenamiento */ }
@@ -27,7 +28,7 @@ if (audio && panelMusica && botonesMusica.length && canciones.length && volumen 
 
   function actualizarBotones() {
     const activa = reproduciendo || iniciando;
-    botonesMusica.forEach((boton) => {
+    botonesMusica().forEach((boton) => {
       boton.dataset.sonando = String(activa);
       boton.setAttribute("aria-expanded", String(!panelMusica.hidden));
     });
@@ -88,15 +89,18 @@ if (audio && panelMusica && botonesMusica.length && canciones.length && volumen 
     panelMusica.hidden = !mostrar;
     actualizarBotones();
     if (devolverFoco) {
-      const boton = botonApertura?.isConnected ? botonApertura : botonesMusica.find((item) => item.isConnected);
+      const boton = botonApertura?.isConnected ? botonApertura : botonesMusica().find((item) => item.isConnected);
       boton?.focus();
     }
   }
 
-  botonesMusica.forEach((boton) => boton.addEventListener("click", () => {
+  // Delegado en document: los botones ♫ cambian al navegar sin recargar la página.
+  document.addEventListener("click", (evento) => {
+    const boton = evento.target.closest?.(".musica-boton");
+    if (!boton) return;
     botonApertura = boton;
     mostrarPanel(panelMusica.hidden);
-  }));
+  });
   document.querySelector("#musica-cerrar").addEventListener("click", () => mostrarPanel(false, true));
   document.addEventListener("keydown", (evento) => {
     if (evento.key === "Escape" && !panelMusica.hidden) {
@@ -198,6 +202,45 @@ if (audio && panelMusica && botonesMusica.length && canciones.length && volumen 
     if (!apagada) estadoMusica.textContent = "No se pudo cargar la pista. Revisa tu conexión e inténtalo de nuevo.";
   });
 
+  // Al cambiar de página el documento se recarga y el audio se pierde. Guardamos
+  // pista, posición y si sonaba, y al llegar a la página siguiente se retoma.
+  const CLAVE_SESION = "pixel_galletas_musica_sesion";
+  function guardarSesion() {
+    try {
+      sessionStorage.setItem(CLAVE_SESION, JSON.stringify({
+        indice,
+        posicion: audio.currentTime || 0,
+        sonaba: reproduciendo || iniciando,
+      }));
+    } catch { /* sin almacenamiento */ }
+  }
+  function restaurarSesion() {
+    let guardado = null;
+    try { guardado = JSON.parse(sessionStorage.getItem(CLAVE_SESION)); } catch { /* sin datos */ }
+    if (!guardado || !Number.isInteger(guardado.indice)) return false;
+    indice = (guardado.indice + canciones.length) % canciones.length;
+    audio.src = fuenteCompatible(canciones[indice].dataset.pista);
+    tituloMusica.textContent = canciones[indice].querySelector("span").textContent;
+    artistaMusica.textContent = canciones[indice].dataset.artista;
+    canciones.forEach((item, i) => {
+      if (i === indice) item.setAttribute("aria-current", "true");
+      else item.removeAttribute("aria-current");
+    });
+    const posicion = Number(guardado.posicion) || 0;
+    audio.addEventListener("loadedmetadata", () => {
+      if (posicion > 0 && posicion < audio.duration) audio.currentTime = posicion;
+    }, { once: true });
+    return guardado.sonaba === true;
+  }
+
+  window.addEventListener("pagehide", guardarSesion);
+  window.addEventListener("beforeunload", guardarSesion);
+  setInterval(() => { if (reproduciendo) guardarSesion(); }, 1000);
+
+  const haySesion = sessionStorage.getItem(CLAVE_SESION) !== null;
+  if (haySesion) {
+    inicioPendiente = restaurarSesion() && !apagada;
+  }
   actualizarBotones();
   actualizarProgreso();
   window.addEventListener("load", () => {

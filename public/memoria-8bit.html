@@ -14,6 +14,7 @@
 </head>
 <body class="pagina-8bit">
   <main class="retro-pagina">
+    <button type="button" class="musica-boton musica-boton-barra" aria-label="Abrir reproductor de música" aria-expanded="false" aria-controls="musica-panel" title="Abrir reproductor"><span aria-hidden="true">♫</span></button>
     <a class="retro-volver" href="/">← Volver al inicio</a>
     <h1>Memoria 8 bits</h1>
     <p>Voltea dos cartas. Si son iguales, se quedan abiertas. Encuentra los 8 pares.</p>
@@ -30,5 +31,41 @@
   </main>
 
   <script type="module" src="/js/memoria.js"></script>
+  <section class="musica-panel" id="musica-panel" aria-label="Reproductor de música" hidden>
+    <div class="musica-cabecera">
+      <div><span class="musica-etiqueta">♫ PIXEL RADIO</span><h2>Tu banda sonora</h2></div>
+      <button type="button" id="musica-cerrar" class="musica-cerrar" aria-label="Cerrar reproductor">✕</button>
+    </div>
+    <div class="musica-actual">
+      <span class="musica-disco" aria-hidden="true">♫</span>
+      <div><span class="musica-etiqueta">SONANDO EN PIXEL</span><strong id="musica-titulo">Still Life</strong><span id="musica-artista">HoliznaCC0</span></div>
+    </div>
+    <label class="musica-etiqueta" for="musica-progreso">Progreso de la canción</label>
+    <input id="musica-progreso" type="range" min="0" max="0" value="0" step="1" disabled>
+    <div class="musica-tiempos"><span id="musica-tiempo">0:00</span><span id="musica-duracion">--:--</span></div>
+    <div class="musica-controles" aria-label="Controles de reproducción">
+      <button type="button" id="musica-anterior" aria-label="Canción anterior" title="Canción anterior">◀◀</button>
+      <button type="button" id="musica-retroceder" aria-label="Retroceder 10 segundos" title="Retroceder 10 segundos">−10</button>
+      <button type="button" id="musica-reproducir" class="musica-reproducir" aria-label="Reproducir música" title="Reproducir música">▶</button>
+      <button type="button" id="musica-adelantar" aria-label="Adelantar 10 segundos" title="Adelantar 10 segundos">+10</button>
+      <button type="button" id="musica-siguiente" aria-label="Siguiente canción" title="Siguiente canción">▶▶</button>
+    </div>
+    <label class="musica-volumen" for="musica-volumen">Volumen <input id="musica-volumen" type="range" min="0" max="1" step="0.05" value="0.3"></label>
+    <p id="musica-estado" class="musica-estado" role="status" aria-live="polite"></p>
+    <p class="musica-etiqueta">PLAYLIST · 8 PISTAS</p>
+    <ol class="musica-lista" aria-label="Lista de canciones">
+      <li><button type="button" data-pista="/audio/still-life.mp3" data-artista="HoliznaCC0" aria-current="true"><span>Still Life</span><small>HoliznaCC0</small></button></li>
+      <li><button type="button" data-pista="/audio/lofi-hip-hop-loop.ogg" data-artista="omfgdude"><span>Lofi Hip Hop Loop</span><small>omfgdude</small></button></li>
+      <li><button type="button" data-pista="/audio/warm-fuzz.mp3" data-artista="HoliznaCC0"><span>Warm Fuzz</span><small>HoliznaCC0</small></button></li>
+      <li><button type="button" data-pista="/audio/peaceful-drift.mp3" data-artista="HoliznaCC0"><span>Peaceful Drift</span><small>HoliznaCC0</small></button></li>
+      <li><button type="button" data-pista="/audio/tokyo-sunset.mp3" data-artista="HoliznaCC0"><span>Tokyo Sunset</span><small>HoliznaCC0</small></button></li>
+      <li><button type="button" data-pista="/audio/life-on-cassette.mp3" data-artista="HoliznaCC0"><span>Life On Cassette</span><small>HoliznaCC0</small></button></li>
+      <li><button type="button" data-pista="/audio/summer-felt-longer-then.mp3" data-artista="HoliznaCC0"><span>Summer Felt Longer Then</span><small>HoliznaCC0</small></button></li>
+      <li><button type="button" data-pista="/audio/lucid.mp3" data-artista="HoliznaCC0"><span>Lucid</span><small>HoliznaCC0</small></button></li>
+    </ol>
+  </section>
+  <audio id="musica-audio" preload="none" src="/audio/still-life.mp3"></audio>
+  <script type="module" src="/js/navegacion.js"></script>
+  <script src="/js/musica.js" defer></script>
 </body>
 </html>

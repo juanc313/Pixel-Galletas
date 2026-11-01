@@ -1,4 +1,5 @@
 import { ApiClient, Sesion } from "./api.js";
+import { escucharGlobal } from "./registro-global.js";
 
 // Modelo: un usuario registrado.
 export class Usuario {
@@ -24,7 +25,7 @@ class UsuariosVista {
     this.$ = (id) => document.getElementById(id);
     this.$("lista-usuarios").addEventListener("click", (e) => this.eliminar(e));
     this.$("lista-usuarios").addEventListener("change", (e) => this.cambiarRol(e));
-    window.addEventListener("sesion-cambio", () => this.alCambiarSesion());
+    escucharGlobal("usuarios:sesion", "sesion-cambio", () => this.alCambiarSesion());
     this.alCambiarSesion();
   }
 

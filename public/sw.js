@@ -1,7 +1,7 @@
 // Service worker mínimo: lo necesario para que la web sea instalable.
 // No cachea la API ni las peticiones que no sean GET del propio sitio,
 // para que los pedidos y los datos de sesión nunca se sirvan desde caché.
-const CACHE = "pixel-galletas-v1";
+const CACHE = "pixel-galletas-v2";
 const BASICOS = ["/", "/index.html", "/css/styles.css", "/css/fuentes.css", "/manifest.json"];
 
 self.addEventListener("install", (evento) => {
