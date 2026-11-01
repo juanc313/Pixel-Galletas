@@ -144,9 +144,12 @@ test("Pixel Radio: playlist, controles y silencio persistente", async () => {
   };
   const window = { addEventListener: (tipo, fn) => { eventosVentana[tipo] = fn; } };
   const localStorage = { getItem: (clave) => memoriaRadio[clave] ?? null, setItem: (clave, valor) => { memoriaRadio[clave] = valor; } };
-  vm.runInNewContext(fs.readFileSync(path.join(__dirname, "..", "public", "js", "musica.js"), "utf8"), { document, window, localStorage, setTimeout });
+  const memoriaSesion = {};
+  const sessionStorage = { getItem: (clave) => memoriaSesion[clave] ?? null, setItem: (clave, valor) => { memoriaSesion[clave] = valor; } };
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, "..", "public", "js", "musica.js"), "utf8"), { document, window, localStorage, sessionStorage, setTimeout, setInterval: () => 0 });
 
-  botones[0].eventos.click();
+  // El clic llega al documento (delegado): así funcionan los ♫ tras navegar sin recargar.
+  eventosDocumento.click({ target: { closest: (selector) => (selector === ".musica-boton" ? botones[0] : null) } });
   assert.equal(elementos["#musica-panel"].hidden, false);
   assert.equal(botones[1].atributos["aria-expanded"], "true");
   elementos["#musica-reproducir"].eventos.click();

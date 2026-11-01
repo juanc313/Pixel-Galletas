@@ -17,6 +17,24 @@ function enlaceInterno(evento) {
   return url;
 }
 
+// efectos.js prepara el revelado de secciones solo al cargar la primera página,
+// así que las secciones de una página nueva se revelan aquí.
+function revelarNuevo(raiz) {
+  const secciones = raiz.querySelectorAll("[data-reveal]");
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) {
+    secciones.forEach((el) => el.classList.add("visible"));
+    return;
+  }
+  const o = new IntersectionObserver((entradas) => {
+    entradas.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("visible");
+      o.unobserve(e.target);
+    });
+  }, { threshold: 0, rootMargin: "0px 0px -40px 0px" });
+  secciones.forEach((el) => o.observe(el));
+}
+
 async function irA(url, guardarHistorial) {
   const respuesta = await fetch(url.href, { headers: { Accept: "text/html" } });
   const tipo = respuesta.headers.get("content-type") || "";
@@ -28,6 +46,7 @@ async function irA(url, guardarHistorial) {
   if (!nuevoMain || !actual) throw new Error("Página sin <main>");
 
   actual.replaceWith(nuevoMain);
+  revelarNuevo(nuevoMain);
   document.body.className = doc.body.className;
   document.title = doc.title;
   for (const hoja of doc.querySelectorAll('link[rel="stylesheet"]')) {
@@ -39,7 +58,9 @@ async function irA(url, guardarHistorial) {
 
   if (guardarHistorial) history.pushState({}, "", url.href);
   paginaActual = url.pathname + url.search;
-  window.scrollTo(0, 0);
+  const destino = url.hash ? document.getElementById(decodeURIComponent(url.hash.slice(1))) : null;
+  if (destino) destino.scrollIntoView();
+  else window.scrollTo(0, 0);
 
   version++;
   for (const script of doc.querySelectorAll('script[type="module"][src]')) {
