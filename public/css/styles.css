@@ -1102,8 +1102,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
   background: linear-gradient(180deg, rgba(12, 5, 53, .35), var(--tinta));
   border-top: 4px solid var(--pantalla-alta); }
 .pie-cols { max-width: var(--ancho); margin: 0 auto var(--s-6); display: grid; gap: var(--gap-col); align-items: start; }
-@media (min-width: 52rem) { .pie-cols { grid-template-columns: 1fr 1fr 1fr; column-gap: var(--s-8); } }
-@media (min-width: 52rem) { .pie-links { grid-template-columns: repeat(2, max-content); column-gap: var(--s-9); } }
+@media (min-width: 52rem) { .pie-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); column-gap: var(--s-8); } }
 .pie-marca { display: flex; gap: var(--s-4); align-items: flex-start; }
 .pie-marca img { width: 60px; height: 60px; flex: none; }
 .pie-marca strong { display: block; margin-bottom: var(--s-1); font-family: var(--titulos); font-size: var(--t-lg); }
@@ -1114,6 +1113,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
   transition: color var(--d-micro) ease, border-color var(--d-micro) ease, transform var(--d-micro) ease; }
 .pie-links a:hover, .pie-social a:hover { color: var(--masa); border-bottom-color: var(--masa); transform: translateX(3px); }
 .pie-social a { font-size: var(--t-sm); color: var(--suave); }
+@media (min-width: 52rem) { .pie-links { grid-template-columns: repeat(2, max-content); grid-template-rows: repeat(6, auto); grid-auto-flow: column; column-gap: var(--s-9); } }
 .pie-legal { max-width: var(--ancho); margin: 0 auto; padding-top: var(--s-5); text-align: center;
   border-top: 3px dashed rgba(255, 243, 220, .18); font-size: var(--t-xs); color: var(--suave); }
 
