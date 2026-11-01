@@ -1101,9 +1101,9 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .pie { margin-top: auto; padding: var(--s-8) var(--gutter) var(--s-5);
   background: linear-gradient(180deg, rgba(12, 5, 53, .35), var(--tinta));
   border-top: 4px solid var(--pantalla-alta); }
-.pie-cols { max-width: var(--ancho); margin: 0 auto var(--s-6); display: grid; gap: var(--gap-col); }
-@media (min-width: 52rem) { .pie-cols { grid-template-columns: 1fr 1.3fr 1fr; } }
-@media (min-width: 52rem) { .pie-links { grid-template-columns: repeat(2, max-content); column-gap: var(--s-6); } }
+.pie-cols { max-width: var(--ancho); margin: 0 auto var(--s-6); display: grid; gap: var(--gap-col); align-items: start; }
+@media (min-width: 52rem) { .pie-cols { grid-template-columns: 1fr 1fr 1fr; column-gap: var(--s-8); } }
+@media (min-width: 52rem) { .pie-links { grid-template-columns: repeat(2, max-content); column-gap: var(--s-9); } }
 .pie-marca { display: flex; gap: var(--s-4); align-items: flex-start; }
 .pie-marca img { width: 60px; height: 60px; flex: none; }
 .pie-marca strong { display: block; margin-bottom: var(--s-1); font-family: var(--titulos); font-size: var(--t-lg); }
