@@ -26,6 +26,29 @@
   --brillo: rgba(255, 255, 255, .9);
   --diamante: #0E8F7C;
   --moneda: #B88500;
+  --barra: rgba(255, 249, 238, .96);
+  --barra-desplazada: rgba(255, 255, 255, .99);
+  --rejilla: rgba(42, 26, 74, .05);
+  --tarjeta-ini: #FFFFFF;
+  --tarjeta-fin: #FCEBD0;
+  --marco: #FFF4E0;
+  --cinta-ini: #FFF9EE;
+  --cinta-fin: #F4E2C4;
+  --banda: #FBEAD0;
+  --placeholder: rgba(42, 26, 74, .5);
+  --sombra-texto: 2px 2px 0 rgba(255, 255, 255, .6);
+  --deshabilitado: rgba(42, 26, 74, .08);
+  --deshabilitado-texto: rgba(42, 26, 74, .45);
+  --campo-hover: #FFF3DF;
+  --banda-ini: rgba(255, 255, 255, .55);
+  --banda-medio: rgba(253, 244, 227, .2);
+  --banda-fin: rgba(230, 210, 180, .45);
+  --banda-par-ini: rgba(245, 144, 47, .1);
+  --glow-banda: rgba(245, 144, 47, .14);
+  --brillo-suave: rgba(255, 255, 255, .7);
+  --sombra-suave: rgba(42, 26, 74, .12);
+  --hud-fondo: rgba(255, 249, 238, .96);
+  --hud-fondo-alto: rgba(255, 255, 255, .98);
 }
 
 :root {
@@ -43,6 +66,27 @@
   --linea-suave: rgba(255, 243, 220, .2);
   --suave: rgba(255, 243, 220, .82);
   --brillo: rgba(255, 255, 255, .55);
+  --barra: rgba(21, 9, 79, .96);
+  --barra-desplazada: rgba(12, 5, 53, .98);
+  --rejilla: rgba(255, 243, 220, .03);
+  --tarjeta-ini: #2A1785;
+  --tarjeta-fin: #1D0E63;
+  --marco: #F9ECDC;
+  --cinta-ini: #0C0535;
+  --cinta-fin: #090326;
+  --placeholder: rgba(255, 243, 220, .55);
+  --deshabilitado: rgba(255, 243, 220, .14);
+  --deshabilitado-texto: rgba(255, 243, 220, .78);
+  --campo-hover: #130743;
+  --banda-ini: rgba(50, 32, 159, .34);
+  --banda-medio: rgba(12, 5, 53, .1);
+  --banda-fin: rgba(12, 5, 53, .5);
+  --banda-par-ini: rgba(245, 144, 47, .07);
+  --glow-banda: rgba(245, 144, 47, .1);
+  --brillo-suave: rgba(255, 243, 220, .06);
+  --sombra-suave: rgba(0, 0, 0, .35);
+  --hud-fondo: rgba(12, 5, 53, .96);
+  --hud-fondo-alto: rgba(12, 5, 53, .98);
 
   /* Titulares: fuente pixel PERO con cifras de ancho uniforme y bien formadas.
      Pixelify Sans era exagerada con los números (glifos torcidos y advance
@@ -184,8 +228,8 @@ body {
     radial-gradient(60rem 34rem at 82% -6rem, rgba(245, 144, 47, .14), transparent 65%),
     radial-gradient(52rem 30rem at -12rem 38%, rgba(229, 65, 43, .12), transparent 62%),
     radial-gradient(44rem 26rem at 92% 78%, rgba(77, 232, 208, .07), transparent 60%),
-    linear-gradient(rgba(255, 243, 220, .035) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(255, 243, 220, .035) 2px, transparent 2px);
+    linear-gradient(var(--rejilla) 2px, transparent 2px),
+    linear-gradient(90deg, var(--rejilla) 2px, transparent 2px);
   background-size: auto, auto, auto, 32px 32px, 32px 32px;
   background-attachment: fixed, fixed, fixed, scroll, scroll;
   color: var(--crema); font-family: var(--texto); font-size: var(--t-base); line-height: 1.6;
@@ -217,14 +261,14 @@ h3 { font-size: var(--t-lg); }
   padding: var(--s-3) max(var(--s-4), calc((100% - var(--ancho)) / 2));
   /* Sin backdrop-filter: en barras sticky con texto pixel provoca parpadeo de
      repintado al alternar subir/bajar. La opacidad alta basta para el fondo. */
-  background: rgba(21, 9, 79, .96);
+  background: var(--barra);
   border-bottom: 4px solid var(--pantalla-alta);
   transition: box-shadow var(--d-ui) ease, background-color var(--d-ui) ease, border-color var(--d-ui) ease;
 }
 /* El estado desplazado NO toca métricas de layout (tamaño de fuente, padding
    de la marca): solo color, sombra y borde. Así el logo y el nombre nunca
    cambian de caja al hacer scroll y desaparece el bug del nombre. */
-.barra.desplazada { background: rgba(12, 5, 53, .98); border-bottom-color: var(--masa);
+.barra.desplazada { background: var(--barra-desplazada); border-bottom-color: var(--masa);
   box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
 /* Barra de progreso de lectura al pie de la cabecera */
 .progreso-lectura { position: absolute; left: 0; bottom: -4px; height: 4px; width: 100%;
@@ -289,7 +333,7 @@ button:active:not(:disabled), .boton-grande:active, .boton-whatsapp:active {
    el carrito vacío: la etiqueta desaparecía). Ahora se apaga con relleno crema
    translúcido y texto por encima de 4.5:1: se lee que está desactivado. */
 button:disabled { cursor: not-allowed; opacity: 1; filter: none;
-  background: rgba(255, 243, 220, .14); color: rgba(255, 243, 220, .78);
+  background: var(--deshabilitado); color: var(--deshabilitado-texto);
   box-shadow: var(--px-4-tinta); }
 .boton-grande { padding: var(--s-4) var(--s-6); font-size: var(--t-lg); }
 .boton-whatsapp { background: linear-gradient(180deg, #47E389, #25D366 55%); }
@@ -316,7 +360,7 @@ button.secundario, #btn-acceso, .pestanas button:not(.activa), .acciones button,
   box-shadow: var(--px-3);
 }
 button.secundario:hover:not(:disabled), #btn-acceso:hover, .pestanas button:not(.activa):hover,
-.acciones button:hover:not(:disabled), .controles button[data-accion="quitar"]:hover { background: rgba(255, 243, 220, .12); filter: none; }
+.acciones button:hover:not(:disabled), .controles button[data-accion="quitar"]:hover { background: var(--deshabilitado); filter: none; }
 button.secundario:active:not(:disabled), #btn-acceso:active, .acciones button:active:not(:disabled) {
   box-shadow: var(--px-3);
 }
@@ -330,12 +374,12 @@ input, textarea, select {
   box-shadow: var(--px-3);
   transition: background-color var(--d-micro) ease, box-shadow var(--d-micro) ease;
 }
-input:hover, textarea:hover, select:hover { background: #130743; }
+input:hover, textarea:hover, select:hover { background: var(--campo-hover); }
 textarea { resize: vertical; }
 select { width: auto; max-width: 100%; }
 select option { background: var(--tinta); color: var(--crema); }
 select:disabled { opacity: .5; cursor: not-allowed; }
-input::placeholder, textarea::placeholder { color: rgba(255, 243, 220, .55); }
+input::placeholder, textarea::placeholder { color: var(--placeholder); }
 input:focus-visible, textarea:focus-visible, select:focus-visible {
   outline: none;
   box-shadow: var(--px-3-diamante), 0 0 22px rgba(77, 232, 208, .25);
@@ -407,7 +451,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 
 .tarjeta {
   width: 100%; padding: clamp(1.4rem, 3vw, 2.2rem); position: relative; overflow: hidden;
-  background: linear-gradient(165deg, #2A1785, var(--pantalla) 48%, #1D0E63);
+  background: linear-gradient(165deg, var(--tarjeta-ini), var(--pantalla) 48%, var(--tarjeta-fin));
   box-shadow: var(--sombra-dura), var(--sombra-caida), inset 0 1px 0 rgba(255, 255, 255, .09);
 }
 /* Esquinas pixeladas decorativas */
@@ -563,7 +607,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .cifras li { container-type: inline-size; }
 @container (max-width: 8.5rem) { .cifras li > b { font-size: clamp(1.35rem, 14cqi, var(--t-num)); letter-spacing: -.03em; } }
 .cifras span { font-size: var(--t-xs); color: var(--suave); text-transform: uppercase; letter-spacing: .06em; }
-.hero-pantalla { position: relative; margin: 0; padding: var(--s-3); background: #F9ECDC;
+.hero-pantalla { position: relative; margin: 0; padding: var(--s-3); background: var(--marco);
   transform: rotate(-.8deg);
   box-shadow: var(--px-4-masa), 14px 18px 0 0 rgba(0, 0, 0, .4), 0 0 60px rgba(245, 144, 47, .22);
   transition: transform var(--d-ui) ease, box-shadow var(--d-ui) ease; }
@@ -577,7 +621,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 
 /* ===== Cinta de sabores ===== */
 .cinta { overflow: hidden; margin-inline: calc(var(--gutter) * -1); padding: var(--s-3) 0;
-  background: linear-gradient(180deg, var(--tinta), #090326);
+  background: linear-gradient(180deg, var(--cinta-ini), var(--cinta-fin));
   border-block: 3px solid var(--pantalla-alta);
   box-shadow: inset 0 0 24px rgba(0, 0, 0, .5), 0 0 30px rgba(245, 144, 47, .08);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
@@ -591,18 +635,18 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .banda { position: relative; isolation: isolate; padding-block: var(--s-8); border-radius: 0; }
 .banda::before { content: ""; position: absolute; inset: 0; z-index: -2; pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(50, 32, 159, .34), rgba(12, 5, 53, .1) 42%, rgba(12, 5, 53, .5)),
-    repeating-linear-gradient(0deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px),
-    repeating-linear-gradient(90deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px);
-  box-shadow: inset 0 1px 0 rgba(255, 243, 220, .06), inset 0 -1px 0 rgba(0, 0, 0, .35); }
+    linear-gradient(180deg, var(--banda-ini), var(--banda-medio) 42%, var(--banda-fin)),
+    repeating-linear-gradient(0deg, var(--rejilla) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, var(--rejilla) 0 1px, transparent 1px 34px);
+  box-shadow: inset 0 1px 0 var(--brillo-suave), inset 0 -1px 0 var(--sombra-suave); }
 .banda::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: radial-gradient(70rem 30rem at 50% -6rem, rgba(245, 144, 47, .1), transparent 68%); }
+  background: radial-gradient(70rem 30rem at 50% -6rem, var(--glow-banda), transparent 68%); }
 .banda-par { --banda-tinte: rgba(245, 144, 47, .05); }
 .banda-par::before { background:
-    linear-gradient(180deg, rgba(245, 144, 47, .07), rgba(12, 5, 53, .12) 46%, rgba(12, 5, 53, .5)),
-    repeating-linear-gradient(0deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px),
-    repeating-linear-gradient(90deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px);
-  box-shadow: inset 0 1px 0 rgba(255, 243, 220, .06), inset 0 -1px 0 rgba(0, 0, 0, .35); }
+    linear-gradient(180deg, var(--banda-par-ini), var(--banda-medio) 46%, var(--banda-fin)),
+    repeating-linear-gradient(0deg, var(--rejilla) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, var(--rejilla) 0 1px, transparent 1px 34px);
+  box-shadow: inset 0 1px 0 var(--brillo-suave), inset 0 -1px 0 var(--sombra-suave); }
 /* ===== Comunidad: bento de prueba social =====
    Mosaico asimétrico (patrón bento) con foto real, cifras y una frase de la
    marca. Da prueba social sin inventar reseñas: usa fotos reales y datos
@@ -1631,8 +1675,8 @@ body:has(.mini-carrito.activo) .nivel-hud { bottom: 5.5rem; }
 /* El menú del encabezado (móvil) queda bajo el mini-carrito fijo: se oculta mientras está abierto. */
 body:has(.menu.abierto) .mini-carrito { visibility: hidden; }
 .nivel-hud-boton { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-4);
-  border: 0; cursor: pointer; background: rgba(12, 5, 53, .96); color: var(--crema);
-  box-shadow: var(--px-3-suave), 6px 8px 18px rgba(0, 0, 0, .4);
+  border: 0; cursor: pointer; background: var(--hud-fondo); color: var(--crema);
+  box-shadow: var(--px-3-suave), 6px 8px 18px var(--sombra-suave);
   font-family: var(--titulos); font-size: var(--t-xs); }
 .nivel-hud-boton:hover { background: var(--pantalla-alta); filter: none; transform: none; }
 .nivel-hud-punto { flex: none; width: .65rem; height: .65rem; background: var(--masa);
@@ -1646,7 +1690,7 @@ body:has(.menu.abierto) .mini-carrito { visibility: hidden; }
   transition: transform var(--d-ui) var(--e-salida); }
 .nivel-mapa { position: absolute; left: 50%; bottom: calc(100% + var(--s-3)); translate: -50% 0;
   display: grid; gap: var(--s-1); width: max-content; min-width: 15rem; padding: var(--s-3);
-  background: rgba(12, 5, 53, .98); box-shadow: var(--px-3-masa), 8px 12px 24px rgba(0, 0, 0, .5);
+  background: var(--hud-fondo-alto); box-shadow: var(--px-3-masa), 8px 12px 24px var(--sombra-suave);
   max-height: min(56vh, 22rem); overflow: auto; }
 .nivel-mapa a { display: flex; align-items: baseline; gap: var(--s-3);
   padding: var(--s-2) var(--s-3); text-decoration: none; color: var(--suave);
@@ -1660,8 +1704,8 @@ body:has(.menu.abierto) .mini-carrito { visibility: hidden; }
    <dialog> nativo: el navegador se encarga del foco, del Esc y del fondo.
    Aquí solo se le da el marco pixel y el pie con el título de la foto. */
 .visor { width: min(94vw, 70rem); max-width: none; padding: var(--s-4); border: 0;
-  background: rgba(12, 5, 53, .99); color: var(--crema);
-  box-shadow: var(--px-4), 0 30px 70px rgba(0, 0, 0, .65); }
+  background: var(--hud-fondo-alto); color: var(--crema);
+  box-shadow: var(--px-4), 0 30px 70px var(--sombra-suave); }
 .visor::backdrop { background: rgba(6, 2, 24, .88); }
 .visor-marco { display: grid; gap: var(--s-3); justify-items: center; margin: 0; }
 .visor-marco img { display: block; width: auto; max-width: 100%; max-height: 64vh; }
