@@ -378,6 +378,7 @@ try {
       // Las tres categorías entran a la página —con vuelo del logo incluido—:
       // aventura se queda en el inicio, sabores al catálogo, créditos a La marca.
       const accionar = (op) => {
+        if (op.dataset.accion === "perfil") { perfil.hidden = !perfil.hidden; return; }
         if (op.dataset.accion === "creditos") terminar("marca", op);
         else terminar(op.dataset.accion === "empezar" ? null : "catalogo", op);   // aventura entra al inicio desde arriba; sabores y el modo secreto, al catálogo
       };
@@ -401,6 +402,22 @@ try {
         }
       };
       addEventListener("keydown", teclas);
+
+      // Perfil gamer: tres preguntas sin datos personales. Cada respuesta solo
+      // muestra una recomendación de caja y puede saltarse; no se guarda nada.
+      const perfil = entrada.querySelector(".entrada-perfil");
+      const perfilNota = entrada.querySelector(".entrada-perfil-nota");
+      const recomendaciones = {
+        speedrunner: "Para ir rápido: la Caja Pixel x4, perfecta para una partida corta.",
+        tanque: "Para aguantar: la Caja Pixel x6, para compartir con el equipo.",
+        healer: "Para cuidar al grupo: la Caja Pixel x12, ideal para toda la mesa.",
+      };
+      entrada.addEventListener("click", (e) => {
+        const botonPerfil = e.target.closest?.(".entrada-perfil-op");
+        if (!botonPerfil) return;
+        e.stopPropagation();
+        perfilNota.textContent = recomendaciones[botonPerfil.dataset.perfil] || "";
+      });
 
       // ?empezar=1: la escena corre sola y confirma en cuanto el menú está
       // listo (2.4 s: tras la entrada del menú), sin esperar al jugador.

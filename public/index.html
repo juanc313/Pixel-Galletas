@@ -258,8 +258,16 @@
     <nav class="entrada-menu" tabindex="-1" aria-label="Menú de inicio">
       <button type="button" class="entrada-op" data-accion="empezar">Empezar aventura</button>
       <button type="button" class="entrada-op" data-accion="sabores">Sabores del día</button>
+      <button type="button" class="entrada-op" data-accion="perfil">Perfil gamer</button>
       <button type="button" class="entrada-op" data-accion="creditos">Créditos</button>
       <button type="button" class="entrada-op entrada-op-secreta" data-accion="secreto" hidden>??? ??? ???</button>
+      <div class="entrada-perfil" hidden>
+        <p class="entrada-perfil-titulo">¿Qué clase de jugador eres?</p>
+        <button type="button" class="entrada-perfil-op" data-perfil="speedrunner">Speedrunner · caja x4</button>
+        <button type="button" class="entrada-perfil-op" data-perfil="tanque">Tanque · caja x6</button>
+        <button type="button" class="entrada-perfil-op" data-perfil="healer">Healer · caja x12</button>
+        <p class="entrada-perfil-nota" aria-live="polite"></p>
+      </div>
       <p class="entrada-secreto-nota">¡Modo secreto! Doble lluvia desbloqueada</p>
       <p class="entrada-menu-pista">↑ ↓ elegir · Enter entrar · Esc salir</p>
     </nav>
