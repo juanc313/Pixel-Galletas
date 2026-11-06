@@ -468,7 +468,11 @@ try {
   }
 
   // ===== Revelado de secciones al hacer scroll =====
-  const observables = document.querySelectorAll("[data-reveal]");
+  // Las listas en cascada (.cajas, .pasos, .mision-grid) llevan su propio
+  // "visible": el CSS esconde sus hijos y los revela con .cajas.visible, etc.
+  // Si solo se observan las secciones, esas listas nunca lo reciben y sus
+  // tarjetas se quedan a opacity: 0 para siempre. Se observan también aquí.
+  const observables = document.querySelectorAll("[data-reveal], .cajas, .pasos, .mision-grid");
   if (reducido || !("IntersectionObserver" in window)) {
     observables.forEach((el) => el.classList.add("visible"));
   } else {
