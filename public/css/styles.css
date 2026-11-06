@@ -446,7 +446,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
   transition: translate .6s var(--e-salida); }
 .galleta-flotante svg { display: block; width: 100%; height: 100%; }
 .gf-1 { top: 4%; right: 30%; width: 3.4rem; height: 3.4rem; opacity: .9; --prof: 16; }
-.gf-2 { bottom: 16%; left: -1.2rem; width: 2.6rem; height: 2.6rem; opacity: .72; --prof: -9; }
+.gf-2 { top: 6%; left: -1.2rem; width: 2.6rem; height: 2.6rem; opacity: .72; --prof: -9; }
 .gf-3 { top: 42%; right: -1rem; width: 3rem; height: 3rem; opacity: .82; --prof: 12; }
 @media (max-width: 62rem) { .gf-2, .gf-3 { display: none; } .gf-1 { top: auto; bottom: 2%; right: 4%; width: 2.8rem; height: 2.8rem; } }
 @media (prefers-reduced-motion: no-preference) {
@@ -581,14 +581,6 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
     repeating-linear-gradient(0deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px),
     repeating-linear-gradient(90deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px);
   box-shadow: inset 0 1px 0 rgba(255, 243, 220, .06), inset 0 -1px 0 rgba(0, 0, 0, .35); }
-/* Esquinas pixel en los cantos de cada banda: la firma de marca repetida. */
-.banda-esquinas { position: absolute; inset: 0; pointer-events: none; z-index: 1;
-  --esq: linear-gradient(var(--masa), var(--masa));
-  --esq-suave: linear-gradient(rgba(255, 243, 220, .5), rgba(255, 243, 220, .5)); }
-.banda-esquinas::before, .banda-esquinas::after { content: ""; position: absolute; width: 2.6rem; height: .35rem; background: var(--esq); }
-.banda-esquinas::before { top: 0; left: var(--gutter); }
-.banda-esquinas::after { bottom: 0; right: var(--gutter); }
-
 /* ===== Comunidad: bento de prueba social =====
    Mosaico asimétrico (patrón bento) con foto real, cifras y una frase de la
    marca. Da prueba social sin inventar reseñas: usa fotos reales y datos
@@ -1163,19 +1155,6 @@ section:not(.tarjeta) > .etiqueta::after { min-width: 3.5rem; }
     repeating-linear-gradient(0deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px),
     repeating-linear-gradient(90deg, rgba(255, 243, 220, .03) 0 1px, transparent 1px 34px); }
 
-/* Marquesina de luces alrededor de la foto de portada: puntos cálidos en los
-   cuatro cantos que alternan su brillo, como el borde de una máquina arcade. */
-.hero-pantalla::before { content: ""; position: absolute; inset: -12px; pointer-events: none;
-  background:
-    repeating-linear-gradient(90deg, var(--masa) 0 7px, transparent 7px 20px) 0 0 / 100% 5px no-repeat,
-    repeating-linear-gradient(90deg, var(--masa) 0 7px, transparent 7px 20px) 0 100% / 100% 5px no-repeat,
-    repeating-linear-gradient(0deg, var(--masa) 0 7px, transparent 7px 20px) 0 0 / 5px 100% no-repeat,
-    repeating-linear-gradient(0deg, var(--masa) 0 7px, transparent 7px 20px) 100% 0 / 5px 100% no-repeat; }
-@media (prefers-reduced-motion: no-preference) {
-  .js-anim .hero-pantalla::before { animation: luces-marquesina 1.1s steps(2) infinite; }
-}
-@keyframes luces-marquesina { 50% { opacity: .35; } }
-
 /* Guiño del código secreto en el pie: atajos de teclas en tono bajo, como un
    recordatorio escondido de manual de juego. */
 .pie-secreto { max-width: var(--ancho); margin: var(--s-3) auto 0; text-align: center;
@@ -1387,15 +1366,6 @@ section > h2 { font-size: var(--t-2xl); }
 .js-anim .sello-anillo { animation: sello-girar 26s linear infinite; }
 @keyframes sello-girar { to { transform: rotate(360deg); } }
 
-/* --- 4. Efecto CRT sobre la foto de portada ---
-   Líneas de barrido finas y viñeta: la foto se lee como una pantalla de
-   máquina recreativa sin tocar la foto real (va en un pseudo-elemento). */
-.hero-pantalla::after { content: ""; position: absolute; inset: var(--s-3); pointer-events: none;
-  background:
-    repeating-linear-gradient(0deg, rgba(12, 5, 53, .17) 0 2px, transparent 2px 4px),
-    radial-gradient(130% 100% at 50% 40%, transparent 52%, rgba(6, 2, 24, .5));
-  opacity: .85; }
-
 /* --- 5. Paralaje con scroll-driven animations (progresivo) ---
    Sin JavaScript: la foto de portada se desplaza al salir de pantalla y
    la tira de la banda de acción corre según su posición en el visor.
@@ -1404,8 +1374,6 @@ section > h2 { font-size: var(--t-2xl); }
 @keyframes desfile-vista { from { translate: 0 0; } to { translate: -20% 0; } }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .hero-pantalla { animation: deriva-foto linear both;
-      animation-timeline: view(); animation-range: exit 0% exit 100%; }
     .powerup-tira { animation: desfile-vista linear both;
       animation-timeline: view(); animation-range: entry 0% exit 100%; }
   }
@@ -1714,13 +1682,6 @@ img[data-zoom], #lista-productos img { cursor: zoom-in; }
     @keyframes num-listo {
       from { opacity: .4; text-shadow: none; }
       to { opacity: 1; } }
-    /* Las esquinas pixel de cada banda se despliegan al entrar. */
-    .js-anim .banda-esquinas::before, .js-anim .banda-esquinas::after {
-      animation: esquina-llega linear both; animation-timeline: view();
-      animation-range: entry 0% cover 26%;
-      transform-origin: left center; }
-    @keyframes esquina-llega { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-    .js-anim .banda-esquinas::after { transform-origin: right center; }
     /* La palabra gigante del pie deriva un poco con el scroll: el remate
        editorial deja de estar pegado al fondo. */
     .js-anim .pie-wordmark {
@@ -2231,15 +2192,6 @@ html.velado .entrada-nombre { visibility: hidden; }
     repeating-linear-gradient(90deg, rgba(255, 255, 255, .022) 0 1px, transparent 1px 3px); }
 .crt::after { background:
     radial-gradient(122% 96% at 50% 46%, transparent 66%, rgba(4, 1, 16, .16) 92%, rgba(4, 1, 16, .26)); }
-/* Barra de refresco: una banda apenas más clara que baja por la pantalla cada
-   9 s, como el retrazo de un tubo de rayos. Se mueve en translate (propiedad
-   propia) para que el navegador la componga sin repintar la textura. */
-.crt-barrido { position: absolute; left: 0; right: 0; height: 22vh;
-  background: linear-gradient(180deg, transparent,
-    rgba(255, 243, 220, .05) 45%, rgba(255, 243, 220, .07) 55%, transparent);
-  animation: crt-barrido 9s linear infinite; }
-@keyframes crt-barrido { from { translate: 0 -24vh; } to { translate: 0 104vh; } }
-@media (prefers-reduced-motion: reduce) { .crt-barrido { display: none; } }
 
 /* --- 2. Ambiente de fondo ---
    Cielo de estrellas pixel en dos capas de paralaje (la de delante, más

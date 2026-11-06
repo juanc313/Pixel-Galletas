@@ -515,21 +515,6 @@ try {
     if (seccion.id) niveles.push({ id: seccion.id, n, nombre, seccion });
   });
 
-  // ===== Marcos de nivel =====
-  // Cada nivel con etiqueta recibe cuatro escuadras pixel en las esquinas, del
-  // mismo listado que numera los niveles: el recorrido se lee como las ventanas
-  // de una misma máquina, y añadir una sección no pide tocar el HTML. La banda
-  // de acción (powerup) se salta: ya lleva sus propios merlones en los cantos y
-  // una escuadra encima de la tira de texto solo haría ruido. Es decoración:
-  // sin este módulo la página se queda sin escuadras y nada más.
-  for (const nivel of niveles) {
-    if (nivel.seccion.classList.contains("powerup")) continue;
-    const marco = document.createElement("span");
-    marco.className = "marco-nivel";
-    marco.setAttribute("aria-hidden", "true");
-    nivel.seccion.append(marco);
-  }
-
   // ===== Mapa de niveles (HUD) =====
   // Dice en qué nivel vas y deja saltar a cualquiera. Es un menú de verdad
   // —botón, aria-expanded, Esc y clic fuera— porque vive encima de todo y no
