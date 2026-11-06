@@ -376,10 +376,10 @@ try {
       };
 
       // Las tres categorías entran a la página —con vuelo del logo incluido—:
-      // aventura y sabores al catálogo, créditos a La marca.
+      // aventura se queda en el inicio, sabores al catálogo, créditos a La marca.
       const accionar = (op) => {
         if (op.dataset.accion === "creditos") terminar("marca", op);
-        else terminar("catalogo", op);   // empezar aventura y el modo secreto
+        else terminar(op.dataset.accion === "empezar" ? null : "catalogo", op);   // aventura entra al inicio desde arriba; sabores y el modo secreto, al catálogo
       };
 
       const teclas = (e) => {
