@@ -20,7 +20,7 @@ body.pagina-8bit .faq-item summary { font-family: var(--titulos); font-size: var
 body.pagina-8bit #form-estado input { font-family: var(--titulos); font-size: var(--t-md); }
 body.pagina-8bit .estado-resultado { font-family: var(--titulos); }
 
-.retro-pagina { max-width: 68rem; margin: 0 auto; padding: var(--s-6) var(--gutter) var(--s-9); }
+.retro-pagina { max-width: 68rem; min-width: 0; width: 100%; margin: 0 auto; padding: var(--s-6) var(--gutter) var(--s-9); }
 .retro-volver { display: inline-block; margin-bottom: var(--s-5); color: var(--diamante); text-decoration: none; }
 .retro-volver:hover { color: var(--masa-clara); }
 .retro-caja { background: var(--pantalla); box-shadow: var(--sombra-caja); padding: var(--s-6); margin-bottom: var(--s-6); }
