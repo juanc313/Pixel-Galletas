@@ -12,6 +12,22 @@
      4. Portada y cinta         8. Sala de juegos, mapa de niveles y visor
                                  9. Responsive y movimiento reducido */
 
+/* Tema claro: solo cambia fondos y textos; la marca (masa, diamante, moneda)
+   se mantiene. Lo activa arranque.js con data-tema="claro" en <html>. */
+:root[data-tema="claro"] {
+  --noche: #FDF4E3;
+  --pantalla: #FFFFFF;
+  --pantalla-alta: #F7E6C8;
+  --tinta: #FFF9EE;
+  --crema: #2A1A4A;
+  --linea: rgba(42, 26, 74, .55);
+  --linea-suave: rgba(42, 26, 74, .2);
+  --suave: rgba(42, 26, 74, .82);
+  --brillo: rgba(255, 255, 255, .9);
+  --diamante: #0E8F7C;
+  --moneda: #B88500;
+}
+
 :root {
   --noche: #15094F;          /* fondo de la página */
   --pantalla: #231276;       /* ventanas */
@@ -238,6 +254,12 @@ h3 { font-size: var(--t-lg); }
 #btn-acceso { max-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Botón de menú móvil: solo aparece bajo 62rem */
+.tema-selector { position: relative; display: flex; align-items: center; }
+.tema-boton { width: 2.75rem; height: 2.75rem; padding: 0; flex: none; font-size: var(--t-xl); line-height: 1; color: var(--diamante); background: var(--tinta); box-shadow: var(--px-3-suave); }
+.tema-panel { position: absolute; top: calc(100% + var(--s-2)); right: 0; z-index: 20; display: grid; gap: var(--s-2); min-width: 8rem; padding: var(--s-3); background: var(--pantalla); color: var(--crema); box-shadow: var(--px-3-masa); }
+.tema-titulo { margin: 0; font-family: var(--titulos); font-size: var(--t-xs); }
+.tema-op { padding: var(--s-2) var(--s-3); font: inherit; text-align: left; color: var(--crema); background: var(--tinta); border: 0; cursor: pointer; }
+.tema-op[aria-pressed="true"] { color: var(--diamante); box-shadow: inset 0 0 0 2px var(--diamante); }
 .btn-menu { display: none; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-4); }
 .btn-menu-barras { display: grid; gap: var(--s-1); width: 1.15rem; }
 .btn-menu-barras i { display: block; height: 3px; background: currentColor; transition: transform var(--d-ui) ease, opacity var(--d-ui) ease; }

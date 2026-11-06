@@ -289,6 +289,14 @@
     <button type="button" class="musica-boton musica-boton-barra" aria-label="Abrir reproductor de música" aria-expanded="false" aria-controls="musica-panel" title="Abrir reproductor"><span aria-hidden="true">♫</span></button>
 
     <!-- Menú móvil: el botón lo abre y cierra efectos.js -->
+    <div class="tema-selector">
+      <button type="button" class="tema-boton" id="tema-boton" aria-expanded="false" aria-controls="tema-panel" aria-label="Cambiar tema" title="Cambiar tema"><span aria-hidden="true">◐</span></button>
+      <div class="tema-panel" id="tema-panel" hidden>
+        <p class="tema-titulo">Tema</p>
+        <button type="button" class="tema-op" data-tema="oscuro" aria-pressed="true">Oscuro</button>
+        <button type="button" class="tema-op" data-tema="claro" aria-pressed="false">Claro</button>
+      </div>
+    </div>
     <button type="button" class="btn-menu" id="btn-menu" aria-expanded="false" aria-controls="menu-principal">
       <span aria-hidden="true" class="btn-menu-barras"><i></i><i></i><i></i></span>
       <span class="btn-menu-texto">Menú</span>

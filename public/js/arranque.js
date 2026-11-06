@@ -2,6 +2,12 @@
 // del primer pintado. Es un archivo externo porque la CSP no permite scripts
 // inline.
 
+// Tema oscuro o claro: se aplica antes del primer pintado para que no parpadee.
+// Por defecto es el oscuro (como siempre); solo cambia si el cliente eligió claro.
+try {
+  if (localStorage.getItem("pixel_galletas_tema") === "claro") document.documentElement.dataset.tema = "claro";
+} catch (e) { /* sin almacenamiento: queda el oscuro */ }
+
 // Activa las animaciones solo si efectos.js se carga (si falla, todo se ve).
 document.documentElement.classList.add("js-anim");
 
@@ -34,6 +40,42 @@ setTimeout(function () {
     if (escena) escena.remove();
   }
 }, 4000);
+
+// Selector de tema: cambia en tiempo real y lo recuerda en este navegador.
+document.addEventListener("DOMContentLoaded", function () {
+  var boton = document.getElementById("tema-boton");
+  var panel = document.getElementById("tema-panel");
+  if (!boton || !panel) return;
+  var opciones = panel.querySelectorAll(".tema-op");
+  function pintar() {
+    var actual = document.documentElement.dataset.tema === "claro" ? "claro" : "oscuro";
+    opciones.forEach(function (op) { op.setAttribute("aria-pressed", String(op.dataset.tema === actual)); });
+  }
+  function abrir(valor) {
+    panel.hidden = !valor;
+    boton.setAttribute("aria-expanded", String(valor));
+  }
+  boton.addEventListener("click", function (e) {
+    e.stopPropagation();
+    abrir(panel.hidden);
+  });
+  opciones.forEach(function (op) {
+    op.addEventListener("click", function () {
+      var claro = op.dataset.tema === "claro";
+      if (claro) document.documentElement.dataset.tema = "claro";
+      else delete document.documentElement.dataset.tema;
+      try { localStorage.setItem("pixel_galletas_tema", claro ? "claro" : "oscuro"); } catch (e) { /* sin almacenamiento */ }
+      pintar();
+    });
+  });
+  document.addEventListener("click", function (e) {
+    if (!panel.hidden && !e.target.closest(".tema-selector")) abrir(false);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !panel.hidden) { abrir(false); boton.focus(); }
+  });
+  pintar();
+});
 
 // Sustituye el antiguo onerror inline de efectos.js (la CSP lo bloquearía): si
 // el módulo no carga, se muestra la página sin animaciones.
