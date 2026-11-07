@@ -49,6 +49,16 @@
   --sombra-suave: rgba(42, 26, 74, .12);
   --hud-fondo: rgba(255, 249, 238, .96);
   --hud-fondo-alto: rgba(255, 255, 255, .98);
+  --resplandor-1: rgba(245, 144, 47, .2);
+  --resplandor-2: rgba(229, 65, 43, .1);
+  --resplandor-3: rgba(14, 143, 124, .1);
+  --estrella: rgba(42, 26, 74, .5);
+  --estrella-2: rgba(14, 143, 124, .45);
+  --estrella-3: rgba(245, 144, 47, .45);
+  --estrella-4: rgba(94, 70, 170, .4);
+  --scanline: rgba(42, 26, 74, .05);
+  --scanline-brillo: rgba(255, 255, 255, .6);
+  --crt-vineta: rgba(42, 26, 74, .08);
 }
 
 :root {
@@ -87,6 +97,16 @@
   --sombra-suave: rgba(0, 0, 0, .35);
   --hud-fondo: rgba(12, 5, 53, .96);
   --hud-fondo-alto: rgba(12, 5, 53, .98);
+  --resplandor-1: rgba(245, 144, 47, .14);
+  --resplandor-2: rgba(229, 65, 43, .12);
+  --resplandor-3: rgba(77, 232, 208, .07);
+  --estrella: rgba(255, 243, 220, .55);
+  --estrella-2: rgba(77, 232, 208, .38);
+  --estrella-3: rgba(245, 144, 47, .34);
+  --estrella-4: rgba(185, 166, 255, .42);
+  --scanline: rgba(6, 2, 24, .11);
+  --scanline-brillo: rgba(255, 255, 255, .022);
+  --crt-vineta: rgba(4, 1, 16, .16);
 
   /* Titulares: fuente pixel PERO con cifras de ancho uniforme y bien formadas.
      Pixelify Sans era exagerada con los números (glifos torcidos y advance
@@ -225,9 +245,9 @@ body {
   overflow-x: clip;
   background-color: var(--noche);
   background-image:
-    radial-gradient(60rem 34rem at 82% -6rem, rgba(245, 144, 47, .14), transparent 65%),
-    radial-gradient(52rem 30rem at -12rem 38%, rgba(229, 65, 43, .12), transparent 62%),
-    radial-gradient(44rem 26rem at 92% 78%, rgba(77, 232, 208, .07), transparent 60%),
+    radial-gradient(60rem 34rem at 82% -6rem, var(--resplandor-1), transparent 65%),
+    radial-gradient(52rem 30rem at -12rem 38%, var(--resplandor-2), transparent 62%),
+    radial-gradient(44rem 26rem at 92% 78%, var(--resplandor-3), transparent 60%),
     linear-gradient(var(--rejilla) 2px, transparent 2px),
     linear-gradient(90deg, var(--rejilla) 2px, transparent 2px);
   background-size: auto, auto, auto, 32px 32px, 32px 32px;
@@ -499,7 +519,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
    paralaje de profundidad. Nunca interceptan el ratón. */
 .galleta-flotante { position: absolute; z-index: -1; pointer-events: none; line-height: 0;
   --prof: 10;
-  filter: drop-shadow(0 0 14px rgba(245, 144, 47, .5)) drop-shadow(0 6px 10px rgba(0, 0, 0, .45));
+  filter: drop-shadow(0 0 14px rgba(245, 144, 47, .5)) drop-shadow(0 6px 10px var(--sombra-suave));
   /* Paralaje de profundidad con el puntero. Va en el SPAN (translate) y el
      flotar vive en el svg interior: son capas distintas, así que las dos
      transformaciones conviven sin pisarse (si estuvieran en el mismo elemento,
@@ -2254,10 +2274,10 @@ html.velado .entrada-nombre { visibility: hidden; }
 .crt { position: fixed; inset: 0; z-index: 16; pointer-events: none; }
 .crt::before, .crt::after { content: ""; position: absolute; inset: 0; }
 .crt::before { background:
-    repeating-linear-gradient(0deg, rgba(6, 2, 24, .11) 0 2px, transparent 2px 4px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, .022) 0 1px, transparent 1px 3px); }
+    repeating-linear-gradient(0deg, var(--scanline) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(90deg, var(--scanline-brillo) 0 1px, transparent 1px 3px); }
 .crt::after { background:
-    radial-gradient(122% 96% at 50% 46%, transparent 66%, rgba(4, 1, 16, .16) 92%, rgba(4, 1, 16, .26)); }
+    radial-gradient(122% 96% at 50% 46%, transparent 66%, var(--crt-vineta) 92%, var(--crt-vineta)); }
 
 /* --- 2. Ambiente de fondo ---
    Cielo de estrellas pixel en dos capas de paralaje (la de delante, más
@@ -2270,21 +2290,21 @@ html.velado .entrada-nombre { visibility: hidden; }
 .ambiente { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
 .ambiente-cielo { position: absolute; inset: -60%; background-repeat: repeat; }
 .ambiente-cielo-1 { background-image:
-    radial-gradient(2px 2px at 30px 40px, rgba(255, 243, 220, .55), transparent 60%),
-    radial-gradient(1px 1px at 130px 90px, rgba(255, 243, 220, .35), transparent 60%),
-    radial-gradient(1px 1px at 200px 170px, rgba(77, 232, 208, .38), transparent 60%),
-    radial-gradient(2px 2px at 90px 210px, rgba(245, 144, 47, .34), transparent 60%);
+    radial-gradient(2px 2px at 30px 40px, var(--estrella), transparent 60%),
+    radial-gradient(1px 1px at 130px 90px, var(--estrella), transparent 60%),
+    radial-gradient(1px 1px at 200px 170px, var(--estrella-2), transparent 60%),
+    radial-gradient(2px 2px at 90px 210px, var(--estrella-3), transparent 60%);
   background-size: 240px 240px;
   animation: cielo-1 150s linear infinite; }
 .ambiente-cielo-2 { background-image:
-    radial-gradient(1px 1px at 60px 20px, rgba(255, 243, 220, .5), transparent 60%),
-    radial-gradient(1px 1px at 160px 120px, rgba(185, 166, 255, .42), transparent 60%);
+    radial-gradient(1px 1px at 60px 20px, var(--estrella), transparent 60%),
+    radial-gradient(1px 1px at 160px 120px, var(--estrella-4), transparent 60%);
   background-size: 120px 120px;
   animation: cielo-2 80s linear infinite; }
 @keyframes cielo-1 { to { translate: -240px 240px; } }
 @keyframes cielo-2 { to { translate: 120px 120px; } }
 .ambiente-sprite { position: absolute; line-height: 0; display: none;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .45));
+  filter: drop-shadow(0 4px 8px var(--sombra-suave));
   animation: ambiente-flota 8s ease-in-out infinite; }
 .ambiente-sprite svg { display: block; width: 100%; height: 100%; }
 @media (min-width: 82rem) {
