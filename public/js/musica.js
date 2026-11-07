@@ -237,10 +237,17 @@ window.__musicaIniciada = true;
   window.addEventListener("beforeunload", guardarSesion);
   setInterval(() => { if (reproduciendo) guardarSesion(); }, 1000);
 
+  // Cada página nueva arranca con una pista al azar, distinta de la anterior.
+  // Así no siempre suena "Still Life" y la música cambia al navegar.
   const haySesion = sessionStorage.getItem(CLAVE_SESION) !== null;
+  let anterior = -1;
   if (haySesion) {
-    inicioPendiente = restaurarSesion() && !apagada;
+    try { anterior = JSON.parse(sessionStorage.getItem(CLAVE_SESION)).indice; } catch { /* sin datos */ }
   }
+  let azar = Math.floor(Math.random() * canciones.length);
+  if (canciones.length > 1 && azar === anterior) azar = (azar + 1) % canciones.length;
+  sessionStorage.setItem(CLAVE_SESION, JSON.stringify({ indice: azar, posicion: 0, sonaba: true }));
+  inicioPendiente = restaurarSesion() && !apagada;
   actualizarBotones();
   actualizarProgreso();
   window.addEventListener("load", () => {
