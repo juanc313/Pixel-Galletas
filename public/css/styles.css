@@ -79,7 +79,7 @@
   --bloque-fin: #FCEBD0;
   --caja-ini: #FFFFFF;
   --caja-fin: #FBE3BE;
-  --hud-entrada: rgba(255, 255, 255, .8);
+  --hud-entrada: #FFFFFF;
   --velo-suave: rgba(42, 26, 74, .06);
   --masa-velo: rgba(245, 144, 47, .18);
 }
