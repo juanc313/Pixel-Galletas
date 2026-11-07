@@ -49,6 +49,13 @@
   --sombra-suave: rgba(42, 26, 74, .12);
   --hud-fondo: rgba(255, 249, 238, .96);
   --hud-fondo-alto: rgba(255, 255, 255, .98);
+  --entrada-fondo: #FDF4E3;
+  --entrada-halo-1: rgba(229, 65, 43, .12);
+  --entrada-halo-2: rgba(14, 143, 124, .1);
+  --entrada-halo-3: rgba(245, 144, 47, .18);
+  --entrada-rejilla: rgba(42, 26, 74, .05);
+  --entrada-caja: rgba(255, 255, 255, .92);
+  --entrada-brillo: rgba(14, 143, 124, .18);
   --resplandor-1: rgba(245, 144, 47, .2);
   --resplandor-2: rgba(229, 65, 43, .1);
   --resplandor-3: rgba(14, 143, 124, .1);
@@ -97,6 +104,13 @@
   --sombra-suave: rgba(0, 0, 0, .35);
   --hud-fondo: rgba(12, 5, 53, .96);
   --hud-fondo-alto: rgba(12, 5, 53, .98);
+  --entrada-fondo: #0C0535;
+  --entrada-halo-1: rgba(229, 65, 43, .2);
+  --entrada-halo-2: rgba(77, 232, 208, .14);
+  --entrada-halo-3: rgba(245, 144, 47, .22);
+  --entrada-rejilla: rgba(255, 243, 220, .04);
+  --entrada-caja: rgba(12, 5, 53, .93);
+  --entrada-brillo: rgba(77, 232, 208, .22);
   --resplandor-1: rgba(245, 144, 47, .14);
   --resplandor-2: rgba(229, 65, 43, .12);
   --resplandor-3: rgba(77, 232, 208, .07);
@@ -1805,12 +1819,12 @@ img[data-zoom], #lista-productos img { cursor: zoom-in; }
      daría un salto al despegar. */
   --logo-cargado: 1.12;
   background:
-    radial-gradient(40rem 30rem at 12% 92%, rgba(229, 65, 43, .2), transparent 70%),
-    radial-gradient(40rem 30rem at 88% 8%, rgba(77, 232, 208, .14), transparent 70%),
-    radial-gradient(56rem 36rem at 50% 44%, rgba(245, 144, 47, .22), transparent 62%),
-    linear-gradient(rgba(255, 243, 220, .04) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(255, 243, 220, .04) 2px, transparent 2px),
-    var(--noche);
+    radial-gradient(40rem 30rem at 12% 92%, var(--entrada-halo-1), transparent 70%),
+    radial-gradient(40rem 30rem at 88% 8%, var(--entrada-halo-2), transparent 70%),
+    radial-gradient(56rem 36rem at 50% 44%, var(--entrada-halo-3), transparent 62%),
+    linear-gradient(var(--entrada-rejilla) 2px, transparent 2px),
+    linear-gradient(90deg, var(--entrada-rejilla) 2px, transparent 2px),
+    var(--entrada-fondo);
   background-size: auto, 34px 34px, 34px 34px, auto; }
 /* ===== Velo de sorpresa: la página no se asoma antes que la entrada =====
    La clase html.velado la pone el script del <head> ANTES del primer
@@ -1879,7 +1893,7 @@ html.velado .entrada-nombre { visibility: hidden; }
 .entrada-menu { position: absolute; left: 50%; bottom: clamp(1.6rem, 5vh, 3rem); z-index: 2;
   transform: translateX(-50%); width: min(24rem, calc(100vw - 1rem));
   padding: var(--s-4) var(--s-5); display: grid; gap: var(--s-1);
-  background: rgba(12, 5, 53, .93); box-shadow: var(--px-4), 10px 14px 0 0 rgba(0, 0, 0, .42), 0 0 30px rgba(77, 232, 208, .22); }
+  background: var(--entrada-caja); box-shadow: var(--px-4), 10px 14px 0 0 var(--sombra-suave), 0 0 30px var(--entrada-brillo); }
 .js-anim .entrada-menu { animation: menu-entra .4s 2.25s var(--e-salida) both; }
 @keyframes menu-entra {
   0% { opacity: 0; transform: translateX(-50%) translateY(1rem); pointer-events: none; }
