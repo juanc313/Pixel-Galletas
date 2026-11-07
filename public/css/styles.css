@@ -66,6 +66,19 @@
   --scanline: rgba(42, 26, 74, .05);
   --scanline-brillo: rgba(255, 255, 255, .6);
   --crt-vineta: rgba(42, 26, 74, .08);
+  --sombra-fuerte: rgba(42, 26, 74, .18);
+  --alerta: #B3261E;
+  --carrito-hover: rgba(245, 144, 47, .22);
+  --texto-sombra-suave: rgba(42, 26, 74, .18);
+  --whatsapp-ini: #3DDC7A;
+  --whatsapp-fin: #1FA855;
+  --sombra-barra: rgba(42, 26, 74, .2);
+  --cifra-halo: rgba(245, 144, 47, .3);
+  --luz-clara: rgba(255, 255, 255, .55);
+  --bloque-ini: #FFFFFF;
+  --bloque-fin: #FCEBD0;
+  --caja-ini: #FFFFFF;
+  --caja-fin: #FBE3BE;
 }
 
 :root {
@@ -121,6 +134,19 @@
   --scanline: rgba(6, 2, 24, .11);
   --scanline-brillo: rgba(255, 255, 255, .022);
   --crt-vineta: rgba(4, 1, 16, .16);
+  --sombra-fuerte: rgba(0, 0, 0, .4);
+  --alerta: #FF8A78;
+  --carrito-hover: rgba(245, 144, 47, .18);
+  --texto-sombra-suave: rgba(0, 0, 0, .4);
+  --whatsapp-ini: #47E389;
+  --whatsapp-fin: #25D366;
+  --sombra-barra: rgba(0, 0, 0, .5);
+  --cifra-halo: rgba(245, 144, 47, .25);
+  --luz-clara: rgba(255, 255, 255, .38);
+  --bloque-ini: rgba(50, 32, 159, .6);
+  --bloque-fin: rgba(12, 5, 53, .8);
+  --caja-ini: rgba(50, 32, 159, .5);
+  --caja-fin: rgba(12, 5, 53, .7);
 
   /* Titulares: fuente pixel PERO con cifras de ancho uniforme y bien formadas.
      Pixelify Sans era exagerada con los números (glifos torcidos y advance
@@ -248,7 +274,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 5.5rem; color-scheme: dark; 
 ::-webkit-scrollbar { width: 13px; height: 13px; }
 ::-webkit-scrollbar-track { background: var(--tinta); }
 ::-webkit-scrollbar-thumb { background: var(--masa); border: 3px solid var(--tinta); }
-::-webkit-scrollbar-thumb:hover { background: #ffab55; }
+::-webkit-scrollbar-thumb:hover { background: var(--masa-clara); }
 
 html { overflow-x: clip; }
 
@@ -278,7 +304,7 @@ img { display: block; max-width: 100%; height: auto; }
 a { color: var(--diamante); }
 p { margin: 0 0 1rem; }
 h1, h2, h3 { margin: 0 0 .8rem; font-family: var(--titulos); font-weight: 700; line-height: 1.08;
-  text-shadow: 3px 3px 0 rgba(0, 0, 0, .35); }
+  text-shadow: 3px 3px 0 var(--sombra-fuerte); }
 h1 { font-size: var(--t-2xl); }
 h2 { font-size: var(--t-xl); }
 h3 { font-size: var(--t-lg); }
@@ -303,7 +329,7 @@ h3 { font-size: var(--t-lg); }
    de la marca): solo color, sombra y borde. Así el logo y el nombre nunca
    cambian de caja al hacer scroll y desaparece el bug del nombre. */
 .barra.desplazada { background: var(--barra-desplazada); border-bottom-color: var(--masa);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
+  box-shadow: 0 10px 30px var(--sombra-barra); }
 /* Barra de progreso de lectura al pie de la cabecera */
 .progreso-lectura { position: absolute; left: 0; bottom: -4px; height: 4px; width: 100%;
   background: linear-gradient(90deg, var(--masa), var(--corazon), var(--diamante));
@@ -312,9 +338,9 @@ h3 { font-size: var(--t-lg); }
 #carrito-contador.latido { animation: latido var(--d-ui) var(--e-rebote); }
 @keyframes latido { 30% { transform: scale(1.55); background: var(--diamante); color: var(--noche); } }
 .marca { display: flex; align-items: center; gap: var(--s-3); }
-.marca img { width: 48px; height: 48px; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, .45)); }
+.marca img { width: 48px; height: 48px; filter: drop-shadow(0 3px 6px var(--sombra-barra)); }
 .marca-nombre { display: block; font-family: var(--titulos); font-size: var(--t-lg); font-weight: 700; white-space: nowrap;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, .4); }
+  text-shadow: 2px 2px 0 var(--texto-sombra-suave); }
 .marca small { display: block; font-size: var(--t-sm); font-weight: 500; color: var(--masa); }
 /* En escritorio el menú cabe en una sola fila: sin wrap la barra no crece. */
 @media (min-width: 62.01rem) { .menu { flex-wrap: nowrap; } }
@@ -326,7 +352,7 @@ h3 { font-size: var(--t-lg); }
 .menu a.actual { color: var(--masa); border-bottom-color: var(--masa); }
 .menu a.carrito-icono { display: inline-flex; align-items: center; gap: var(--s-3); margin: 0 var(--s-1);
   border-bottom-color: transparent; box-shadow: var(--px-3-masa); }
-.menu a.carrito-icono:hover { background: rgba(245, 144, 47, .18); }
+.menu a.carrito-icono:hover { background: var(--carrito-hover); }
 #carrito-contador { min-width: 1.7rem; padding: 0 .4rem; text-align: center;
   font-family: var(--titulos); font-weight: 700; background: var(--corazon); color: #fff; }
 #btn-acceso { max-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -370,7 +396,7 @@ button:disabled { cursor: not-allowed; opacity: 1; filter: none;
   background: var(--deshabilitado); color: var(--deshabilitado-texto);
   box-shadow: var(--px-4-tinta); }
 .boton-grande { padding: var(--s-4) var(--s-6); font-size: var(--t-lg); }
-.boton-whatsapp { background: linear-gradient(180deg, #47E389, #25D366 55%); }
+.boton-whatsapp { background: linear-gradient(180deg, var(--whatsapp-ini), var(--whatsapp-fin) 55%); }
 
 /* Barrido de luz al pasar el mouse sobre los botones rellenos */
 #btn-pedir, #btn-guardar, #form-login button, #form-registro button, .boton-grande, .boton-whatsapp, .btn-agregar {
@@ -418,7 +444,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   outline: none;
   box-shadow: var(--px-3-diamante), 0 0 22px rgba(77, 232, 208, .25);
 }
-p[role="alert"] { min-height: 1.5rem; margin: 1rem 0 0; font-weight: 500; color: #FF8A78; }
+p[role="alert"] { min-height: 1.5rem; margin: 1rem 0 0; font-weight: 500; color: var(--alerta); }
 p[role="alert"].ok { color: var(--diamante); }
 .insignia { display: inline-block; padding: .1rem .7rem; font-weight: 700; background: var(--diamante); color: var(--noche); }
 
@@ -695,7 +721,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
   .bento > .bento-cta { grid-column: span 1; }
 }
 .bento > li { position: relative; overflow: hidden; padding: var(--s-5);
-  background: linear-gradient(165deg, rgba(50, 32, 159, .6), rgba(12, 5, 53, .8));
+  background: linear-gradient(165deg, var(--bloque-ini, rgba(50, 32, 159, .6)), var(--bloque-fin, rgba(12, 5, 53, .8)));
   box-shadow: var(--sombra-tarjeta); display: flex; flex-direction: column; justify-content: flex-end; gap: var(--s-2);
   transition: transform var(--d-ui) ease, box-shadow var(--d-ui) ease; }
 .bento > li:hover { transform: translateY(-4px); box-shadow: var(--px-4-masa), 10px 14px 0 0 rgba(0, 0, 0, .4); }
@@ -910,7 +936,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .cajas { list-style: none; margin: 0 0 var(--s-6); padding: 0; display: grid; gap: var(--gap-fila); }
 @media (min-width: 52rem) { .cajas { grid-template-columns: repeat(3, 1fr); } }
 .caja { position: relative; padding: var(--s-6);
-  background: linear-gradient(170deg, rgba(50, 32, 159, .5), rgba(12, 5, 53, .7));
+  background: linear-gradient(170deg, var(--caja-ini, rgba(50, 32, 159, .5)), var(--caja-fin, rgba(12, 5, 53, .7)));
   box-shadow: var(--sombra-caja);
   transition: transform var(--d-ui) ease, box-shadow var(--d-ui) ease; }
 .caja:hover { transform: translateY(-5px); box-shadow: var(--sombra-caja-alta); }
@@ -1014,7 +1040,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap-fila); counter-reset: pasos; }
 @media (min-width: 52rem) { .pasos { grid-template-columns: repeat(3, 1fr); } }
 .paso { position: relative; padding: var(--s-6) var(--s-6) var(--s-6);
-  background: linear-gradient(170deg, rgba(50, 32, 159, .55), rgba(12, 5, 53, .6));
+  background: linear-gradient(170deg, var(--caja-ini, rgba(50, 32, 159, .55)), var(--caja-fin, rgba(12, 5, 53, .6)));
   box-shadow: var(--sombra-caja);
   transition: transform var(--d-ui) ease, box-shadow var(--d-ui) ease; }
 .paso:hover { transform: translateY(-5px);
