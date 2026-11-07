@@ -1960,7 +1960,7 @@ html.velado .entrada-nombre { visibility: hidden; }
    la esquina al flujo normal del grid, tapando la escena. */
 #entrada .entrada-saltar { position: absolute; top: var(--s-4); right: var(--s-4); z-index: 4;
   width: 2.4rem; height: 2.4rem; padding: 0; font-size: var(--t-base); line-height: 1;
-  color: var(--suave); background: rgba(12, 5, 53, .55); box-shadow: var(--px-3-suave);
+  color: var(--suave); background: var(--hud-entrada); box-shadow: var(--px-3-suave);
   transition: background-color var(--d-micro) ease, color var(--d-micro) ease; }
 .entrada-saltar::after { content: none !important; }
 .entrada-saltar:hover { color: var(--noche); background: var(--masa); }
