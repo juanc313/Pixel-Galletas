@@ -38,6 +38,7 @@
   <link rel="stylesheet" href="/css/fuentes.css">
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/tema-claro.css">
+  <link rel="stylesheet" href="/css/entrada-decor.css">
   <script src="/js/arranque.js"></script>
   <script src="/js/pwa.js" defer></script>
   <!-- Datos estructurados: identidad de la marca y preguntas frecuentes.
@@ -195,6 +196,17 @@
       <span>&gt; PIXEL OS v1.0</span><span data-sabores="boot">&gt; CARGANDO 6 SABORES…</span><span>&gt; HORNEANDO… OK</span>
     </p>
     <div class="entrada-decor" aria-hidden="true">
+    <!-- Cielo pixel: estrellas cuadradas de 3 px que titilan en pasos, como
+         los puntos de una pantalla de arcade. Dos capas con ritmos distintos. -->
+    <span class="entrada-estrellas"></span>
+    <span class="entrada-estrellas estrella-tenue"></span>
+    <!-- Paisaje de parallax: tres crestas de pixel art propio. La más lejana
+         va primero en el DOM y la más cercana encima; cada una tiene su tono. -->
+    <span class="entrada-paisaje">
+      <svg class="capa-3" viewBox="0 0 320 60" preserveAspectRatio="none" shape-rendering="crispEdges"><path fill="currentColor" d="M0 60V34h16v-6h16v8h16V22h16v8h16v-4h16v12h16v-8h16V20h16v8h16v-4h16v10h16v-8h16v6h16V22h16v8h16v6h16v-8h16v6h16v-8h16v34z"/></svg>
+      <svg class="capa-2" viewBox="0 0 320 60" preserveAspectRatio="none" shape-rendering="crispEdges"><path fill="currentColor" d="M0 60V44h20v-6h20v8h20v-6h20v8h20v-6h20v8h20v-6h20v8h20v-6h20v8h20v-6h20v8h20v-6h20v8h20v-6h20v4h20v-4h20v16z"/></svg>
+      <svg class="capa-1" viewBox="0 0 320 60" preserveAspectRatio="none" shape-rendering="crispEdges"><path fill="currentColor" d="M0 60V52h24v-4h24v6h24v-4h24v6h24v-4h24v6h24v-6h24v6h24v-4h24v6h24v-4h24v6h24v-6h24v6h24v-6h24v8z"/></svg>
+    </span>
     <!-- Lluvia de monedas y estrellas de celebración justo antes de la salida -->
     <span class="entrada-lluvia ec-1" style="--c:0"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
     <span class="entrada-lluvia ec-2" style="--c:1"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><use href="#moneda-pixel"/></svg></span>
@@ -224,6 +236,8 @@
            texto girando). La caja es cuadrada, así el aro manda en el alto y
            la escena no se descuadra; el aro gira y el logo se queda quieto. -->
       <div class="entrada-insignia">
+        <!-- Tres chispas pixel que orbitan la insignia como satélites -->
+        <span class="entrada-orbita" aria-hidden="true"><i></i><i></i><i></i></span>
         <span class="entrada-sello" aria-hidden="true">
           <svg viewBox="0 0 100 100">
             <defs>
@@ -274,6 +288,8 @@
     </nav>
     <button type="button" class="musica-boton musica-boton-entrada" aria-label="Abrir reproductor de música" aria-expanded="false" aria-controls="musica-panel" title="Abrir reproductor"><span aria-hidden="true">♫</span></button>
     <button type="button" class="entrada-saltar" aria-label="Saltar la entrada">✕</button>
+    <!-- Bisel: marco de máquina recreativa alrededor de toda la pantalla -->
+    <span class="entrada-marco" aria-hidden="true"></span>
   </div>
 
   <a class="saltar" href="#catalogo">Saltar al contenido</a>

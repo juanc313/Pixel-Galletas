@@ -133,16 +133,38 @@ try {
       // que se apaga en cuanto el marcador ya no está colgado del documento.
       const puntosEntrada = entrada.querySelector("#entrada-puntos");
       if (puntosEntrada) {
+        let base = 0;
+        let bonus = 0;
+        const pintarPuntos = () => { puntosEntrada.textContent = String(base + bonus).padStart(6, "0"); };
         const inicioPuntos = performance.now();
         const marcarPuntos = (ahora) => {
           if (!puntosEntrada.isConnected) return;
           const p = Math.min(1, (ahora - inicioPuntos) / 1900);
           const suave = 1 - Math.pow(1 - p, 3);
-          const valor = Math.round((3600 * suave) / 50) * 50;
+          base = Math.round((3600 * suave) / 50) * 50;
+          const valor = base + bonus;
           puntosEntrada.textContent = String(valor).padStart(6, "0");
           if (p < 1) requestAnimationFrame(marcarPuntos);
         };
         requestAnimationFrame(marcarPuntos);
+
+        // Premios coleccionables: las galletas, monedas, estrellas y corazones
+        // que flotan en la escena se recogen con un clic y suman 100 puntos.
+        // Es un adorno jugable: no guarda nada ni toca el pedido.
+        entrada.addEventListener("click", (e) => {
+          const icono = e.target.closest?.(".entrada-icono");
+          if (!icono) return;
+          bonus += 100;
+          pintarPuntos();
+          const caja = icono.getBoundingClientRect();
+          const suma = document.createElement("span");
+          suma.className = "entrada-suma";
+          suma.textContent = "+100";
+          suma.style.left = `${caja.left + caja.width / 2}px`;
+          suma.style.top = `${caja.top}px`;
+          entrada.appendChild(suma);
+          suma.addEventListener("animationend", () => suma.remove(), { once: true });
+        });
       }
 
       // Contador de la barra "Cargando": 0 → 100 % al mismo ritmo que el
@@ -431,7 +453,7 @@ try {
       // Ratón y tacto: pasar por encima elige, pulsar confirma; un toque en el
       // fondo (fuera del diálogo) sale, como al principio.
       entrada.addEventListener("pointerdown", (e) => {
-        if (e.target.closest(".entrada-menu, .musica-boton")) return;
+        if (e.target.closest(".entrada-menu, .musica-boton, .entrada-icono")) return;
         // En plena secuencia de salida solo la ✕ (saltar) cierra de una vez.
         if (eligiendo && !e.target.closest(".entrada-saltar")) return;
         cerrar();
