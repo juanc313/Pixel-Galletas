@@ -758,6 +758,9 @@ export class CalculadoraCombos {
       this.$("btn-armador-agregar").addEventListener("click", () => this.agregarArmador());
       this.$("armador-sabores").addEventListener("change", () => this.pintarArmador());
     }
+    if (this.$("btn-armador-compartir")) {
+      this.$("btn-armador-compartir").addEventListener("click", () => this.compartirCombo());
+    }
   }
 
   // Armador: un selector de sabor por cada galleta normal del combo.
@@ -798,9 +801,130 @@ export class CalculadoraCombos {
     ]);
     const txt = this.$("armador-total");
     this.$("btn-armador-agregar").disabled = !combo;
+    const btnCompartir = this.$("btn-armador-compartir");
+    if (btnCompartir) btnCompartir.hidden = !combo;
     txt.textContent = combo
       ? `${combo.nombre}: ${pesos(combo.precio)} (sabores elegidos: ${pesos(total)} sueltos)`
       : "Este número de galletas no forma un combo: revisa la cantidad de Special y de normales.";
+  }
+
+  // Tarjeta del combo lista para el grupo de WhatsApp: se dibuja aquí mismo,
+  // sin servidor, y se comparte como imagen. Si el navegador no sabe compartir
+  // archivos (o el usuario cancela), queda descargada para adjuntarla a mano.
+  async compartirCombo() {
+    const { especiales } = this.cantidades();
+    const selects = [...this.$("armador-sabores").querySelectorAll("select")];
+    const sabores = selects
+      .map((sel) => this.productos.find((x) => String(x.id) === sel.value)?.nombre_sabor)
+      .filter(Boolean);
+    const combo = comboDe([
+      { nombre: NOMBRE_SPECIAL, cantidad: especiales },
+      { nombre: "normal", cantidad: sabores.length },
+    ]);
+    const aviso = this.$("armador-aviso");
+    if (!combo) {
+      if (aviso) aviso.textContent = "Elige un número de galletas que forme un combo.";
+      return;
+    }
+
+    const ancho = 1080, alto = 1350;
+    const lienzo = document.createElement("canvas");
+    lienzo.width = ancho;
+    lienzo.height = alto;
+    const ctx = lienzo.getContext("2d");
+    if (!ctx) return;
+    // La tipografía de la marca ya está cargada por CSS; si el navegador no
+    // deja pedirla aquí, el lienzo cae a la monoespaciada del sistema.
+    try { await document.fonts.load('700 56px Silkscreen'); } catch { /* fuente del sistema */ }
+    const titulo = '700 56px Silkscreen, monospace';
+    const chico = '700 30px Silkscreen, monospace';
+
+    // Fondo índigo con la rejilla pixel de la marca.
+    ctx.fillStyle = "#15094F";
+    ctx.fillRect(0, 0, ancho, alto);
+    ctx.strokeStyle = "rgba(245, 144, 47, .13)";
+    ctx.lineWidth = 2;
+    for (let x = 0; x <= ancho; x += 45) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, alto); ctx.stroke(); }
+    for (let y = 0; y <= alto; y += 45) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(ancho, y); ctx.stroke(); }
+
+    ctx.strokeStyle = "#F5902F";
+    ctx.lineWidth = 10;
+    ctx.strokeRect(36, 36, ancho - 72, alto - 72);
+    ctx.strokeStyle = "rgba(255, 243, 220, .35)";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(58, 58, ancho - 116, alto - 116);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#FFF3DC";
+    ctx.font = titulo;
+    ctx.fillText("PIXEL GALLETAS", ancho / 2, 190);
+    ctx.font = chico;
+    ctx.fillStyle = "#F5B41F";
+    ctx.fillText("DE LA PANTALLA A TU PALADAR", ancho / 2, 245);
+
+    ctx.fillStyle = "#F5902F";
+    ctx.font = '700 44px Silkscreen, monospace';
+    ctx.fillText(combo.nombre.toUpperCase(), ancho / 2, 390);
+
+    ctx.fillStyle = "#F5B41F";
+    ctx.font = '700 104px Silkscreen, monospace';
+    ctx.fillText(pesos(combo.precio), ancho / 2, 540);
+    ctx.font = chico;
+    ctx.fillStyle = "rgba(255, 243, 220, .7)";
+    ctx.fillText(`${especiales + sabores.length} galletas`, ancho / 2, 600);
+
+    // Lo que lleva, agrupado por sabor para que quepa en una línea por tipo.
+    const conteo = new Map();
+    sabores.forEach((sabor) => conteo.set(sabor, (conteo.get(sabor) || 0) + 1));
+    const lineas = [`${especiales} × ${NOMBRE_SPECIAL}`, ...[...conteo].map(([sabor, n]) => `${n} × ${sabor}`)];
+    ctx.textAlign = "left";
+    ctx.font = '700 32px Silkscreen, monospace';
+    let y = 720;
+    lineas.slice(0, 8).forEach((linea) => {
+      ctx.fillStyle = "#FFF3DC";
+      ctx.fillText(linea.length > 34 ? `${linea.slice(0, 33)}…` : linea, 110, y);
+      y += 58;
+    });
+
+    ctx.textAlign = "center";
+    ctx.font = chico;
+    ctx.fillStyle = "#FFF3DC";
+    ctx.fillText("PÍDELO POR WHATSAPP", ancho / 2, 1140);
+    ctx.fillStyle = "#F5902F";
+    ctx.font = '700 48px Silkscreen, monospace';
+    ctx.fillText("313 783 9935", ancho / 2, 1200);
+    ctx.font = chico;
+    ctx.fillStyle = "rgba(255, 243, 220, .6)";
+    ctx.fillText(location.host, ancho / 2, 1265);
+
+    const texto = [
+      `${combo.nombre} · ${pesos(combo.precio)}`,
+      lineas.join(" · "),
+      "Pixel Galletas · Cúcuta",
+      location.origin,
+    ].join("\n");
+
+    const blob = await new Promise((ok) => lienzo.toBlob(ok, "image/png"));
+    if (!blob) return;
+    const archivo = new File([blob], "combo-pixel-galletas.png", { type: "image/png" });
+    let puedeCompartir = false;
+    try { puedeCompartir = !!(navigator.canShare && navigator.canShare({ files: [archivo] })); } catch { puedeCompartir = false; }
+    if (puedeCompartir) {
+      try {
+        await navigator.share({ files: [archivo], text: texto, title: combo.nombre });
+        if (aviso) aviso.textContent = "Combo compartido.";
+        return;
+      } catch (error) {
+        if (error && error.name === "AbortError") return;
+      }
+    }
+
+    const enlace = document.createElement("a");
+    enlace.href = URL.createObjectURL(blob);
+    enlace.download = "combo-pixel-galletas.png";
+    enlace.click();
+    setTimeout(() => URL.revokeObjectURL(enlace.href), 4000);
+    if (aviso) aviso.textContent = "Imagen descargada: adjúntala en tu chat de WhatsApp.";
   }
 
   // Agrega las galletas del armador (cada normal con su sabor elegido).

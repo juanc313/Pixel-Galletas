@@ -2422,3 +2422,11 @@ main > section { position: relative; }
      reducido jamás debe aparecer (efectos.js tampoco la muestra). */
   .entrada { display: none !important; }
 }
+
+/* Recordatorio de la caja mensual: enlace discreto bajo la nota, para que no
+   compita con el botón de WhatsApp. */
+.mensual .mensual-recordar { justify-self: start; margin-top: var(--s-2); padding: 0; border: 0;
+  background: none; color: var(--masa); font: inherit; font-size: var(--t-sm); text-align: left;
+  text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.mensual .mensual-recordar:hover { color: var(--crema); }
+.mensual .mensual-recordatorio { min-height: 1.1rem; font-size: var(--t-xs); color: var(--diamante); }

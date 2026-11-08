@@ -289,7 +289,55 @@ try {
         ticDe(ops[indice]);
       };
 
+      // ===== Modo atracción: la máquina se demuestra sola =====
+      // Si nadie toca la entrada durante un rato, el menú se retira y la
+      // pantalla de título se pone a "jugar sola", como una recreativa que
+      // espera moneda: cartel de DEMO y reclamos de la marca que rotan. El
+      // primer gesto (mover, tocar, teclear o girar la rueda) devuelve el menú
+      // y reinicia la espera. Con movimiento reducido no hay demo: se queda el
+      // menú quieto, que es lo que esa preferencia pide.
+      const demoTexto = entrada.querySelector("#entrada-demo-texto");
+      const LEYENDAS_DEMO = [
+        "Sabores del día · horneados hoy",
+        "Atrapa la galleta · 30 segundos",
+        "Cajas Pixel · mensaje personalizado",
+      ];
+      const ESPERA_DEMO = 14000;
+      let relojDemo = 0, cicloDemo = 0, pasoDemo = 0, enDemo = false;
+      const pararDemo = () => {
+        clearTimeout(relojDemo);
+        clearInterval(cicloDemo);
+        relojDemo = cicloDemo = 0;
+        if (!enDemo) return;
+        enDemo = false;
+        entrada.classList.remove("entrada-en-demo");
+      };
+      const arrancarDemo = () => {
+        if (reducido || !entrada.isConnected || eligiendo) return;
+        enDemo = true;
+        entrada.classList.add("entrada-en-demo");
+        if (demoTexto) {
+          pasoDemo = 0;
+          demoTexto.textContent = LEYENDAS_DEMO[0];
+        }
+        cicloDemo = setInterval(() => {
+          if (!demoTexto) return;
+          pasoDemo = (pasoDemo + 1) % LEYENDAS_DEMO.length;
+          demoTexto.textContent = LEYENDAS_DEMO[pasoDemo];
+        }, 3600);
+      };
+      const despertarDeDemo = () => {
+        pararDemo();
+        clearTimeout(relojDemo);
+        if (!entrada.isConnected) return;
+        relojDemo = setTimeout(arrancarDemo, ESPERA_DEMO);
+      };
+      ["pointermove", "pointerdown", "keydown", "touchstart", "wheel"].forEach((gesto) =>
+        addEventListener(gesto, despertarDeDemo, { passive: true }));
+      relojDemo = setTimeout(arrancarDemo, ESPERA_DEMO);
+
       const cerrar = () => {
+        pararDemo();
         entrada.remove();
         quitarVelo();
         removeEventListener("keydown", teclas);
@@ -306,6 +354,7 @@ try {
       const terminar = (irA, op) => {
         if (eligiendo) return;
         eligiendo = true;
+        pararDemo();
         removeEventListener("keydown", teclas);
         firmaDe(op);   // cada categoría entra con su propio sonido
         if (op) op.classList.add("elegida");

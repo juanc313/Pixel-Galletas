@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="/css/fuentes.css">
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/tema-claro.css">
-  <link rel="stylesheet" href="/css/entrada-decor.css">
+  <link rel="stylesheet" href="/css/entrada-decor.css?v=3">
   <link rel="stylesheet" href="/css/contacto-orbita.css">
   <script src="/js/arranque.js"></script>
   <script src="/js/pwa.js" defer></script>
@@ -283,6 +283,13 @@
       <span class="entrada-carga-barra"><i><svg class="entrada-carga-galleta" viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#galleta-pixel"/></svg></i></span>
       <span class="entrada-carga-texto">Cargando <b id="entrada-carga-pct">0</b>%<em>100% · ¡Listo!</em></span>
     </div>
+    <!-- Modo atracción: si nadie toca la entrada, la máquina se demuestra
+         sola y ofrece "toca para jugar". Lo enciende efectos.js. -->
+    <p class="entrada-demo" aria-hidden="true">
+      <span class="entrada-demo-eti">Demo</span>
+      <span class="entrada-demo-texto" id="entrada-demo-texto">Sabores del día · horneados hoy</span>
+      <span class="entrada-demo-pista">Toca para jugar</span>
+    </p>
     <!-- Menú de título: el juego espera al jugador. Las tres categorías van
          abajo, soltadas del logo, como las opciones de una pantalla de
          inicio: marco pixel, cursor ▶ parpadeando y barra de carga interna en
@@ -606,6 +613,8 @@
             <li><b>Caja x12</b> <span>$ 68.400 / mes</span></li>
           </ul>
           <p class="mensual-nota">Entrega gratis en Cúcuta y alrededores. Sin contrato ni cobro automático: confirmas por WhatsApp y pagas por Nequi o en efectivo al recibir, y puedes pausar el mes que no quieras.</p>
+          <button type="button" class="mensual-recordar" id="btn-recordar-mensual">Recordarme el próximo mes en el calendario</button>
+          <p class="mensual-recordatorio" id="mensual-recordatorio" role="status" aria-live="polite"></p>
         </div>
         <a class="boton-grande" id="link-caja-mensual" href="#" target="_blank" rel="noopener">Suscribirme por WhatsApp</a>
       </div>
@@ -1067,6 +1076,7 @@
   <script type="module" src="/js/estado.js"></script>
   <script type="module" src="/js/efectos.js"></script>
   <script type="module" src="/js/navegacion.js"></script>
+  <script type="module" src="/js/recordatorio.js"></script>
   <script src="/js/musica.js" defer></script>
 </body>
 </html>

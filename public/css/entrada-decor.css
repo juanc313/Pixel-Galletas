@@ -187,3 +187,33 @@
 :root[data-tema="claro"] .nube { filter: drop-shadow(0 4px 6px rgba(42, 26, 74, .12)); }
 :root[data-tema="claro"] .entrada-arboles { --copa: #3E8F6C; --tronco: #8A5426; }
 @media (max-width: 40rem) { .arbol-2, .arbol-4 { display: none; } }
+
+/* --- Modo atracción: la pantalla de título se demuestra sola ---
+   Si nadie toca la entrada, efectos.js retira el menú y deja este cartel con
+   los reclamos de la marca, como una recreativa esperando moneda. */
+.entrada-demo {
+  position: absolute; left: 50%; bottom: 8%; z-index: 6; width: min(92%, 34rem);
+  transform: translateX(-50%); margin: 0; text-align: center;
+  font-family: var(--titulos); font-size: clamp(.6rem, 1.5vw, .85rem);
+  letter-spacing: .07em; text-transform: uppercase; color: var(--crema);
+  opacity: 0; pointer-events: none; transition: opacity var(--d-ui) ease;
+}
+.entrada-en-demo .entrada-demo { opacity: 1; }
+.entrada-demo-eti {
+  display: inline-block; padding: .4em .7em; background: var(--moneda);
+  color: var(--noche); box-shadow: 4px 4px 0 rgba(0, 0, 0, .35);
+}
+.entrada-demo-texto { display: block; margin-top: .8rem; text-shadow: 2px 2px 0 rgba(12, 5, 53, .7); }
+.entrada-demo-pista { display: block; margin-top: .55rem; font-size: .82em; color: var(--masa); }
+@media (prefers-reduced-motion: no-preference) {
+  .entrada-demo-pista { animation: demo-parpadeo 1.5s steps(2, end) infinite; }
+}
+@keyframes demo-parpadeo { 50% { opacity: .3; } }
+/* El menú se retira mientras dura la demo y vuelve con cualquier gesto. */
+.entrada-en-demo .entrada-menu {
+  opacity: 0; translate: 0 .8rem; pointer-events: none;
+  /* El menú entra con una animación que se queda puesta (fill both); sin
+     anularla, su opacidad final gana a este 0 y la demo se solapa. */
+  animation: none;
+  transition: opacity var(--d-ui) ease, translate var(--d-ui) ease;
+}
