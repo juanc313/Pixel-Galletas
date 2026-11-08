@@ -1,9 +1,11 @@
 /* ===== Mosaico de contacto: galletas orbitando el logo en el espacio ======
    La escena se dibuja entera con CSS: cielo estrellado, planetas decorativos,
    el logo como un sol con corona y cinco recortes del catálogo girando en
-   círculo. Cada galleta arrastra una estela de dos capas —arco nítido y
-   resplandor— y un destello en la cabeza; la Special Edition va en arcoíris.
-   Sin imágenes nuevas ni scripts.
+   círculo. Cada galleta arrastra su PROPIA estela, con la paleta de esa
+   galleta: la Monster de cuatro colores, la Areklim dorada, la Red Velvet
+   roja, la Red Monster turquesa y roja, y la Special Edition en arcoíris.
+   La estela nace del color de la galleta, sin puntas blancas ni destellos
+   sueltos, y va en una capa por debajo de todas las galletas.
    ========================================================================== */
 
 .contacto-montaje {
@@ -171,9 +173,32 @@
    la circunferencia, arriba. */
 .orbita-item { position: absolute; inset: 0; rotate: var(--a); }
 
-/* Estela: dos capas independientes, para que la línea no herede el desenfoque
-   del resplandor. ::before es el brillo; ::after, el arco nítido. */
-.orbita-estela { position: absolute; inset: 4%; border-radius: 50%; rotate: var(--a); pointer-events: none; }
+/* --- Estelas ---
+   Dos capas: ::before es el resplandor y ::after el arco nítido. Las dos
+   nacen del color de la galleta y se apagan con transparencia en la cola; en
+   la cabeza el color es el pleno de la galleta, nunca blanco, y el arco pasa
+   por debajo de ella sin dejar punta visible. */
+.orbita-estela {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  rotate: var(--a);
+  pointer-events: none;
+  --nucleo: conic-gradient(from -68deg at 50% 50%,
+    transparent 0deg,
+    color-mix(in srgb, var(--color) 26%, transparent) 10deg,
+    color-mix(in srgb, var(--color) 78%, transparent) 34deg,
+    var(--color) 56deg,
+    var(--color) 68deg,
+    transparent 78deg);
+  --brillo: conic-gradient(from -78deg at 50% 50%,
+    transparent 0deg,
+    transparent 4deg,
+    color-mix(in srgb, var(--color) 20%, transparent) 14deg,
+    color-mix(in srgb, var(--color) 58%, transparent) 52deg,
+    var(--color) 74deg,
+    transparent 88deg);
+}
 
 .orbita-estela::before,
 .orbita-estela::after {
@@ -184,33 +209,105 @@
 }
 
 .orbita-estela::before {
-  background: conic-gradient(from -78deg at 50% 50%,
-    transparent 0deg,
-    transparent 4deg,
-    color-mix(in srgb, var(--color) 26%, transparent) 14deg,
-    color-mix(in srgb, var(--color) 66%, transparent) 52deg,
-    var(--color) 72deg,
-    transparent 88deg);
+  background: var(--brillo);
   -webkit-mask: radial-gradient(closest-side, transparent 0 73%, #000 79% 86%, transparent 93%);
   mask: radial-gradient(closest-side, transparent 0 73%, #000 79% 86%, transparent 93%);
   filter: blur(5px);
-  opacity: .62;
+  opacity: .6;
 }
 
 .orbita-estela::after {
-  background: conic-gradient(from -68deg at 50% 50%,
-    transparent 0deg,
-    color-mix(in srgb, var(--color) 30%, transparent) 8deg,
-    color-mix(in srgb, var(--color) 82%, transparent) 34deg,
-    var(--color) 58deg,
-    color-mix(in srgb, var(--color) 32%, #FFFFFF) 66deg,
-    transparent 76deg);
+  background: var(--nucleo);
   -webkit-mask: radial-gradient(closest-side, transparent 0 77.2%, #000 78.2% 80.8%, transparent 83%);
   mask: radial-gradient(closest-side, transparent 0 77.2%, #000 78.2% 80.8%, transparent 83%);
-  filter: saturate(1.55) brightness(1.22);
+  filter: saturate(1.5) brightness(1.15);
   opacity: .96;
 }
 
+/* La Monster es de cuatro colores: su estela también. */
+.orbita-estela.o-monster {
+  --nucleo: conic-gradient(from -68deg at 50% 50%,
+    transparent 0deg,
+    rgba(122, 74, 38, .45) 12deg,
+    #C08A2E 30deg,
+    #4E9B4A 44deg,
+    #D8402F 56deg,
+    #E8A93C 68deg,
+    transparent 78deg);
+  --brillo: conic-gradient(from -78deg at 50% 50%,
+    transparent 0deg,
+    transparent 4deg,
+    rgba(122, 74, 38, .22) 14deg,
+    rgba(192, 138, 46, .5) 40deg,
+    rgba(216, 64, 47, .55) 62deg,
+    rgba(232, 169, 60, .72) 74deg,
+    transparent 88deg);
+}
+
+/* La Areklim es dorada. */
+.orbita-estela.o-areklim {
+  --nucleo: conic-gradient(from -68deg at 50% 50%,
+    transparent 0deg,
+    rgba(242, 193, 78, .3) 10deg,
+    rgba(242, 193, 78, .8) 34deg,
+    #F2C14E 56deg,
+    #F2C14E 68deg,
+    transparent 78deg);
+  --brillo: conic-gradient(from -78deg at 50% 50%,
+    transparent 0deg,
+    transparent 4deg,
+    rgba(242, 193, 78, .2) 14deg,
+    rgba(242, 193, 78, .58) 52deg,
+    rgba(242, 193, 78, .9) 74deg,
+    transparent 88deg);
+}
+
+/* La Red Monster es roja y turquesa: la cola va del turquesa al rojo. */
+.orbita-estela.o-red-monster {
+  --nucleo: conic-gradient(from -68deg at 50% 50%,
+    transparent 0deg,
+    rgba(47, 182, 201, .45) 12deg,
+    #2FB6C9 36deg,
+    #C4343C 56deg,
+    #E0565E 68deg,
+    transparent 78deg);
+  --brillo: conic-gradient(from -78deg at 50% 50%,
+    transparent 0deg,
+    transparent 4deg,
+    rgba(47, 182, 201, .22) 14deg,
+    rgba(47, 182, 201, .5) 40deg,
+    rgba(196, 52, 60, .55) 62deg,
+    rgba(224, 86, 94, .72) 74deg,
+    transparent 88deg);
+}
+
+/* La Special Edition deja un arcoíris completo. */
+.orbita-estela.o-special {
+  --nucleo: conic-gradient(from -68deg at 50% 50%,
+    transparent 0deg,
+    #FF2D55 10deg,
+    #FF9500 22deg,
+    #FFD60A 34deg,
+    #34C759 46deg,
+    #0A84FF 56deg,
+    #AF52DE 66deg,
+    #E8B6FF 72deg,
+    transparent 82deg);
+  --brillo: conic-gradient(from -78deg at 50% 50%,
+    transparent 0deg,
+    transparent 4deg,
+    #FF2D55 16deg,
+    #FF9500 30deg,
+    #FFD60A 44deg,
+    #34C759 56deg,
+    #0A84FF 66deg,
+    #AF52DE 76deg,
+    transparent 88deg);
+}
+.orbita-estela.o-special::before { filter: blur(5px) saturate(1.35); opacity: .72; }
+.orbita-estela.o-special::after { filter: saturate(1.5) brightness(1.2); opacity: .98; }
+
+/* --- Galletas --- */
 .orbita-brazo {
   position: absolute;
   top: 4%;
@@ -231,77 +328,20 @@
     drop-shadow(0 8px 14px rgba(0, 0, 0, .6));
 }
 
-/* Halo del color de la galleta, detrás. */
+/* Halo del color de la galleta, detrás y sin lavar la estela. */
 .orbita-halo {
   position: absolute;
   inset: -22%;
   border-radius: 50%;
   background: radial-gradient(circle, var(--color) 0%, transparent 64%);
-  opacity: .24;
+  opacity: .22;
   filter: blur(7px);
 }
 
-/* Destello en la cola: donde la estela toca la galleta. */
-.orbita-chispa {
-  position: absolute;
-  z-index: 2;
-  left: 0;
-  top: 50%;
-  translate: -50% -50%;
-  width: 22%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle,
-    #FFFFFF 0%,
-    color-mix(in srgb, var(--color) 55%, #FFFFFF) 34%,
-    transparent 72%);
-  opacity: .8;
-  filter: blur(1.2px);
-}
-
-/* --- Special Edition: arcoíris de verdad --- */
 .orbita-item.o-special .orbita-halo {
   background: conic-gradient(#FF2D55, #FF9500, #FFD60A, #34C759, #0A84FF, #AF52DE, #FF2D55);
-  opacity: .34;
+  opacity: .32;
   filter: blur(9px) saturate(1.25);
-}
-
-.orbita-estela.o-special::before {
-  background: conic-gradient(from -78deg at 50% 50%,
-    transparent 0deg,
-    transparent 4deg,
-    #FF2D55 16deg,
-    #FF9500 30deg,
-    #FFD60A 44deg,
-    #34C759 56deg,
-    #0A84FF 66deg,
-    #AF52DE 76deg,
-    transparent 88deg);
-  filter: blur(5px) saturate(1.35);
-  opacity: .72;
-}
-
-.orbita-estela.o-special::after {
-  background: conic-gradient(from -68deg at 50% 50%,
-    transparent 0deg,
-    #FF2D55 10deg,
-    #FF9500 22deg,
-    #FFD60A 34deg,
-    #34C759 46deg,
-    #0A84FF 56deg,
-    #AF52DE 66deg,
-    #E8B6FF 72deg,
-    transparent 82deg);
-  filter: saturate(1.5) brightness(1.28);
-  opacity: .98;
-}
-
-.orbita-item.o-special .orbita-chispa {
-  background: radial-gradient(circle,
-    #FFFFFF 0%,
-    #FFD60A 26%,
-    #FF2D55 46%,
-    transparent 74%);
 }
 
 /* --- Movimiento --- */
@@ -321,7 +361,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .estela,
   .orbita-estela { display: none; }
   .montaje-sol::before { display: none; }
 }
