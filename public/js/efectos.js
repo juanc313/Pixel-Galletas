@@ -26,9 +26,13 @@ try {
     // pero salta el menú: la coreografía completa y de una al catálogo.
     const directo = /^1$/.test(new URLSearchParams(location.search).get("directo") || "");
     const empiezaSolo = /^1$/.test(new URLSearchParams(location.search).get("empezar") || "");
+    // ?entrada=1 vuelve a mostrar la pantalla de título aunque ya se haya
+    // visto en esta sesión: sirve para enseñarla (y para ver el modo demo)
+    // sin tener que abrir una pestaña nueva.
+    const forzarEntrada = /^1$/.test(new URLSearchParams(location.search).get("entrada") || "");
     let vista = true;
     try { vista = sessionStorage.getItem("pixel_galletas_entrada") === "1"; } catch { /* sin sessionStorage */ }
-    if (reducido || vista || directo) {
+    if (reducido || (vista && !forzarEntrada) || directo) {
       entrada.remove();
       // El velo solo existía para que la escena no empezara velada.
       document.documentElement.classList.remove("velado");
@@ -302,7 +306,7 @@ try {
         "Atrapa la galleta · 30 segundos",
         "Cajas Pixel · mensaje personalizado",
       ];
-      const ESPERA_DEMO = 14000;
+      const ESPERA_DEMO = 9000;
       let relojDemo = 0, cicloDemo = 0, pasoDemo = 0, enDemo = false;
       const pararDemo = () => {
         clearTimeout(relojDemo);
@@ -575,6 +579,22 @@ try {
       { threshold: 0, rootMargin: "0px 0px -40px 0px" }
     );
     observables.forEach((el) => o.observe(el));
+    // Al saltar a un ancla de más abajo (el menú "Estado", un enlace del pie),
+    // las secciones que quedan POR ENCIMA nunca llegan a intersectar y se
+    // quedaban a opacity: 0 para siempre: bandas largas y vacías. En cuanto una
+    // sección ya pasó por encima de la pantalla, se da por vista.
+    const darPorVistas = () => {
+      observables.forEach((el) => {
+        if (el.classList.contains("visible")) return;
+        if (el.getBoundingClientRect().bottom <= 0) {
+          el.classList.add("visible");
+          o.unobserve(el);
+        }
+      });
+    };
+    addEventListener("scroll", darPorVistas, { passive: true });
+    addEventListener("hashchange", () => requestAnimationFrame(darPorVistas));
+    darPorVistas();
   }
 
   // ===== Numeración "Nivel 0X" de las secciones =====

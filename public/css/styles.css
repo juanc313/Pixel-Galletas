@@ -2425,8 +2425,13 @@ main > section { position: relative; }
 
 /* Recordatorio de la caja mensual: enlace discreto bajo la nota, para que no
    compita con el botón de WhatsApp. */
-.mensual .mensual-recordar { justify-self: start; margin-top: var(--s-2); padding: 0; border: 0;
-  background: none; color: var(--masa); font: inherit; font-size: var(--t-sm); text-align: left;
-  text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
-.mensual .mensual-recordar:hover { color: var(--crema); }
+/* Se lee como botón, no como enlace suelto: si parece parte del texto, nadie
+   lo encuentra. Mismo lenguaje pixel que el resto de botones de la banda. */
+.mensual .mensual-recordar { display: inline-block; justify-self: start; margin-top: var(--s-3);
+  padding: var(--s-2) var(--s-4); border: 0; background: var(--pantalla); color: var(--crema);
+  font-family: var(--titulos); font-size: var(--t-sm); letter-spacing: .04em; text-transform: uppercase;
+  text-align: left; box-shadow: var(--px-3-suave); cursor: pointer;
+  transition: background var(--d-micro) ease, color var(--d-micro) ease, transform var(--d-micro) ease; }
+.mensual .mensual-recordar:hover { background: var(--masa); color: var(--noche); transform: translateY(-2px); }
+.mensual .mensual-recordar:focus-visible { outline: 2px solid var(--diamante); outline-offset: 3px; }
 .mensual .mensual-recordatorio { min-height: 1.1rem; font-size: var(--t-xs); color: var(--diamante); }

@@ -24,9 +24,11 @@ document.documentElement.classList.add("js-anim");
     var reducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
     // Enlace directo (?directo=1): sin velo ni escena, se entra de una.
     var directo = /^1$/.test(new URLSearchParams(location.search).get("directo") || "");
+    // Mismo interruptor que efectos.js: ?entrada=1 fuerza la escena otra vez.
+    var forzar = /^1$/.test(new URLSearchParams(location.search).get("entrada") || "");
     var vista = true;
     try { vista = sessionStorage.getItem("pixel_galletas_entrada") === "1"; } catch (e2) { /* sin sessionStorage */ }
-    if (!reducido && !vista && !directo) document.documentElement.classList.add("velado");
+    if (!reducido && (!vista || forzar) && !directo) document.documentElement.classList.add("velado");
   } catch (e) { /* sin matchMedia: sin velo (igual que hoy sin entrada) */ }
 })();
 

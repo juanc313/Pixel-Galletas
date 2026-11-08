@@ -761,6 +761,8 @@ export class CalculadoraCombos {
     if (this.$("btn-armador-compartir")) {
       this.$("btn-armador-compartir").addEventListener("click", () => this.compartirCombo());
     }
+    // Un clic en el asiento del botón mientras no hay catálogo no debe quedarse
+    // en silencio: el aviso ya está escrito en #calc-resultado.
   }
 
   // Armador: un selector de sabor por cada galleta normal del combo.
@@ -1038,6 +1040,16 @@ if (typeof document !== "undefined") {
     const url = new URLSearchParams(location.search);
     if (url.has("especiales")) calculadora.$("calc-especiales").value = url.get("especiales");
     if (url.has("normales")) calculadora.$("calc-normales").value = url.get("normales");
-    new ApiClient().get("/productos").then((p) => calculadora.cargarProductos(p));
+    // Si el catálogo no responde, la página no puede quedarse muda: sin
+    // sabores no hay armador ni botón de compartir, y el cliente merece saber
+    // por qué y qué hacer mientras tanto.
+    new ApiClient().get("/productos").then((p) => calculadora.cargarProductos(p)).catch(() => {
+      const aviso = document.getElementById("calc-resultado");
+      if (aviso) {
+        aviso.textContent = "No pudimos cargar los sabores: el catálogo no está disponible en este momento. Escríbenos por WhatsApp y armamos tu combo contigo.";
+      }
+      const armador = document.getElementById("armador-combo");
+      if (armador) armador.hidden = true;
+    });
   }
 }
