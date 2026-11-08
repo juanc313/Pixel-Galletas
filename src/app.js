@@ -8,7 +8,7 @@ const productoRoutes = require("./routes/productoRoutes");
 const pedidoRoutes = require("./routes/pedidoRoutes");
 const eventoRoutes = require("./routes/eventoRoutes");
 const carritoRoutes = require("./routes/carritoRoutes");
-const { limiteApi, limiteLogin, limiteRegistro, limitePedidos, limiteEstado } = require("./middlewares/limites");
+const { limiteApi, limiteLogin, limiteRegistro } = require("./middlewares/limites");
 
 const app = express();
 
@@ -97,7 +97,7 @@ app.use("/api/usuarios/login", limiteLogin);
 app.use("/api/usuarios/registro", limiteRegistro);
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/productos", productoRoutes);
-app.use("/api/pedidos", limitePedidos, limiteEstado, pedidoRoutes);
+app.use("/api/pedidos", pedidoRoutes);
 app.use("/api/eventos", eventoRoutes);
 app.use("/api/carrito", carritoRoutes);
 
