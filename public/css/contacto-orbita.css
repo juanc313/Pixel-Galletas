@@ -140,7 +140,7 @@
 
 .contacto-montaje .montaje-logo {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   width: 52%;
   height: auto;
   filter:
@@ -148,8 +148,11 @@
     drop-shadow(0 0 46px rgba(245, 116, 22, .4));
 }
 
-/* --- Órbita --- */
-.montaje-orbita { position: absolute; inset: 0; z-index: 1; }
+/* --- Órbita ---
+   Las estelas van en su propia capa, debajo de todas las galletas: así ninguna
+   galleta ni su halo tapa la cola de otra y el arco se lee de un tirón. */
+.montaje-estelas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.montaje-orbita { position: absolute; inset: 0; z-index: 2; }
 
 /* Cada item es un anillo girado a su ángulo; el brazo pone la galleta sobre
    la circunferencia, arriba. */
@@ -157,7 +160,7 @@
 
 /* Estela: dos capas independientes, para que la línea no herede el desenfoque
    del resplandor. ::before es el brillo; ::after, el arco nítido. */
-.orbita-estela { position: absolute; inset: 4%; border-radius: 50%; pointer-events: none; }
+.orbita-estela { position: absolute; inset: 4%; border-radius: 50%; rotate: var(--a); pointer-events: none; }
 
 .orbita-estela::before,
 .orbita-estela::after {
@@ -220,7 +223,7 @@
   inset: -22%;
   border-radius: 50%;
   background: radial-gradient(circle, var(--color) 0%, transparent 64%);
-  opacity: .3;
+  opacity: .24;
   filter: blur(7px);
 }
 
@@ -231,15 +234,15 @@
   left: 0;
   top: 50%;
   translate: -50% -50%;
-  width: 30%;
+  width: 22%;
   aspect-ratio: 1;
   border-radius: 50%;
   background: radial-gradient(circle,
     #FFFFFF 0%,
     color-mix(in srgb, var(--color) 55%, #FFFFFF) 34%,
     transparent 72%);
-  opacity: .9;
-  filter: blur(1.4px);
+  opacity: .8;
+  filter: blur(1.2px);
 }
 
 /* --- Special Edition: arcoíris de verdad --- */
@@ -249,7 +252,7 @@
   filter: blur(9px) saturate(1.25);
 }
 
-.orbita-item.o-special .orbita-estela::before {
+.orbita-estela.o-special::before {
   background: conic-gradient(from -68deg at 50% 50%,
     transparent 0deg,
     transparent 4deg,
@@ -264,7 +267,7 @@
   opacity: .7;
 }
 
-.orbita-item.o-special .orbita-estela::after {
+.orbita-estela.o-special::after {
   background: conic-gradient(from -56deg at 50% 50%,
     transparent 0deg,
     #FF2D55 8deg,
