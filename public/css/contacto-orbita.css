@@ -1,9 +1,9 @@
-/* ===== Mosaico de contacto: las galletas orbitan el logo ==================
-   Antes era una foto con las galletas recortadas a tijera y trozos de fondo
-   pegados. Aquí la escena se dibuja entera: la rejilla en CSS, el logo en el
-   centro y los recortes del catálogo (que ya vienen sin fondo) girando en
-   círculo, cada uno con su estela de color. La Special Edition lleva estela
-   de arcoíris. Sin imágenes nuevas ni scripts.
+/* ===== Mosaico de contacto: galletas orbitando el logo en el espacio ======
+   La escena se dibuja entera con CSS: cielo estrellado, planetas decorativos,
+   el logo como un sol con corona y cinco recortes del catálogo girando en
+   círculo. Cada galleta arrastra una estela de dos capas —arco nítido y
+   resplandor— y un destello en la cabeza; la Special Edition va en arcoíris.
+   Sin imágenes nuevas ni scripts.
    ========================================================================== */
 
 .contacto-montaje {
@@ -13,20 +13,14 @@
   aspect-ratio: 1;
   overflow: hidden;
   isolation: isolate;
-  background-color: #150A4D;
+  background:
+    radial-gradient(ellipse 62% 52% at 50% 46%, rgba(245, 144, 47, .16), transparent 64%),
+    radial-gradient(ellipse 46% 40% at 84% 82%, rgba(47, 133, 255, .14), transparent 66%),
+    radial-gradient(ellipse 44% 42% at 12% 18%, rgba(175, 82, 222, .18), transparent 68%),
+    linear-gradient(180deg, #04021A 0%, #0A0530 58%, #170B4E 100%);
 }
 
-/* Rejilla de la pantalla, con el mismo paso que el mosaico original. */
-.montaje-rejilla {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(245, 144, 47, .28) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(245, 144, 47, .28) 2px, transparent 2px);
-  background-size: 36px 36px;
-}
-
-/* Las imágenes de la escena no usan el tamaño de la foto de portada. */
+/* Las imágenes de la escena no heredan el tamaño de la foto de portada. */
 .contacto-montaje img {
   width: 100%;
   height: 100%;
@@ -35,19 +29,171 @@
   object-fit: contain;
 }
 
+/* --- Cielo: estrellas de dos profundidades que titilan --- */
+.montaje-espacio { position: absolute; inset: 0; z-index: 0; }
+
+.montaje-estrellas,
+.montaje-estrellas::after {
+  position: absolute;
+  inset: -12%;
+  content: "";
+  background-image:
+    radial-gradient(1.6px 1.6px at 22px 34px, #FFFFFF 0 100%, transparent 100%),
+    radial-gradient(1.2px 1.2px at 118px 96px, rgba(255, 255, 255, .92) 0 100%, transparent 100%),
+    radial-gradient(1px 1px at 64px 150px, rgba(255, 243, 220, .9) 0 100%, transparent 100%),
+    radial-gradient(2px 2px at 170px 42px, rgba(160, 220, 255, .95) 0 100%, transparent 100%),
+    radial-gradient(1px 1px at 96px 186px, rgba(255, 214, 150, .8) 0 100%, transparent 100%);
+  background-size: 210px 210px, 160px 160px, 130px 130px, 240px 240px, 190px 190px;
+  opacity: .9;
+}
+
+.montaje-estrellas::after {
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 40px 70px, rgba(255, 255, 255, .7) 0 100%, transparent 100%),
+    radial-gradient(1.4px 1.4px at 150px 20px, rgba(255, 235, 200, .85) 0 100%, transparent 100%),
+    radial-gradient(1px 1px at 88px 240px, rgba(190, 225, 255, .7) 0 100%, transparent 100%);
+  background-size: 190px 190px, 300px 300px, 260px 260px;
+  opacity: .7;
+}
+
+/* --- Planetas decorativos del fondo --- */
+.montaje-planetas { position: absolute; inset: 0; pointer-events: none; }
+
+.montaje-planetas::before {
+  content: "";
+  position: absolute;
+  left: 7%;
+  top: 12%;
+  width: 15%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%, #FFE0B0 0%, #E58B3C 34%, #A5511C 62%, #3A1808 100%);
+  box-shadow:
+    inset -6px -8px 16px rgba(0, 0, 0, .6),
+    0 0 18px rgba(245, 144, 47, .38);
+}
+
+.montaje-planetas::after {
+  content: "";
+  position: absolute;
+  right: 8%;
+  bottom: 13%;
+  width: 11%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 30%, #CFF4FF 0%, #4FC3E8 32%, #1D7C9C 62%, #062533 100%);
+  box-shadow:
+    inset -5px -6px 12px rgba(0, 0, 0, .6),
+    0 0 16px rgba(79, 195, 232, .35);
+}
+
+/* Planeta con anillo, abajo a la izquierda. */
+.planeta-anillo {
+  position: absolute;
+  left: 10%;
+  bottom: 16%;
+  width: 10%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, #F1D6FF 0%, #B072E0 36%, #6A2E9C 70%, #22103A 100%);
+  box-shadow: inset -4px -5px 10px rgba(0, 0, 0, .55), 0 0 14px rgba(176, 114, 224, .35);
+}
+.planeta-anillo::after {
+  content: "";
+  position: absolute;
+  inset: -34% -52%;
+  border: 2px solid rgba(232, 200, 255, .55);
+  border-radius: 50%;
+  rotate: -20deg;
+  filter: blur(.4px);
+}
+
+/* --- El logo es el sol: corona, rayos y resplandor --- */
+.montaje-sol {
+  position: absolute;
+  z-index: 0;
+  width: 76%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(255, 240, 196, .95) 0%,
+    rgba(255, 186, 78, .6) 24%,
+    rgba(245, 116, 22, .26) 46%,
+    transparent 70%);
+  filter: blur(3px);
+}
+
+.montaje-sol::before {
+  content: "";
+  position: absolute;
+  inset: -14%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg,
+    rgba(255, 200, 100, .26) 0deg 4deg,
+    transparent 4deg 20deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 42%, #000 58%, transparent 98%);
+  mask: radial-gradient(closest-side, transparent 42%, #000 58%, transparent 98%);
+}
+
 .contacto-montaje .montaje-logo {
   position: relative;
   z-index: 2;
   width: 52%;
   height: auto;
-  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .55));
+  filter:
+    drop-shadow(0 0 16px rgba(255, 186, 78, .55))
+    drop-shadow(0 0 46px rgba(245, 116, 22, .4));
 }
 
+/* --- Órbita --- */
 .montaje-orbita { position: absolute; inset: 0; z-index: 1; }
 
-/* Cada item es un anillo completo girado a su ángulo; el brazo pone la
-   galleta sobre la circunferencia, arriba. */
+/* Cada item es un anillo girado a su ángulo; el brazo pone la galleta sobre
+   la circunferencia, arriba. */
 .orbita-item { position: absolute; inset: 0; rotate: var(--a); }
+
+/* Estela: dos capas independientes, para que la línea no herede el desenfoque
+   del resplandor. ::before es el brillo; ::after, el arco nítido. */
+.orbita-estela { position: absolute; inset: 4%; border-radius: 50%; pointer-events: none; }
+
+.orbita-estela::before,
+.orbita-estela::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.orbita-estela::before {
+  background: conic-gradient(from -68deg at 50% 50%,
+    transparent 0deg,
+    transparent 4deg,
+    color-mix(in srgb, var(--color) 24%, transparent) 16deg,
+    color-mix(in srgb, var(--color) 62%, transparent) 44deg,
+    var(--color) 64deg,
+    transparent 76deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 0 74%, #000 79% 85%, transparent 92%);
+  mask: radial-gradient(closest-side, transparent 0 74%, #000 79% 85%, transparent 92%);
+  filter: blur(4px);
+  opacity: .5;
+}
+
+.orbita-estela::after {
+  background: conic-gradient(from -56deg at 50% 50%,
+    transparent 0deg,
+    color-mix(in srgb, var(--color) 45%, transparent) 14deg,
+    color-mix(in srgb, var(--color) 85%, transparent) 34deg,
+    var(--color) 48deg,
+    color-mix(in srgb, var(--color) 42%, #FFFFFF) 55deg,
+    transparent 64deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 0 77.5%, #000 78.6% 80.4%, transparent 82%);
+  mask: radial-gradient(closest-side, transparent 0 77.5%, #000 78.6% 80.4%, transparent 82%);
+  filter: saturate(1.35) brightness(1.1);
+  opacity: .88;
+}
 
 .orbita-brazo {
   position: absolute;
@@ -63,59 +209,104 @@
 .orbita-brazo img {
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
+  filter:
+    drop-shadow(0 0 10px color-mix(in srgb, var(--color) 55%, transparent))
+    drop-shadow(0 8px 14px rgba(0, 0, 0, .6));
 }
 
-/* Halo del color de la galleta, detrás de ella. */
+/* Halo del color de la galleta, detrás. */
 .orbita-halo {
   position: absolute;
-  inset: -16%;
+  inset: -22%;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--color) 0%, transparent 62%);
-  opacity: .42;
-  filter: blur(6px);
-}
-
-/* Estela: cometa corto hacia atrás en el sentido del giro. */
-.estela {
-  position: absolute;
-  top: 50%;
-  right: 62%;
-  translate: 0 -50%;
-  width: 240%;
-  height: 72%;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at 100% 50%, var(--color) 0%, transparent 70%);
-  opacity: .6;
+  background: radial-gradient(circle, var(--color) 0%, transparent 64%);
+  opacity: .3;
   filter: blur(7px);
 }
 
-/* La Special Edition deja un arcoíris. */
-.orbita-item.o-special .orbita-halo {
-  background: conic-gradient(#FF2D55, #FF9500, #FFD60A, #34C759, #0A84FF, #AF52DE, #FF2D55);
-  opacity: .38;
-  filter: blur(9px) saturate(1.2);
-}
-.orbita-item.o-special .estela {
-  background: linear-gradient(90deg,
-    transparent 0%, #FF2D55 14%, #FF9500 32%, #FFD60A 48%,
-    #34C759 64%, #0A84FF 80%, #AF52DE 94%);
-  opacity: .68;
-  filter: blur(6px) saturate(1.3);
+/* Destello en la cola: donde la estela toca la galleta. */
+.orbita-chispa {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  top: 50%;
+  translate: -50% -50%;
+  width: 30%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    #FFFFFF 0%,
+    color-mix(in srgb, var(--color) 55%, #FFFFFF) 34%,
+    transparent 72%);
+  opacity: .9;
+  filter: blur(1.4px);
 }
 
-/* El giro del anillo y la contra-rotación de cada galleta para que nunca
-   queden de cabeza. Con movimiento reducido quedan quietas en círculo. */
+/* --- Special Edition: arcoíris de verdad --- */
+.orbita-item.o-special .orbita-halo {
+  background: conic-gradient(#FF2D55, #FF9500, #FFD60A, #34C759, #0A84FF, #AF52DE, #FF2D55);
+  opacity: .34;
+  filter: blur(9px) saturate(1.25);
+}
+
+.orbita-item.o-special .orbita-estela::before {
+  background: conic-gradient(from -68deg at 50% 50%,
+    transparent 0deg,
+    transparent 4deg,
+    #FF2D55 16deg,
+    #FF9500 30deg,
+    #FFD60A 42deg,
+    #34C759 52deg,
+    #0A84FF 60deg,
+    #AF52DE 68deg,
+    transparent 80deg);
+  filter: blur(6px) saturate(1.25);
+  opacity: .7;
+}
+
+.orbita-item.o-special .orbita-estela::after {
+  background: conic-gradient(from -56deg at 50% 50%,
+    transparent 0deg,
+    #FF2D55 8deg,
+    #FF9500 20deg,
+    #FFD60A 30deg,
+    #34C759 39deg,
+    #0A84FF 46deg,
+    #AF52DE 53deg,
+    #E8B6FF 55deg,
+    transparent 64deg);
+  filter: saturate(1.4) brightness(1.18);
+  opacity: .98;
+}
+
+.orbita-item.o-special .orbita-chispa {
+  background: radial-gradient(circle,
+    #FFFFFF 0%,
+    #FFD60A 26%,
+    #FF2D55 46%,
+    transparent 74%);
+}
+
+/* --- Movimiento --- */
 @keyframes orbita-giro { from { rotate: 0deg; } to { rotate: 360deg; } }
 @keyframes orbita-firme { from { rotate: 0deg; } to { rotate: -360deg; } }
+@keyframes sol-rayos { to { rotate: 360deg; } }
+@keyframes sol-latir { 50% { scale: 1.045; } }
+@keyframes estrellas-parpadeo { 50% { opacity: .55; } }
 
 @media (prefers-reduced-motion: no-preference) {
   .js-anim .montaje-orbita { animation: orbita-giro 28s linear infinite; }
   .js-anim .orbita-brazo img { animation: orbita-firme 28s linear infinite; }
+  .js-anim .montaje-sol { animation: sol-latir 7s ease-in-out infinite; }
+  .js-anim .montaje-sol::before { animation: sol-rayos 90s linear infinite; }
+  .js-anim .montaje-estrellas { animation: estrellas-parpadeo 6.5s ease-in-out infinite; }
+  .js-anim .montaje-estrellas::after { animation: estrellas-parpadeo 9s ease-in-out infinite reverse; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .estela { display: none; }
+  .estela,
+  .orbita-estela { display: none; }
+  .montaje-sol::before { display: none; }
 }
 
 /* En pantallas muy pequeñas la órbita se aprieta: galletas algo menores. */
