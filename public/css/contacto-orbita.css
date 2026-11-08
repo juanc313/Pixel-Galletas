@@ -151,12 +151,13 @@
 }
 
 /* --- Órbita ---
-   Las estelas van en su propia capa, debajo de todas las galletas: así ninguna
-   galleta ni su halo tapa la cola de otra y el arco se lee de un tirón. */
-.montaje-estelas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+   Estelas y galletas giran en el MISMO contenedor: así cada cola viaja pegada
+   a su galleta durante toda la vuelta y nunca coge el color de otra. Las
+   estelas quedan por debajo de todas las galletas por z-index. */
+.montaje-orbita { position: absolute; inset: 0; z-index: 2; will-change: rotate; }
 
 /* Pista de la órbita: un aro tenue que deja ver por dónde pasan las galletas. */
-.montaje-estelas::before {
+.montaje-orbita::before {
   content: "";
   position: absolute;
   inset: 13.5%;
@@ -167,11 +168,9 @@
     inset 0 0 28px rgba(90, 160, 255, .1);
 }
 
-.montaje-orbita { position: absolute; inset: 0; z-index: 2; will-change: rotate; }
-
 /* Cada item es un anillo girado a su ángulo; el brazo pone la galleta sobre
    la circunferencia, arriba. */
-.orbita-item { position: absolute; inset: 0; rotate: var(--a); }
+.orbita-item { position: absolute; inset: 0; z-index: 1; rotate: var(--a); }
 
 /* --- Estelas ---
    Dos capas: ::before es el resplandor y ::after el arco nítido. Las dos
@@ -181,6 +180,7 @@
 .orbita-estela {
   position: absolute;
   inset: 4%;
+  z-index: 0;
   border-radius: 50%;
   rotate: var(--a);
   pointer-events: none;
