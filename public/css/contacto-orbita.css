@@ -152,7 +152,20 @@
    Las estelas van en su propia capa, debajo de todas las galletas: así ninguna
    galleta ni su halo tapa la cola de otra y el arco se lee de un tirón. */
 .montaje-estelas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.montaje-orbita { position: absolute; inset: 0; z-index: 2; }
+
+/* Pista de la órbita: un aro tenue que deja ver por dónde pasan las galletas. */
+.montaje-estelas::before {
+  content: "";
+  position: absolute;
+  inset: 13.5%;
+  border-radius: 50%;
+  border: 1px solid rgba(150, 195, 255, .16);
+  box-shadow:
+    0 0 22px rgba(90, 160, 255, .12),
+    inset 0 0 28px rgba(90, 160, 255, .1);
+}
+
+.montaje-orbita { position: absolute; inset: 0; z-index: 2; will-change: rotate; }
 
 /* Cada item es un anillo girado a su ángulo; el brazo pone la galleta sobre
    la circunferencia, arriba. */
@@ -171,31 +184,31 @@
 }
 
 .orbita-estela::before {
-  background: conic-gradient(from -68deg at 50% 50%,
+  background: conic-gradient(from -78deg at 50% 50%,
     transparent 0deg,
     transparent 4deg,
-    color-mix(in srgb, var(--color) 24%, transparent) 16deg,
-    color-mix(in srgb, var(--color) 62%, transparent) 44deg,
-    var(--color) 64deg,
-    transparent 76deg);
-  -webkit-mask: radial-gradient(closest-side, transparent 0 74%, #000 79% 85%, transparent 92%);
-  mask: radial-gradient(closest-side, transparent 0 74%, #000 79% 85%, transparent 92%);
-  filter: blur(4px);
-  opacity: .5;
+    color-mix(in srgb, var(--color) 26%, transparent) 14deg,
+    color-mix(in srgb, var(--color) 66%, transparent) 52deg,
+    var(--color) 72deg,
+    transparent 88deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 0 73%, #000 79% 86%, transparent 93%);
+  mask: radial-gradient(closest-side, transparent 0 73%, #000 79% 86%, transparent 93%);
+  filter: blur(5px);
+  opacity: .62;
 }
 
 .orbita-estela::after {
-  background: conic-gradient(from -56deg at 50% 50%,
+  background: conic-gradient(from -68deg at 50% 50%,
     transparent 0deg,
-    color-mix(in srgb, var(--color) 45%, transparent) 14deg,
-    color-mix(in srgb, var(--color) 85%, transparent) 34deg,
-    var(--color) 48deg,
-    color-mix(in srgb, var(--color) 42%, #FFFFFF) 55deg,
-    transparent 64deg);
-  -webkit-mask: radial-gradient(closest-side, transparent 0 77.5%, #000 78.6% 80.4%, transparent 82%);
-  mask: radial-gradient(closest-side, transparent 0 77.5%, #000 78.6% 80.4%, transparent 82%);
-  filter: saturate(1.35) brightness(1.1);
-  opacity: .88;
+    color-mix(in srgb, var(--color) 30%, transparent) 8deg,
+    color-mix(in srgb, var(--color) 82%, transparent) 34deg,
+    var(--color) 58deg,
+    color-mix(in srgb, var(--color) 32%, #FFFFFF) 66deg,
+    transparent 76deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 0 77.2%, #000 78.2% 80.8%, transparent 83%);
+  mask: radial-gradient(closest-side, transparent 0 77.2%, #000 78.2% 80.8%, transparent 83%);
+  filter: saturate(1.55) brightness(1.22);
+  opacity: .96;
 }
 
 .orbita-brazo {
@@ -212,6 +225,7 @@
 .orbita-brazo img {
   position: relative;
   z-index: 1;
+  will-change: rotate;
   filter:
     drop-shadow(0 0 10px color-mix(in srgb, var(--color) 55%, transparent))
     drop-shadow(0 8px 14px rgba(0, 0, 0, .6));
@@ -253,32 +267,32 @@
 }
 
 .orbita-estela.o-special::before {
-  background: conic-gradient(from -68deg at 50% 50%,
+  background: conic-gradient(from -78deg at 50% 50%,
     transparent 0deg,
     transparent 4deg,
     #FF2D55 16deg,
     #FF9500 30deg,
-    #FFD60A 42deg,
-    #34C759 52deg,
-    #0A84FF 60deg,
-    #AF52DE 68deg,
-    transparent 80deg);
-  filter: blur(6px) saturate(1.25);
-  opacity: .7;
+    #FFD60A 44deg,
+    #34C759 56deg,
+    #0A84FF 66deg,
+    #AF52DE 76deg,
+    transparent 88deg);
+  filter: blur(5px) saturate(1.35);
+  opacity: .72;
 }
 
 .orbita-estela.o-special::after {
-  background: conic-gradient(from -56deg at 50% 50%,
+  background: conic-gradient(from -68deg at 50% 50%,
     transparent 0deg,
-    #FF2D55 8deg,
-    #FF9500 20deg,
-    #FFD60A 30deg,
-    #34C759 39deg,
-    #0A84FF 46deg,
-    #AF52DE 53deg,
-    #E8B6FF 55deg,
-    transparent 64deg);
-  filter: saturate(1.4) brightness(1.18);
+    #FF2D55 10deg,
+    #FF9500 22deg,
+    #FFD60A 34deg,
+    #34C759 46deg,
+    #0A84FF 56deg,
+    #AF52DE 66deg,
+    #E8B6FF 72deg,
+    transparent 82deg);
+  filter: saturate(1.5) brightness(1.28);
   opacity: .98;
 }
 
