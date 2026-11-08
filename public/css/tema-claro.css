@@ -1,0 +1,126 @@
+/* ===== Tema claro: un sitio propio ========================================
+   Este archivo es la cara clara del sitio, no un recoloreo del tema oscuro:
+   papel cálido, tinta azul, tarjetas blancas con borde y botones sólidos.
+   Se carga al final, después de styles.css y paginas-8bit.css, y TODO va bajo
+   :root[data-tema="claro"], así que el tema oscuro queda intacto.
+   ========================================================================== */
+
+:root[data-tema="claro"] { color-scheme: light; }
+
+/* --- Lienzo: papel, sin textura de tela, sin ruido ni líneas de barrido --- */
+:root[data-tema="claro"] body {
+  background-color: #FDF4E3;
+  background-image:
+    radial-gradient(58rem 32rem at 88% -10rem, rgba(245, 144, 47, .12), transparent 64%),
+    radial-gradient(46rem 30rem at -8rem 62%, rgba(14, 143, 124, .07), transparent 62%);
+  background-size: auto;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: #2A1A4A;
+}
+:root[data-tema="claro"] body::before,
+:root[data-tema="claro"] .crt { display: none; }
+
+/* --- Títulos: sombra suave de papel en vez de bloque duro --- */
+:root[data-tema="claro"] h1,
+:root[data-tema="claro"] h2,
+:root[data-tema="claro"] h3 { text-shadow: 3px 3px 0 rgba(245, 144, 47, .2); }
+:root[data-tema="claro"] .marca-nombre,
+:root[data-tema="claro"] .powerup h2 { text-shadow: none; }
+
+/* --- Barra superior: blanca y con borde de tinta --- */
+:root[data-tema="claro"] .barra {
+  background: #FFFFFF;
+  border-bottom: 3px solid #2A1A4A;
+  box-shadow: 0 4px 0 #F5902F;
+}
+:root[data-tema="claro"] .barra.desplazada {
+  background: #FFFDF6;
+  border-bottom-color: #F5902F;
+  box-shadow: 0 4px 0 #2A1A4A, 0 12px 24px rgba(42, 26, 74, .12);
+}
+:root[data-tema="claro"] .menu a { color: #2A1A4A; }
+:root[data-tema="claro"] .menu a:hover { background: #FBEEDA; }
+
+/* --- Portada --- */
+:root[data-tema="claro"] .hero-aura {
+  background: radial-gradient(46rem 28rem at 74% 12%, rgba(245, 144, 47, .16), transparent 66%);
+  filter: none;
+  opacity: 1;
+}
+:root[data-tema="claro"] .hero h1 em {
+  background: none;
+  color: #C2410C;
+  filter: none;
+}
+:root[data-tema="claro"] .hero-pantalla {
+  background: #FFFFFF;
+  box-shadow: 8px 8px 0 rgba(42, 26, 74, .18);
+}
+:root[data-tema="claro"] .hero-pegatina { color: #FFFFFF; }
+
+/* --- Etiqueta de nivel: legible sobre el papel y sobre la foto --- */
+:root[data-tema="claro"] section:not(.tarjeta) > .etiqueta {
+  width: fit-content;
+  padding: .3rem .8rem;
+  color: #2A1A4A;
+  background: #FFFFFF;
+  box-shadow: 3px 3px 0 rgba(42, 26, 74, .85);
+}
+
+/* --- Tarjetas: blancas, con borde y sombra corta (sin neón) --- */
+:root[data-tema="claro"] .tarjeta {
+  background: #FFFFFF;
+  border: 2px solid #2A1A4A;
+  box-shadow: 6px 6px 0 rgba(42, 26, 74, .16);
+}
+:root[data-tema="claro"] .tarjeta > h2::after { box-shadow: none; }
+
+/* --- Bandas de sección: ritmo suave de crema y blanco --- */
+:root[data-tema="claro"] .banda::before,
+:root[data-tema="claro"] .banda-par::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .85), rgba(255, 249, 238, .55) 55%, rgba(251, 232, 203, .65));
+  box-shadow: inset 0 1px 0 #FFFFFF, inset 0 -1px 0 rgba(42, 26, 74, .07);
+}
+:root[data-tema="claro"] .banda::after { background: none; }
+
+/* --- Botones: relleno profundo y texto blanco, legible de verdad --- */
+:root[data-tema="claro"] button,
+:root[data-tema="claro"] .boton-grande {
+  color: #FFFFFF;
+  background: linear-gradient(180deg, #E8811B, #B84E05 60%);
+  box-shadow: 4px 4px 0 #2A1A4A, inset 0 1px 0 rgba(255, 255, 255, .35);
+  text-shadow: none;
+}
+:root[data-tema="claro"] .boton-whatsapp {
+  color: #FFFFFF;
+  background: linear-gradient(180deg, #1FA855, #12833F 60%);
+  box-shadow: 4px 4px 0 #2A1A4A;
+}
+:root[data-tema="claro"] button.secundario,
+:root[data-tema="claro"] #btn-acceso,
+:root[data-tema="claro"] .pestanas button:not(.activa),
+:root[data-tema="claro"] .acciones button,
+:root[data-tema="claro"] .controles button[data-accion="quitar"] {
+  color: #2A1A4A;
+  background: #FFFFFF;
+  box-shadow: 3px 3px 0 #2A1A4A;
+}
+:root[data-tema="claro"] button:disabled {
+  color: #6B5A85;
+  background: #EFE3CE;
+  box-shadow: 3px 3px 0 rgba(42, 26, 74, .3);
+}
+
+/* --- Banda naranja: el texto crema se perdía sobre el naranja --- */
+:root[data-tema="claro"] .powerup,
+:root[data-tema="claro"] .powerup h2,
+:root[data-tema="claro"] .powerup p,
+:root[data-tema="claro"] .powerup li { color: #FFFFFF; }
+
+/* --- Pie: cierre de papel, no una losa oscura --- */
+:root[data-tema="claro"] .pie {
+  background: #FFFDF6;
+  border-top: 4px solid #2A1A4A;
+  color: #2A1A4A;
+}
