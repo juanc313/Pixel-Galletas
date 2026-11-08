@@ -2,8 +2,8 @@
    La escena se dibuja entera con CSS: cielo estrellado, planetas decorativos,
    el logo como un sol con corona y cinco recortes del catálogo girando en
    círculo. Cada galleta arrastra su PROPIA estela, con la paleta de esa
-   galleta: la Monster de cuatro colores, la Areklim dorada, la Red Velvet
-   roja, la Red Monster turquesa y roja, y la Special Edition en arcoíris.
+   galleta: la Monster azul, la Areklim dorada, la Red Velvet roja, la Red
+   Monster turquesa y roja, y solo la Special Edition en arcoíris.
    La estela nace del color de la galleta, sin puntas blancas ni destellos
    sueltos, y va en una capa por debajo de todas las galletas.
    ========================================================================== */
@@ -224,23 +224,21 @@
   opacity: .96;
 }
 
-/* La Monster es de cuatro colores: su estela también. */
+/* La Monster lleva estela azul. */
 .orbita-estela.o-monster {
   --nucleo: conic-gradient(from -68deg at 50% 50%,
     transparent 0deg,
-    rgba(122, 74, 38, .45) 12deg,
-    #C08A2E 30deg,
-    #4E9B4A 44deg,
-    #D8402F 56deg,
-    #E8A93C 68deg,
+    rgba(47, 123, 255, .3) 10deg,
+    rgba(47, 123, 255, .8) 34deg,
+    #2F7BFF 56deg,
+    #2F7BFF 68deg,
     transparent 78deg);
   --brillo: conic-gradient(from -78deg at 50% 50%,
     transparent 0deg,
     transparent 4deg,
-    rgba(122, 74, 38, .22) 14deg,
-    rgba(192, 138, 46, .5) 40deg,
-    rgba(216, 64, 47, .55) 62deg,
-    rgba(232, 169, 60, .72) 74deg,
+    rgba(47, 123, 255, .2) 14deg,
+    rgba(47, 123, 255, .58) 52deg,
+    rgba(47, 123, 255, .92) 74deg,
     transparent 88deg);
 }
 
