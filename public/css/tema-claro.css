@@ -88,15 +88,21 @@
 :root[data-tema="claro"] button,
 :root[data-tema="claro"] .boton-grande {
   color: #FFFFFF;
-  background: linear-gradient(180deg, #E8811B, #B84E05 60%);
-  box-shadow: 4px 4px 0 #2A1A4A, inset 0 1px 0 rgba(255, 255, 255, .35);
+  background: #D9700F;
+  box-shadow: 4px 4px 0 #2A1A4A, inset 0 3px 0 rgba(255, 255, 255, .22);
   text-shadow: none;
 }
+:root[data-tema="claro"] button:hover:not(:disabled),
+:root[data-tema="claro"] .boton-grande:hover { background: #C05E06; }
+:root[data-tema="claro"] button.secundario:hover:not(:disabled),
+:root[data-tema="claro"] #btn-acceso:hover,
+:root[data-tema="claro"] .acciones button:hover:not(:disabled) { background: #FBEEDA; }
 :root[data-tema="claro"] .boton-whatsapp {
   color: #FFFFFF;
-  background: linear-gradient(180deg, #1FA855, #12833F 60%);
+  background: #14984A;
   box-shadow: 4px 4px 0 #2A1A4A;
 }
+:root[data-tema="claro"] .boton-whatsapp:hover { background: #0F7D3C; }
 :root[data-tema="claro"] button.secundario,
 :root[data-tema="claro"] #btn-acceso,
 :root[data-tema="claro"] .pestanas button:not(.activa),
@@ -117,6 +123,78 @@
 :root[data-tema="claro"] .powerup h2,
 :root[data-tema="claro"] .powerup p,
 :root[data-tema="claro"] .powerup li { color: #FFFFFF; }
+
+/* --- Superficies que en el tema oscuro son cristal: aquí son tarjetas de papel
+   con borde de tinta, para que ninguna quede como una losa gris. --- */
+:root[data-tema="claro"] { --caja-ini: #FFFFFF; --caja-fin: #FFFFFF;
+  --bloque-ini: #FFFFFF; --bloque-fin: #FFFFFF; }
+
+:root[data-tema="claro"] .caja,
+:root[data-tema="claro"] .paso,
+:root[data-tema="claro"] .volumen,
+:root[data-tema="claro"] .mision-tarjeta,
+:root[data-tema="claro"] .armador-combo,
+:root[data-tema="claro"] #admin-productos {
+  background: #FFFFFF;
+  border: 2px solid #2A1A4A;
+  box-shadow: 6px 6px 0 rgba(42, 26, 74, .16);
+}
+:root[data-tema="claro"] .bento > li {
+  background: #FFFFFF;
+  border: 2px solid #2A1A4A;
+  box-shadow: 6px 6px 0 rgba(42, 26, 74, .16);
+}
+:root[data-tema="claro"] .bento-cta { background: #FFF1DC !important; }
+:root[data-tema="claro"] .caja-precio { text-shadow: none; }
+:root[data-tema="claro"] .paso-num { text-shadow: 2px 2px 0 rgba(42, 26, 74, .16); }
+
+/* --- Páginas 8-bit: títulos en tinta y campos blancos con borde de tinta.
+   Antes el h1 quedaba naranja sobre crema y los campos casi sin borde. --- */
+:root[data-tema="claro"] body.pagina-8bit h1,
+:root[data-tema="claro"] body.pagina-8bit h2,
+:root[data-tema="claro"] body.pagina-8bit h3 { color: #2A1A4A; }
+
+:root[data-tema="claro"] input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+:root[data-tema="claro"] select,
+:root[data-tema="claro"] textarea {
+  background: #FFFFFF;
+  border: 2px solid #2A1A4A;
+  color: #2A1A4A;
+  box-shadow: none;
+}
+
+/* --- FAQ: acordeón blanco, con la pregunta en tinta --- */
+:root[data-tema="claro"] .faq-item {
+  background: #FFFFFF;
+  border: 2px solid #2A1A4A;
+  box-shadow: 5px 5px 0 rgba(42, 26, 74, .14);
+}
+:root[data-tema="claro"] .faq-item summary { color: #2A1A4A; }
+:root[data-tema="claro"] .faq-item summary:hover { background: #FBEEDA; }
+:root[data-tema="claro"] .faq-item[open] summary { color: #C2410C; }
+:root[data-tema="claro"] .faq-item p { color: #4A3B68; }
+:root[data-tema="claro"] .faq-item b { color: #2A1A4A; }
+
+/* --- Banda del total: tarjeta blanca, cifra naranja sin sombra oscura --- */
+:root[data-tema="claro"] .total-linea {
+  background: #FFFFFF;
+  border: 2px solid #2A1A4A;
+  box-shadow: 4px 4px 0 rgba(42, 26, 74, .18);
+}
+:root[data-tema="claro"] #carrito-total { text-shadow: none; }
+:root[data-tema="claro"] .desglose { color: #4A3B68; }
+:root[data-tema="claro"] .desglose b { color: #2A1A4A; }
+
+/* --- Etiqueta de nivel: chip blanco en cualquier contenedor, no solo en las
+   secciones de la portada (las páginas 8-bit la metían en su propia caja). --- */
+:root[data-tema="claro"] .etiqueta {
+  width: fit-content;
+  padding: .3rem .8rem;
+  color: #2A1A4A;
+  background: #FFFFFF;
+  box-shadow: 3px 3px 0 rgba(42, 26, 74, .85);
+}
+:root[data-tema="claro"] .powerup > .etiqueta { background: #FFF9EE; }
 
 /* --- Pie: cierre de papel, no una losa oscura --- */
 :root[data-tema="claro"] .pie {
