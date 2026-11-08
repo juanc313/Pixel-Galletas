@@ -1,0 +1,125 @@
+/* ===== Mosaico de contacto: las galletas orbitan el logo ==================
+   Antes era una foto con las galletas recortadas a tijera y trozos de fondo
+   pegados. Aquí la escena se dibuja entera: la rejilla en CSS, el logo en el
+   centro y los recortes del catálogo (que ya vienen sin fondo) girando en
+   círculo, cada uno con su estela de color. La Special Edition lleva estela
+   de arcoíris. Sin imágenes nuevas ni scripts.
+   ========================================================================== */
+
+.contacto-montaje {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: #150A4D;
+}
+
+/* Rejilla de la pantalla, con el mismo paso que el mosaico original. */
+.montaje-rejilla {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(245, 144, 47, .28) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(245, 144, 47, .28) 2px, transparent 2px);
+  background-size: 36px 36px;
+}
+
+/* Las imágenes de la escena no usan el tamaño de la foto de portada. */
+.contacto-montaje img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+.contacto-montaje .montaje-logo {
+  position: relative;
+  z-index: 2;
+  width: 52%;
+  height: auto;
+  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .55));
+}
+
+.montaje-orbita { position: absolute; inset: 0; z-index: 1; }
+
+/* Cada item es un anillo completo girado a su ángulo; el brazo pone la
+   galleta sobre la circunferencia, arriba. */
+.orbita-item { position: absolute; inset: 0; rotate: var(--a); }
+
+.orbita-brazo {
+  position: absolute;
+  top: 4%;
+  left: 50%;
+  translate: -50% 0;
+  width: 19%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+.orbita-brazo img {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
+}
+
+/* Halo del color de la galleta, detrás de ella. */
+.orbita-halo {
+  position: absolute;
+  inset: -16%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color) 0%, transparent 62%);
+  opacity: .42;
+  filter: blur(6px);
+}
+
+/* Estela: cometa corto hacia atrás en el sentido del giro. */
+.estela {
+  position: absolute;
+  top: 50%;
+  right: 62%;
+  translate: 0 -50%;
+  width: 240%;
+  height: 72%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 100% 50%, var(--color) 0%, transparent 70%);
+  opacity: .6;
+  filter: blur(7px);
+}
+
+/* La Special Edition deja un arcoíris. */
+.orbita-item.o-special .orbita-halo {
+  background: conic-gradient(#FF2D55, #FF9500, #FFD60A, #34C759, #0A84FF, #AF52DE, #FF2D55);
+  opacity: .38;
+  filter: blur(9px) saturate(1.2);
+}
+.orbita-item.o-special .estela {
+  background: linear-gradient(90deg,
+    transparent 0%, #FF2D55 14%, #FF9500 32%, #FFD60A 48%,
+    #34C759 64%, #0A84FF 80%, #AF52DE 94%);
+  opacity: .68;
+  filter: blur(6px) saturate(1.3);
+}
+
+/* El giro del anillo y la contra-rotación de cada galleta para que nunca
+   queden de cabeza. Con movimiento reducido quedan quietas en círculo. */
+@keyframes orbita-giro { from { rotate: 0deg; } to { rotate: 360deg; } }
+@keyframes orbita-firme { from { rotate: 0deg; } to { rotate: -360deg; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .js-anim .montaje-orbita { animation: orbita-giro 28s linear infinite; }
+  .js-anim .orbita-brazo img { animation: orbita-firme 28s linear infinite; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .estela { display: none; }
+}
+
+/* En pantallas muy pequeñas la órbita se aprieta: galletas algo menores. */
+@media (max-width: 26rem) {
+  .orbita-brazo { width: 22%; }
+  .contacto-montaje .montaje-logo { width: 48%; }
+}
