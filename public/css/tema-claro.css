@@ -324,3 +324,24 @@
 :root[data-tema="claro"] .grandes-chip:has(input:checked) { color: #FFD66B; background: #2A1A4A; box-shadow: 3px 3px 0 #F5902F; }
 :root[data-tema="claro"] .grandes .grandes-plazo { color: #0B6B5F; }
 :root[data-tema="claro"] .grandes .grandes-plazo.justo { color: #B4470A; }
+
+/* ===== Legibilidad sobre fondo claro ===================================== */
+/* El resultado del combo muestra el precio: nada de naranja pálido sobre crema. */
+:root[data-tema="claro"] .calc-resultado { color: #2A1A4A; }
+/* El pie va sobre el marco negro de la foto. */
+:root[data-tema="claro"] .diferencia-pie { color: #FFF3DC; }
+/* Cifras y títulos naranjas: un tono que se lee, sin halo que los emborrone. */
+:root[data-tema="claro"] .cifras b,
+:root[data-tema="claro"] .bento-dato b,
+:root[data-tema="claro"] .bento-cita cite,
+:root[data-tema="claro"] .mision-tarjeta h3,
+:root[data-tema="claro"] #carrito-total,
+:root[data-tema="claro"] #link-comunidad { color: #B4470A; text-shadow: none; }
+:root[data-tema="claro"].js-anim .cifras li.visible b { animation: cifra-entra .6s var(--e-rebote) backwards; }
+/* Insignias y número del nivel, sobre naranja. */
+:root[data-tema="claro"] .caja-insignia { color: #2A1A4A; }
+:root[data-tema="claro"] #nivel-actual { color: #FFFFFF; }
+/* Banda de acción: tinta oscura sobre naranja, igual que en el tema oscuro. */
+:root[data-tema="claro"] .powerup h2,
+:root[data-tema="claro"] .powerup .powerup-texto,
+:root[data-tema="claro"] .powerup .enlace-secundario { color: #2A1A4A; }

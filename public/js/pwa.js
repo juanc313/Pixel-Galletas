@@ -5,11 +5,14 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-// Invitación a instalar: discreta, se puede cerrar y no vuelve a salir. Nunca
-// aparece dentro de la app ya instalada.
+// Invitación a instalar: discreta, se puede cerrar y no vuelve a salir. Se retira
+// sola para no tapar la tienda y sale una vez por visita. Nunca aparece dentro
+// de la app ya instalada.
 (function () {
   var CLAVE = "pixel_galletas_instalar_cerrado";
+  var CLAVE_VISITA = "pixel_galletas_instalar_visto";
   var ESPERA_MS = 8000; // primero se deja ver la tienda
+  var VISIBLE_MS = 15000; // luego se quita sola
   var aviso = null;
   var pendiente = null; // el evento beforeinstallprompt, para usarlo al pulsar
 
@@ -18,6 +21,9 @@ if ("serviceWorker" in navigator) {
   }
   function descartada() {
     try { return localStorage.getItem(CLAVE) === "1"; } catch (e) { return false; }
+  }
+  function vistaEnEstaVisita() {
+    try { return sessionStorage.getItem(CLAVE_VISITA) === "1"; } catch (e) { return false; }
   }
   function recordar() {
     try { localStorage.setItem(CLAVE, "1"); } catch (e) { /* sin almacenamiento */ }
@@ -42,7 +48,7 @@ if ("serviceWorker" in navigator) {
     return b;
   }
   function mostrar(texto, conInstalar) {
-    if (aviso || descartada() || yaInstalada()) return;
+    if (aviso || descartada() || vistaEnEstaVisita() || yaInstalada()) return;
     aviso = document.createElement("aside");
     aviso.className = "instalar-aviso";
     aviso.setAttribute("aria-label", "Instalar la app");
@@ -57,6 +63,11 @@ if ("serviceWorker" in navigator) {
     }));
     aviso.append(parrafo, acciones);
     document.body.append(aviso);
+    try { sessionStorage.setItem(CLAVE_VISITA, "1"); } catch (e) { /* sin almacenamiento */ }
+    var este = aviso;
+    setTimeout(function () {
+      if (aviso === este) quitar();
+    }, VISIBLE_MS);
   }
   function instalar() {
     var evento = pendiente;

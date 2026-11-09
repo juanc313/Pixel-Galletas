@@ -2554,3 +2554,15 @@ body:has(.nivel-hud.nivel-hud-fuera) .barra-whatsapp { opacity: 0; pointer-event
 /* Las páginas sueltas traen su botón de música para cuando se abren directamente.
    Si se llega navegando desde la portada, la barra ya trae el suyo. */
 header.barra ~ main > .musica-boton-barra { display: none; }
+
+/* ===== Pulido de la revisión visual ===== */
+/* Combo personalizado: margen para lo que iba pegado al borde. */
+.video-combo ~ .subtitulo { padding-inline: var(--s-4); text-align: center; }
+main.contenedor > .musica-boton-barra { margin: var(--s-3) 0 0 var(--s-4); }
+/* En celulares pequeños la palabra PERSONALIZADO no cabía en el botón. */
+@media (max-width: 24rem) { #btn-combo-personalizado { padding-inline: var(--s-3); font-size: var(--t-md); } }
+/* Área táctil cómoda en celular. */
+@media (max-width: 40rem) {
+  .contacto-lista a, #link-comunidad, .retro-volver { display: inline-flex; align-items: center; min-height: 44px; }
+  .armador-combo select, #btn-acceso { min-height: 44px; }
+}
