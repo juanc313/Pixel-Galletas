@@ -236,3 +236,79 @@
 
 /* --- Invitación a instalar la app --- */
 :root[data-tema="claro"] .instalar-aviso { background: #FFFFFF; color: #2A1A4A; }
+
+/* ===== Arcade de día =======================================================
+   El tema claro también es un videojuego: misma energía que el oscuro, pero a
+   plena luz. Rejilla de píxeles en vez de papel liso, color propio por sabor y
+   sombras duras de 8 bits. Va al final para ganarle a las reglas de arriba.
+   ========================================================================== */
+
+/* --- Lienzo: la rejilla de pantalla vuelve, ahora sobre luz --- */
+:root[data-tema="claro"] body {
+  background-color: #FFF4D9;
+  background-image:
+    linear-gradient(rgba(42, 26, 74, .055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42, 26, 74, .055) 1px, transparent 1px),
+    radial-gradient(58rem 34rem at 88% -8rem, rgba(245, 144, 47, .3), transparent 66%),
+    radial-gradient(46rem 32rem at -8rem 58%, rgba(32, 190, 170, .2), transparent 64%);
+  background-size: 32px 32px, 32px 32px, auto, auto;
+  background-repeat: repeat, repeat, no-repeat, no-repeat;
+}
+:root[data-tema="claro"] .banda::before,
+:root[data-tema="claro"] .banda-par::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(255, 244, 217, .25));
+}
+
+/* --- Título: tinta sólida con sombra de píxel. El glitch usaba mezcla "screen",
+   que sobre fondo claro lavaba las letras; aquí solo aparece mientras se anima. --- */
+:root[data-tema="claro"].js-anim .hero h1::before,
+:root[data-tema="claro"].js-anim .hero h1::after { mix-blend-mode: multiply; opacity: 0; }
+:root[data-tema="claro"] .hero h1 { color: #2A1A4A; text-shadow: 4px 4px 0 #FFB14A; }
+:root[data-tema="claro"] .hero h1 em { color: #D11F55; text-shadow: 4px 4px 0 #2A1A4A; }
+:root[data-tema="claro"] h2 { text-shadow: 3px 3px 0 #FFC46B; }
+:root[data-tema="claro"] h3 { text-shadow: 2px 2px 0 #FFD79A; }
+:root[data-tema="claro"] .hero-pantalla { box-shadow: 10px 10px 0 #2A1A4A; }
+
+/* --- Tarjetas de sabor: cada una con el color de su galleta, como un cartucho --- */
+:root[data-tema="claro"] #lista-productos .producto {
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--sabor, #F5902F) 48%, #FFFFFF) 0,
+    color-mix(in srgb, var(--sabor, #F5902F) 48%, #FFFFFF) var(--zona),
+    #FFFFFF var(--zona));
+  border: 3px solid #2A1A4A;
+  box-shadow: 7px 7px 0 color-mix(in srgb, var(--sabor, #F5902F) 72%, #2A1A4A);
+}
+:root[data-tema="claro"] #lista-productos .producto[data-sabor="special-edition"] {
+  --sabor: #C2410C;
+  background:
+    linear-gradient(to bottom, transparent var(--zona), #FFFFFF var(--zona)),
+    linear-gradient(90deg, #FF9DB0, #FFD675, #8CE8A3, #8CCBFF, #CFAEFF);
+}
+:root[data-tema="claro"] #lista-productos .producto strong { color: #2A1A4A; }
+:root[data-tema="claro"] #lista-productos .producto small:not(.stock) { color: #4A3B68; }
+:root[data-tema="claro"] .producto > b {
+  color: #2A1A4A;
+  text-shadow: 2px 2px 0 color-mix(in srgb, var(--sabor, #F5902F) 45%, #FFFFFF);
+}
+
+/* --- Filtros: controles de menú, no otro botón naranja --- */
+:root[data-tema="claro"] .filtro {
+  color: #2A1A4A;
+  background: #FFFFFF;
+  box-shadow: 3px 3px 0 #2A1A4A;
+}
+:root[data-tema="claro"] .filtro:hover:not(:disabled) { color: #2A1A4A; background: #FFE3B3; }
+:root[data-tema="claro"] .filtro.activo,
+:root[data-tema="claro"] .filtro.activo:hover:not(:disabled) {
+  color: #FFD66B;
+  background: #2A1A4A;
+  box-shadow: 3px 3px 0 #F5902F;
+}
+
+/* --- Cajas y combos: sombra de color alterna y la destacada encendida --- */
+:root[data-tema="claro"] .cajas > .caja:nth-child(3n + 1) { box-shadow: 7px 7px 0 #2F8CFF; }
+:root[data-tema="claro"] .cajas > .caja:nth-child(3n + 2) { box-shadow: 7px 7px 0 #F5902F; }
+:root[data-tema="claro"] .cajas > .caja:nth-child(3n) { box-shadow: 7px 7px 0 #E02A33; }
+:root[data-tema="claro"] .caja-destacada { background: #FFEFC9; }
+:root[data-tema="claro"] .caja-para { color: #B4470A; }
+:root[data-tema="claro"] .caja-precio { color: #2A1A4A; text-shadow: 3px 3px 0 #FFC46B; }
