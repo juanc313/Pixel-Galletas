@@ -2520,3 +2520,33 @@ body:has(.nivel-hud.nivel-hud-fuera) .barra-whatsapp { opacity: 0; pointer-event
   -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 0 16px rgba(255, 154, 61, .55));
 }
+
+/* ===== Pedidos grandes: cotización por WhatsApp ===== */
+.grandes { display: grid; gap: var(--s-6); margin-top: var(--s-6); padding: var(--s-6);
+  background: linear-gradient(135deg, rgba(47, 140, 255, .16), rgba(168, 85, 247, .16));
+  box-shadow: var(--sombra-dura); scroll-margin-top: 8rem; }
+@media (min-width: 56rem) { .grandes { grid-template-columns: 1fr 1fr; align-items: start; } }
+.grandes p { margin: 0; color: var(--suave); }
+.grandes .grandes-etiqueta { margin-bottom: var(--s-2); font-family: var(--titulos); font-size: var(--t-xs);
+  letter-spacing: .08em; color: var(--diamante); }
+.grandes h3 { margin-bottom: var(--s-3); }
+.grandes-datos { display: grid; gap: var(--s-2); margin: var(--s-4) 0; padding: 0; list-style: none; }
+.grandes-datos li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); align-items: center; gap: var(--s-3);
+  padding: var(--s-2) var(--s-3); background: var(--tinta); box-shadow: var(--sombra-lista); }
+.grandes-datos b { font-family: var(--titulos); font-size: var(--t-md); color: var(--crema); }
+.grandes-datos span { font-size: var(--t-sm); color: var(--suave); }
+.grandes .grandes-nota { font-size: var(--t-xs); }
+#form-grandes { gap: var(--s-4); }
+.grandes-ocasion { min-width: 0; margin: 0; padding: 0; border: 0; }
+.grandes-ocasion legend { margin-bottom: var(--s-2); padding: 0; font-weight: 500; }
+.grandes-chips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.grandes-chip { position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: var(--s-2) var(--s-3);
+  font-size: var(--t-sm); color: var(--crema); background: var(--tinta); box-shadow: var(--sombra-lista); cursor: pointer; }
+.grandes-chip input { position: absolute; width: 1px; height: 1px; padding: 0; opacity: 0; box-shadow: none; }
+.grandes-chip:has(input:checked) { color: var(--noche); background: var(--masa); }
+.grandes-chip:has(input:focus-visible) { outline: 2px solid var(--diamante); outline-offset: 2px; }
+.grandes-campos { display: grid; gap: var(--s-4); }
+@media (min-width: 30rem) { .grandes-campos { grid-template-columns: 1fr 1fr; } }
+.grandes .grandes-plazo { min-height: 1.3rem; font-size: var(--t-sm); color: var(--diamante); }
+.grandes .grandes-plazo.justo { color: var(--masa); }
+#form-grandes .boton-grande { justify-self: stretch; }

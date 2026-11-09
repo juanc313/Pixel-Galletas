@@ -871,3 +871,41 @@ test("Navegación: sin cabecera se carga la página entera y el menú lleva a la
   assert.equal(destinoDeAncla("/combo-personalizado.html", "#armador", {}), null, "un ancla que existe se queda");
   assert.equal(destinoDeAncla("/", "#pedido", null), null);
 });
+
+// ---------- Pedidos grandes ----------
+
+test("Pedidos grandes: el aviso depende de la cantidad", async () => {
+  const { diasDeAviso } = await import("../public/js/pedidos-grandes.js");
+  assert.deepEqual([24, 50, 51, 100, 101].map(diasDeAviso), [4, 4, 8, 8, null]);
+});
+
+test("Pedidos grandes: una fecha muy cercana avisa, pero no impide escribir", async () => {
+  const { avisoDePlazo } = await import("../public/js/pedidos-grandes.js");
+  const hoy = new Date(2026, 10, 9, 22, 30);
+  assert.equal(avisoDePlazo(50, "2026-11-13", hoy).justo, false, "justo en los 4 días");
+  assert.equal(avisoDePlazo(50, "2026-11-12", hoy).justo, true);
+  assert.equal(avisoDePlazo(100, "2026-11-17", hoy).justo, false, "justo en los 8 días");
+  assert.equal(avisoDePlazo(100, "2026-11-16", hoy).justo, true);
+  assert.match(avisoDePlazo(150, "2026-11-10", hoy).texto, /acordamos el plazo/);
+  assert.equal(avisoDePlazo(10, "2026-11-20", hoy).texto, "", "bajo el mínimo no promete plazos");
+});
+
+test("Pedidos grandes: el mensaje lleva los datos en orden y ningún precio", async () => {
+  const { mensajeCotizacion } = await import("../public/js/pedidos-grandes.js");
+  const datos = { cantidad: 100, ocasion: "Torneo", fecha: "2026-12-15", zona: "Cúcuta", nombre: "Andrés" };
+  const texto = mensajeCotizacion(datos);
+  for (const dato of ["Soy Andrés", "100 galletas", "Torneo", "15 de diciembre de 2026", "Cúcuta"]) assert.ok(texto.includes(dato), dato);
+  assert.ok(!texto.includes("$"));
+  assert.ok(!texto.includes("fecha está cerca"));
+  assert.ok(mensajeCotizacion(datos, true).includes("fecha está cerca"));
+});
+
+test("Carrito: a 100 de un sabor se detiene y no pasa del tope", async () => {
+  const { Carrito } = await cargar();
+  const c = new Carrito();
+  const galleta = { id: 7, nombre: "Pixel Monster", precio: 7000, cantidadDisponible: null };
+  c.agregar(galleta);
+  c.cambiarCantidad(7, 100);
+  assert.equal(c.agregar(galleta), false);
+  assert.equal(c.cantidadTotal, 100);
+});

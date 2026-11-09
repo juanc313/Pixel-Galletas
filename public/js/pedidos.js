@@ -609,6 +609,10 @@ class PedidoVista {
     // vez de descubrirlo al confirmar el pedido.
     escucharGlobal("pedidos:agregar-al-carrito", "agregar-al-carrito", (e) => {
       if (this.carrito.agregar(e.detail)) return;
+      if (this.carrito.items.find((i) => i.producto_id === e.detail?.id)?.cantidad >= 100) {
+        this.#avisarTopeSabor(e.detail?.nombre);
+        return;
+      }
       this.mensaje(
         e.detail?.cantidadDisponible === 0
           ? `${e.detail?.nombre} está agotado por ahora.`
@@ -618,6 +622,15 @@ class PedidoVista {
     escucharGlobal("pedidos:prefill-sesion", "sesion-cambio", () => this.prefill());
     this.prefill();
     this.pintarCarrito();
+  }
+
+  // 100 es el tope por sabor del carrito: más que un error, es un pedido grande.
+  #avisarTopeSabor(nombre) {
+    this.mensaje(`Llegaste a 100 de ${nombre}, el máximo por sabor en el carrito. `);
+    const enlace = document.createElement("a");
+    enlace.href = "#pedidos-grandes";
+    enlace.textContent = "Cotiza un pedido grande";
+    this.$("mensaje-pedido").append(enlace);
   }
 
   mensaje(texto, esError = true) {
@@ -678,6 +691,14 @@ class PedidoVista {
         quedan.className = "quedan";
         quedan.textContent = `quedan ${item.disponible}`;
         li.append(quedan);
+      } else if (item.cantidad >= 100) {
+        mas.disabled = true;
+        mas.title = `100 es el máximo de ${item.nombre} en el carrito`;
+        const grande = document.createElement("a");
+        grande.className = "quedan";
+        grande.href = "#pedidos-grandes";
+        grande.textContent = "¿Más de 100? Pedido grande";
+        li.append(grande);
       }
       lista.append(li);
     }

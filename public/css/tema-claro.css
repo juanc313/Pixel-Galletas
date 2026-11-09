@@ -312,3 +312,15 @@
 :root[data-tema="claro"] .caja-destacada { background: #FFEFC9; }
 :root[data-tema="claro"] .caja-para { color: #B4470A; }
 :root[data-tema="claro"] .caja-precio { color: #2A1A4A; text-shadow: 3px 3px 0 #FFC46B; }
+
+/* --- Pedidos grandes --- */
+:root[data-tema="claro"] .grandes { background: #FFFFFF; border: 3px solid #2A1A4A; box-shadow: 7px 7px 0 #2F8CFF; }
+:root[data-tema="claro"] .grandes p { color: #4A3B68; }
+:root[data-tema="claro"] .grandes .grandes-etiqueta { color: #B4470A; }
+:root[data-tema="claro"] .grandes-datos li { background: #FFF4D9; box-shadow: 3px 3px 0 #2A1A4A; }
+:root[data-tema="claro"] .grandes-datos b { color: #2A1A4A; }
+:root[data-tema="claro"] .grandes-datos span { color: #4A3B68; }
+:root[data-tema="claro"] .grandes-chip { color: #2A1A4A; background: #FFFFFF; box-shadow: 3px 3px 0 #2A1A4A; }
+:root[data-tema="claro"] .grandes-chip:has(input:checked) { color: #FFD66B; background: #2A1A4A; box-shadow: 3px 3px 0 #F5902F; }
+:root[data-tema="claro"] .grandes .grandes-plazo { color: #0B6B5F; }
+:root[data-tema="claro"] .grandes .grandes-plazo.justo { color: #B4470A; }
