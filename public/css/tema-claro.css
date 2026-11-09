@@ -345,3 +345,11 @@
 :root[data-tema="claro"] .powerup h2,
 :root[data-tema="claro"] .powerup .powerup-texto,
 :root[data-tema="claro"] .powerup .enlace-secundario { color: #2A1A4A; }
+
+/* --- Menú desplegable del celular: panel claro para la tinta oscura --- */
+@media (max-width: 62rem) {
+  :root[data-tema="claro"] .menu { background: #FFFDF8; box-shadow: 0 18px 30px rgba(42, 26, 74, .22); }
+  :root[data-tema="claro"] .menu a { border-bottom-color: rgba(42, 26, 74, .14); }
+  :root[data-tema="claro"] .menu a.actual { color: #B4470A; border-bottom-color: #B4470A; }
+}
+:root[data-tema="claro"] .musica-estado { color: #B4470A; }
