@@ -751,7 +751,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .bento-cita cite { font-style: normal; font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .12em; text-transform: uppercase; color: var(--masa); }
 .bento-cta { justify-content: center; align-items: flex-start; background: linear-gradient(165deg, rgba(245, 144, 47, .18), rgba(12, 5, 53, .8)) !important; }
 .bento-cta b { font-family: var(--titulos); font-size: var(--t-lg); color: var(--crema); }
-.bento-cta a { color: var(--masa); font-weight: 600; text-underline-offset: .3em; }
+.bento-cta a { color: var(--masa); font-weight: 700; text-underline-offset: .3em; }
 .bento-cta a:hover { color: var(--masa-clara); }
 
 /* El bento a dos columnas no cabe en un móvil: medido a 360 px, la celda queda
@@ -1434,13 +1434,15 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 15; pointer-event
     gap: 0; padding: var(--s-2) var(--s-4) var(--s-5); background: rgba(12, 5, 53, .98);
     border-bottom: 4px solid var(--masa); box-shadow: 0 18px 30px rgba(0, 0, 0, .5);
     transform-origin: top; }
-  .js-anim .menu { opacity: 0; transform: scaleY(.85) translateY(-.5rem); pointer-events: none;
+  .js-menu .menu { opacity: 0; transform: scaleY(.85) translateY(-.5rem); pointer-events: none;
     transition: opacity var(--d-micro) ease, transform var(--d-micro) ease; }
-  .js-anim .menu.abierto { opacity: 1; transform: none; pointer-events: auto; }
-  /* Sin JS (o si efectos.js falla) el panel no puede depender de una clase:
-     se coloca en flujo normal para que el contenido no quede tapado. */
-  html:not(.js-anim) .menu { position: static; opacity: 1; transform: none; pointer-events: auto;
+  .js-menu .menu.abierto { opacity: 1; transform: none; pointer-events: auto; }
+  /* Sin JS no hay botón que lo abra: el panel se coloca en flujo normal, a la
+     vista, y la hamburguesa se oculta. js-menu lo pone arranque.js y no depende
+     de que carguen los efectos. */
+  html:not(.js-menu) .menu { position: static; opacity: 1; transform: none; pointer-events: auto;
     border-bottom: 0; box-shadow: none; padding: var(--s-2) 0 0; }
+  html:not(.js-menu) .btn-menu { display: none; }
   .menu a, .menu button { padding: var(--s-3) var(--s-3); border-bottom: 1px solid rgba(255, 243, 220, .12);
     text-align: left; font-size: var(--t-md); }
   .menu a.carrito-icono { margin: var(--s-2) 0 0; justify-content: center; border-bottom: 0; }
@@ -2439,3 +2441,18 @@ main > section { position: relative; }
 .mensual .mensual-recordar:hover { background: var(--masa); color: var(--noche); transform: translateY(-2px); }
 .mensual .mensual-recordar:focus-visible { outline: 2px solid var(--diamante); outline-offset: 3px; }
 .mensual .mensual-recordatorio { min-height: 1.1rem; font-size: var(--t-xs); color: var(--diamante); }
+
+/* ===== Invitación a instalar la app (la crea pwa.js) ===== */
+/* Abajo a la izquierda y angosta: no tapa los botones de compra. */
+.instalar-aviso { position: fixed; left: var(--s-4); bottom: calc(var(--s-4) + env(safe-area-inset-bottom, 0px)); z-index: 31;
+  display: grid; gap: var(--s-1); width: min(19rem, calc(100vw - var(--s-4) - 5rem)); padding: var(--s-2) var(--s-3);
+  background: var(--pantalla); color: var(--crema); box-shadow: var(--px-3-masa); font-size: var(--t-sm); line-height: 1.35; }
+.instalar-aviso p { margin: 0; }
+.instalar-acciones { display: flex; align-items: center; gap: var(--s-3); }
+.instalar-aviso .instalar-si, .instalar-aviso .instalar-no { min-height: 2.5rem; padding: var(--s-1) var(--s-3); font-size: var(--t-sm); }
+.instalar-aviso .instalar-no { background: none; box-shadow: none; color: inherit; text-decoration: underline; text-underline-offset: .2em; }
+body:has(.mini-carrito.activo) .instalar-aviso { bottom: 5.5rem; }
+body:has(.menu.abierto) .instalar-aviso { visibility: hidden; }
+
+/* ===== Página sin conexión ===== */
+.offline-logo { display: block; width: 7rem; height: auto; margin: 0 auto var(--s-4); }

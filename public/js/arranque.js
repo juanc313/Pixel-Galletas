@@ -8,8 +8,52 @@ try {
   if (localStorage.getItem("pixel_galletas_tema") === "claro") document.documentElement.dataset.tema = "claro";
 } catch (e) { /* sin almacenamiento: queda el oscuro */ }
 
+// La barra del navegador acompaña al tema elegido (el meta ya está en el <head>).
+function pintarColorDeBarra() {
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = document.documentElement.dataset.tema === "claro" ? "#FDF4E3" : "#15094F";
+}
+pintarColorDeBarra();
+
 // Activa las animaciones solo si efectos.js se carga (si falla, todo se ve).
 document.documentElement.classList.add("js-anim");
+
+// Menú móvil: vive aquí y no en efectos.js para que la hamburguesa funcione
+// aunque los efectos tarden o no lleguen (en red lenta el panel se quedaba
+// abierto y el botón no hacía nada). js-menu es lo que el CSS mira para plegar
+// el panel. Se delega en document porque este script corre antes de que exista
+// el menú, y DOMContentLoaded esperaría a que bajaran los módulos.
+document.documentElement.classList.add("js-menu");
+(function () {
+  function abrirMenu(abrir) {
+    var boton = document.getElementById("btn-menu");
+    var menu = document.getElementById("menu-principal");
+    if (!boton || !menu) return;
+    menu.classList.toggle("abierto", abrir);
+    boton.setAttribute("aria-expanded", String(abrir));
+  }
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest) return;
+    if (e.target.closest("#btn-menu")) {
+      abrirMenu(document.getElementById("btn-menu").getAttribute("aria-expanded") !== "true");
+    } else if (e.target.closest("#menu-principal a")) {
+      // Al tocar un enlace se cierra el panel (si no, tapa la sección destino).
+      abrirMenu(false);
+    }
+  });
+  // Escape cierra el panel y devuelve el foco al botón.
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape" || !e.target.closest || !e.target.closest("#menu-principal")) return;
+    abrirMenu(false);
+    document.getElementById("btn-menu").focus();
+  });
+  // Al pasar a escritorio el panel vuelve a estar siempre visible.
+  try {
+    matchMedia("(min-width: 62.01rem)").addEventListener("change", function (e) {
+      if (e.matches) abrirMenu(false);
+    });
+  } catch (e) { /* navegador antiguo: el panel se cierra con el botón */ }
+})();
 
 // La sorpresa manda: si la entrada le toca verse en esta sesión (una vez por
 // sesión y nunca con movimiento reducido —misma regla que usa efectos.js—), el
@@ -67,6 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (claro) document.documentElement.dataset.tema = "claro";
       else delete document.documentElement.dataset.tema;
       try { localStorage.setItem("pixel_galletas_tema", claro ? "claro" : "oscuro"); } catch (e) { /* sin almacenamiento */ }
+      pintarColorDeBarra();
       pintar();
     });
   });

@@ -707,28 +707,26 @@ try {
   }
 
   // ===== Cinta de sabores: se rellena con los nombres y se desplaza =====
-  const pista = document.querySelector(".cinta-pista");
-  if (pista) {
-    fetch("/api/productos")
-      .then((r) => (r.ok ? r.json() : []))
-      .then((productos) => {
-        const nombres = (Array.isArray(productos) ? productos : [])
-          .map((p) => p.nombre_sabor ?? p.nombre)
-          .filter(Boolean);
-        if (!nombres.length) return;
-        // Los nombres vienen de la API: se pintan como texto (textContent), nunca como HTML.
-        const nodo = (tag, texto, attrs = {}) => {
-          const el = document.createElement(tag);
-          el.textContent = texto;
-          for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-          return el;
-        };
-        const items = nombres.flatMap((n) => [nodo("span", n), nodo("b", "◆", { "aria-hidden": "true" })]);
-        // dos copias: el desplazamiento -50% queda sin costura
-        pista.replaceChildren(...items, ...items.map((el) => el.cloneNode(true)));
-      })
-      .catch(() => {});
-  }
+  // Usa el catálogo que ya pidió productos.js: pedirlo otra vez aquí bajaba lo
+  // mismo dos veces en cada visita. Si el catálogo falla, la cinta queda vacía.
+  const pintarCinta = (productos) => {
+    const pista = document.querySelector(".cinta-pista");
+    if (!pista) return;
+    const nombres = productos.map((p) => p.nombre).filter(Boolean);
+    if (!nombres.length) return;
+    // Los nombres vienen de la API: se pintan como texto (textContent), nunca como HTML.
+    const nodo = (tag, texto, attrs = {}) => {
+      const el = document.createElement(tag);
+      el.textContent = texto;
+      for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+      return el;
+    };
+    const items = nombres.flatMap((n) => [nodo("span", n), nodo("b", "◆", { "aria-hidden": "true" })]);
+    // dos copias: el desplazamiento -50% queda sin costura
+    pista.replaceChildren(...items, ...items.map((el) => el.cloneNode(true)));
+  };
+  if (window.__catalogoPixel) pintarCinta(window.__catalogoPixel);
+  window.addEventListener("catalogo-cargado", (e) => pintarCinta(e.detail));
 
   // ===== Barra de progreso de lectura y estado de la barra superior =====
   const barra = document.querySelector(".barra");
@@ -766,35 +764,6 @@ try {
       { rootMargin: "-40% 0px -55% 0px" }
     );
     secciones.forEach((s) => obsSecciones.observe(s));
-  }
-
-  // ===== Menú móvil: botón hamburguesa que abre y cierra el panel =====
-  // En pantallas angostas el CSS convierte .menu en un panel desplegable;
-  // aquí se controla la clase .abierto y el aria-expanded del botón.
-  const btnMenu = document.getElementById("btn-menu");
-  const menu = document.getElementById("menu-principal");
-  if (btnMenu && menu) {
-    const abrirMenu = (abrir) => {
-      menu.classList.toggle("abierto", abrir);
-      btnMenu.setAttribute("aria-expanded", String(abrir));
-    };
-    btnMenu.addEventListener("click", () =>
-      abrirMenu(btnMenu.getAttribute("aria-expanded") !== "true")
-    );
-    // Al tocar un enlace se cierra el panel (sino, tapa la sección destino).
-    menu.addEventListener("click", (e) => {
-      if (e.target.closest("a")) abrirMenu(false);
-    });
-    // Escape cierra el panel y devuelve el foco al botón (buena práctica de teclado).
-    menu.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return;
-      abrirMenu(false);
-      btnMenu.focus();
-    });
-    // Al pasar a escritorio el panel vuelve a estar siempre visible.
-    matchMedia("(min-width: 62.01rem)").addEventListener("change", (e) => {
-      if (e.matches) abrirMenu(false);
-    });
   }
 
   // ===== Tarjetas del catálogo con inclinación 3D =====

@@ -7,3 +7,9 @@ try {
     document.documentElement.dataset.tema = "claro";
   }
 } catch (e) { /* sin almacenamiento: queda el tema oscuro */ }
+
+// La barra del navegador acompaña al tema (el meta ya está en el <head>).
+(function () {
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta && document.documentElement.dataset.tema === "claro") meta.content = "#FDF4E3";
+})();

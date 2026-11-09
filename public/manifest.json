@@ -13,7 +13,34 @@
   "icons": [
     { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/img/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/img/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
     { "src": "/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Galletas",
+      "short_name": "Galletas",
+      "description": "Ver el catálogo de sabores",
+      "url": "/?directo=1#catalogo",
+      "icons": [{ "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Combos",
+      "short_name": "Combos",
+      "description": "Ver las cajas y los combos",
+      "url": "/?directo=1#combos",
+      "icons": [{ "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Estado de mi pedido",
+      "short_name": "Mi pedido",
+      "description": "Revisar en qué va tu pedido",
+      "url": "/seguimiento-pedido.html",
+      "icons": [{ "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ],
+  "screenshots": [
+    { "src": "/img/captura-movil.webp", "sizes": "780x1688", "type": "image/webp", "form_factor": "narrow", "label": "Portada de Pixel Galletas en el celular" },
+    { "src": "/img/captura-escritorio.webp", "sizes": "1280x800", "type": "image/webp", "form_factor": "wide", "label": "Portada de Pixel Galletas en el computador" }
   ]
 }

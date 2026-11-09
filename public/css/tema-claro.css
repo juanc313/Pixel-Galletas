@@ -233,3 +233,6 @@
   border-top: 4px solid #2A1A4A;
   color: #2A1A4A;
 }
+
+/* --- Invitación a instalar la app --- */
+:root[data-tema="claro"] .instalar-aviso { background: #FFFFFF; color: #2A1A4A; }
