@@ -142,6 +142,8 @@ test("Carrito al iniciar sesión: une el carrito local con el de la cuenta suman
 
 test("Carrito: recargar la página con la misma cuenta no duplica el carrito", async () => {
   const { Carrito, Sesion } = await cargar();
+  // Sin la marca de la cuenta de otra prueba: su carrito no se heredaría.
+  localStorage.removeItem(Carrito.CLAVE_UNION);
   Sesion.guardar("token-de-prueba", { id: 5, nombre: "Ana" });
   // El servidor guarda lo que el cliente envió: así simulamos la cuenta entre cargas.
   let servidor = [];
@@ -277,7 +279,7 @@ test("Combos: el carrito cobra el combo a precio fijo y sin descuento por volume
     { producto_id: 2, nombre: "Galleta A", precio: 5000, cantidad: 2 },
   ];
   assert.equal(carrito.combo.nombre, "Combo Pixel x1");
-  assert.equal(carrito.total, 26000);
+  assert.equal(carrito.total, 22000);
   assert.equal(carrito.descuento.valor, 0);
 });
 
@@ -289,7 +291,7 @@ test("Combos: 3 Special + 3 normales cobran el combo x3, no tres x1", async () =
     { producto_id: 2, nombre: "Galleta A", precio: 5000, cantidad: 3 },
   ];
   assert.equal(carrito.combo.nombre, "Combo Pixel x3");
-  assert.equal(carrito.subtotal, 52000);
+  assert.equal(carrito.subtotal, 46000);
 });
 
 test("Combos: sin el número exacto de normales no se aplica el combo", async () => {
@@ -307,10 +309,10 @@ test("Calculadora: calcula el combo, el ahorro y el precio por galleta; sin mezc
   const x2 = calcularCombo(2, 2, 4849, 5000);
   assert.equal(x2.valido, true);
   assert.equal(x2.nombre, "Combo Pixel x2");
-  assert.equal(x2.precio, 36000);
+  assert.equal(x2.precio, 31000);
   assert.equal(x2.sueltas, 2 * 4849 + 2 * 5000);
-  assert.equal(x2.ahorro, x2.sueltas - 36000);
-  assert.equal(x2.porGalleta, Math.round(36000 / 4));
+  assert.equal(x2.ahorro, x2.sueltas - 31000);
+  assert.equal(x2.porGalleta, Math.round(31000 / 4));
   const suelta = calcularCombo(1, 1, 4849, 5000);
   assert.equal(suelta.valido, false);
   assert.equal(suelta.sueltas, 4849 + 5000);
@@ -337,7 +339,7 @@ test("Armador: cada galleta normal entra con el sabor que el cliente eligió", a
   carrito.agregar(redVelvet);
   assert.equal(carrito.items.length, 3);
   assert.equal(comboDe(carrito.items).nombre, "Combo Pixel x1");
-  assert.equal(carrito.total, 26000);
+  assert.equal(carrito.total, 22000);
 });
 
 // ---------- Domicilio ----------
@@ -732,6 +734,26 @@ test("Sesión vencida: el carrito se queda, y al volver a entrar lo guardado es 
   limpiarCuenta();
 });
 
+test("Sesión vencida: otra cuenta en el mismo navegador no hereda ese carrito", async () => {
+  const { Carrito, Sesion } = await cargar();
+  limpiarCuenta();
+  Sesion.vencer();
+  memoria[Carrito.CLAVE_UNION] = "31";
+  memoria["pixel_galletas_carrito"] = JSON.stringify([lineaGuardada()]);
+  Sesion.guardar("token-otra", { id: 40, nombre: "Beto" });
+  const enviado = [];
+  const c = new Carrito({
+    hayCuenta: () => true,
+    obtener: async () => [lineaGuardada({ producto_id: 9, nombre: "Pixel Klim", cantidad: 1 })],
+    guardar: async (items) => { enviado.push(items.map((i) => [i.producto_id, i.cantidad])); },
+  });
+  await c.unirConCuenta();
+  assert.deepEqual(c.paraApi(), [{ producto_id: 9, cantidad: 1 }]);
+  assert.deepEqual(enviado, [[[9, 1]]]);
+  assert.equal(memoria[Carrito.CLAVE_UNION], "40");
+  limpiarCuenta();
+});
+
 test("Cerrar sesión a propósito sí saca el carrito, aunque antes hubiera vencido otra", async () => {
   const { Carrito, Sesion } = await cargar();
   limpiarCuenta();
@@ -803,16 +825,16 @@ test("textoPedido: un combo se nombra y el total cuadra con lo cobrado", async (
   const texto = textoPedido(new Pedido({
     id: 8, cliente_nombre: "Ana", cliente_telefono: "3001112233", estado: "pendiente",
     creado_en: new Date().toISOString(), direccion: "Calle 5", notas: null,
-    entrega: "cucuta", envio: "5000.00", total: "31000.00", descuento: "0.00",
+    entrega: "cucuta", envio: "5000.00", total: "27000.00", descuento: "0.00",
     detalles: [
       { nombre_sabor: "Pixel Special Edition", precio_unitario: "9000.00", cantidad: 1 },
       { nombre_sabor: "Pixel Monster", precio_unitario: "6000.00", cantidad: 2 },
     ],
   }));
-  assert.ok(texto.includes(`*Combo Pixel x1:* ${pesos(26000)}`));
+  assert.ok(texto.includes(`*Combo Pixel x1:* ${pesos(22000)}`));
   assert.ok(texto.includes("• 2 × Pixel Monster\n"), "las galletas del combo no llevan precio suelto");
   assert.ok(!texto.includes(pesos(12000)));
-  assert.ok(texto.includes(`*Total:* ${pesos(31000)}`));
+  assert.ok(texto.includes(`*Total:* ${pesos(27000)}`));
 });
 
 test("Reconciliar: las líneas que llegan de la cuenta también pasan por el catálogo", async () => {

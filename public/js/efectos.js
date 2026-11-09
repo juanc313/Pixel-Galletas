@@ -1018,7 +1018,7 @@ try {
   }
 
   // ===== Cifras de la portada: cuentan desde 0 al entrar en pantalla =====
-  // Cada <li> lleva su número en <b> (7, $6.000, 3, 100%). Al hacerse visible,
+  // Cada <li> lleva su número en <b> (7, $7.000, 3, 100%). Al hacerse visible,
   // el número sube desde 0 hasta su valor real, conservando el prefijo ($),
   // el sufijo (%) y el separador de miles del texto original. Con movimiento
   // reducido se queda el valor final tal cual está en el HTML.

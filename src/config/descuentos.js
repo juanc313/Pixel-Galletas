@@ -18,9 +18,9 @@ const DESCUENTOS = [
 // elige los sabores). El servidor cobra el precio del combo solo cuando el
 // pedido trae exactamente esas galletas.
 const COMBOS = [
-  { nombre: "Combo Pixel x1", especiales: 1, normales: 2, precio: 26000 },
-  { nombre: "Combo Pixel x2", especiales: 2, normales: 2, precio: 36000 },
-  { nombre: "Combo Pixel x3", especiales: 3, normales: 3, precio: 52000 },
+  { nombre: "Combo Pixel x1", especiales: 1, normales: 2, precio: 22000 },
+  { nombre: "Combo Pixel x2", especiales: 2, normales: 2, precio: 31000 },
+  { nombre: "Combo Pixel x3", especiales: 3, normales: 3, precio: 46000 },
 ];
 
 // Descuento que le toca a un pedido de `unidades` galletas con `subtotal` pesos.

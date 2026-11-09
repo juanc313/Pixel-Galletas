@@ -30,9 +30,9 @@ export const DESCUENTOS = [
 // exactamente con uno; prueba de paridad en tests.
 export const NOMBRE_SPECIAL = "Pixel Special Edition";
 export const COMBOS = [
-  { nombre: "Combo Pixel x1", especiales: 1, normales: 2, precio: 26000 },
-  { nombre: "Combo Pixel x2", especiales: 2, normales: 2, precio: 36000 },
-  { nombre: "Combo Pixel x3", especiales: 3, normales: 3, precio: 52000 },
+  { nombre: "Combo Pixel x1", especiales: 1, normales: 2, precio: 22000 },
+  { nombre: "Combo Pixel x2", especiales: 2, normales: 2, precio: 31000 },
+  { nombre: "Combo Pixel x3", especiales: 3, normales: 3, precio: 46000 },
 ];
 
 // items: [{ nombre, precio, cantidad }]. Devuelve el combo que aplica o null.
@@ -254,7 +254,10 @@ export class Carrito {
       // Después el servidor manda: sumar en cada carga duplicaba el carrito.
       // Excepto si quedaron cambios sin confirmar (falló el guardado, se cerró
       // la página o venció la sesión): ahí manda lo que el cliente ve aquí.
-      const yaUnida = localStorage.getItem(Carrito.CLAVE_UNION) === idCuenta;
+      const cuentaPrevia = localStorage.getItem(Carrito.CLAVE_UNION);
+      const yaUnida = cuentaPrevia === idCuenta;
+      // Lo guardado era de otra cuenta (su sesión venció sin cerrarla): no se hereda.
+      if (cuentaPrevia !== null && !yaUnida) this.items = [];
       const pendiente = localStorage.getItem(Carrito.CLAVE_PENDIENTE) !== null;
       if (yaUnida && !pendiente) {
         this.items = delServidor;

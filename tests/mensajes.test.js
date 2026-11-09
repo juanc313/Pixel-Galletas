@@ -18,7 +18,9 @@ test("Domicilio: todo texto con la tarifa base avisa del cargo por distancia", (
   const cargos = Object.values(RANGOS_DISTANCIA).map((r) => pesos(r.costo));
   let revisadas = 0;
   for (const pagina of ["public/index.html", "public/preguntas-gamer.html"]) {
-    for (const linea of lineas(leer(pagina)).filter((l) => bases.some((b) => l.includes(b)))) {
+    // $7.000 también es el precio de la galleta: esas líneas no hablan del domicilio.
+    const esDePrecio = (l) => /priceRange|precio desde|× \$/.test(l);
+    for (const linea of lineas(leer(pagina)).filter((l) => !esDePrecio(l) && bases.some((b) => l.includes(b)))) {
       revisadas++;
       assert.match(linea, /distancia/i, `${pagina}: sin distancia: ${linea.slice(0, 90)}`);
       // La opción del formulario se apoya en el selector de distancia de al

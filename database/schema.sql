@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS productos (
   id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
   nombre_sabor  VARCHAR(100) NOT NULL,
   descripcion   TEXT NULL,
-  precio_venta  DECIMAL(10,2) NOT NULL DEFAULT 6000.00,
+  precio_venta  DECIMAL(10,2) NOT NULL DEFAULT 7000.00,
   -- Inventario del obrador. Es opcional a propósito:
   --   NULL  = sin control de inventario (se hornea bajo pedido)
   --   0     = agotado (el sitio no deja pedirlo)
@@ -88,14 +88,14 @@ CREATE TABLE IF NOT EXISTS pedido_detalles (
 ) ENGINE=InnoDB;
 
 -- Los seis sabores de la marca con su precio de venta real
--- (Modelo DYME: $6.000 por galleta; la Special Edition es de $7.500).
+-- ($7.000 por galleta; la Special Edition es de $9.500).
 INSERT IGNORE INTO productos (nombre_sabor, descripcion, precio_venta) VALUES
-  ('Pixel Monster',      'Galleta con cobertura de chocolate blanco y toque azul monstruo.', 6000.00),
-  ('Pixel Red Velvet',   'Galleta red velvet con cobertura de chocolate blanco.',            6000.00),
-  ('Pixel Chocolate',    'Galleta de chocolate con chips de cacao y galleta Biscolata.',     6000.00),
-  ('Pixel AreKlim',      'Fusión de arequipe con leche Klim, M&M y chocolate blanco.',       6000.00),
-  ('Pixel Red Monster',  'Fusión de red velvet y monster en una galleta bicolor.',          6000.00),
-  ('Pixel Special Edition', 'Edición especial: todos nuestros sabores combinados.',          7500.00);
+  ('Pixel Monster',      'Galleta con cobertura de chocolate blanco y toque azul monstruo.', 7000.00),
+  ('Pixel Red Velvet',   'Galleta red velvet con cobertura de chocolate blanco.',            7000.00),
+  ('Pixel Chocolate',    'Galleta de chocolate con chips de cacao y galleta Biscolata.',     7000.00),
+  ('Pixel AreKlim',      'Fusión de arequipe con leche Klim, M&M y chocolate blanco.',       7000.00),
+  ('Pixel Red Monster',  'Fusión de red velvet y monster en una galleta bicolor.',          7000.00),
+  ('Pixel Special Edition', 'Edición especial: todos nuestros sabores combinados.',          9500.00);
 
 -- Las bases de datos creadas con la versión anterior traían $4.500 como
 -- precio de referencia; se corrigen solo si siguen con ese valor exacto.

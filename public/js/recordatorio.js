@@ -35,7 +35,7 @@ if (boton) {
       `DTSTART:${fechaLocal(inicio)}`,
       `DTEND:${fechaLocal(fin)}`,
       `SUMMARY:${escapar("Pedir mi caja mensual Pixel Galletas")}`,
-      `DESCRIPTION:${escapar("Elige sabores y confirma por WhatsApp al 313 783 9935. Entrega gratis en Cúcuta y alrededores.")}`,
+      `DESCRIPTION:${escapar("Elige sabores y confirma por WhatsApp al 313 783 9935. La Caja x12 lleva entrega gratis en Cúcuta y alrededores.")}`,
       `URL:${location.origin}`,
       "END:VEVENT",
       "END:VCALENDAR",
