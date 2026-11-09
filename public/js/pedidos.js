@@ -1068,9 +1068,9 @@ export class CalculadoraCombos {
     if (!ctx) return;
     // La tipografía de la marca ya está cargada por CSS; si el navegador no
     // deja pedirla aquí, el lienzo cae a la monoespaciada del sistema.
-    try { await document.fonts.load('700 56px Silkscreen'); } catch { /* fuente del sistema */ }
-    const titulo = '700 56px Silkscreen, monospace';
-    const chico = '700 30px Silkscreen, monospace';
+    try { await Promise.all([document.fonts.load('700 56px Silkscreen'), document.fonts.load('700 56px "Cifras Pixel"', "0")]); } catch { /* fuente del sistema */ }
+    const titulo = '700 56px "Cifras Pixel", Silkscreen, monospace';
+    const chico = '700 30px "Cifras Pixel", Silkscreen, monospace';
 
     // Fondo índigo con la rejilla pixel de la marca.
     ctx.fillStyle = "#15094F";
@@ -1096,11 +1096,11 @@ export class CalculadoraCombos {
     ctx.fillText("DE LA PANTALLA A TU PALADAR", ancho / 2, 245);
 
     ctx.fillStyle = "#F5902F";
-    ctx.font = '700 44px Silkscreen, monospace';
+    ctx.font = '700 44px "Cifras Pixel", Silkscreen, monospace';
     ctx.fillText(combo.nombre.toUpperCase(), ancho / 2, 390);
 
     ctx.fillStyle = "#F5B41F";
-    ctx.font = '700 104px Silkscreen, monospace';
+    ctx.font = '700 104px "Cifras Pixel", Silkscreen, monospace';
     ctx.fillText(pesos(combo.precio), ancho / 2, 540);
     ctx.font = chico;
     ctx.fillStyle = "rgba(255, 243, 220, .7)";
@@ -1111,7 +1111,7 @@ export class CalculadoraCombos {
     sabores.forEach((sabor) => conteo.set(sabor, (conteo.get(sabor) || 0) + 1));
     const lineas = [`${especiales} × ${NOMBRE_SPECIAL}`, ...[...conteo].map(([sabor, n]) => `${n} × ${sabor}`)];
     ctx.textAlign = "left";
-    ctx.font = '700 32px Silkscreen, monospace';
+    ctx.font = '700 32px "Cifras Pixel", Silkscreen, monospace';
     let y = 720;
     lineas.slice(0, 8).forEach((linea) => {
       ctx.fillStyle = "#FFF3DC";
@@ -1124,7 +1124,7 @@ export class CalculadoraCombos {
     ctx.fillStyle = "#FFF3DC";
     ctx.fillText("PÍDELO POR WHATSAPP", ancho / 2, 1140);
     ctx.fillStyle = "#F5902F";
-    ctx.font = '700 48px Silkscreen, monospace';
+    ctx.font = '700 48px "Cifras Pixel", Silkscreen, monospace';
     ctx.fillText("313 783 9935", ancho / 2, 1200);
     ctx.font = chico;
     ctx.fillStyle = "rgba(255, 243, 220, .6)";

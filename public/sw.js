@@ -17,6 +17,7 @@ const BASICOS = [
   "/fonts/rubik-400-latin.woff2",
   "/fonts/silkscreen-400-latin.woff2",
   "/fonts/silkscreen-700-latin.woff2",
+  "/fonts/jersey15-cifras.woff2",
   "/img/logo-256.webp",
   "/img/favicon.png",
   "/manifest.json",

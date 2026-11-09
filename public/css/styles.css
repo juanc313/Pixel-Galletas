@@ -158,7 +158,7 @@
      Pixelify Sans era exagerada con los números (glifos torcidos y advance
      desigual). Silkscreen es un pixel-font legible para letras y cifras, con
      figuras tabulares limpias; se usa en 400/700. */
-  --titulos: "Silkscreen", "Courier New", monospace;
+  --titulos: "Cifras Pixel", "Silkscreen", "Courier New", monospace; /* números aparte: fuentes.css */
   --texto: "Rubik", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --ancho: 72rem;
   /* Margen lateral de página: .contenido lo usa como padding y la cinta
@@ -2550,3 +2550,7 @@ body:has(.nivel-hud.nivel-hud-fuera) .barra-whatsapp { opacity: 0; pointer-event
 .grandes .grandes-plazo { min-height: 1.3rem; font-size: var(--t-sm); color: var(--diamante); }
 .grandes .grandes-plazo.justo { color: var(--masa); }
 #form-grandes .boton-grande { justify-self: stretch; }
+
+/* Las páginas sueltas traen su botón de música para cuando se abren directamente.
+   Si se llega navegando desde la portada, la barra ya trae el suyo. */
+header.barra ~ main > .musica-boton-barra { display: none; }

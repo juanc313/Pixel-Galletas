@@ -88,3 +88,14 @@ test("Despliegue: la herramienta de fotos no se publica y nadie la enlaza", () =
     assert.ok(!texto.includes("_dyme") && !texto.includes("_fotos-dyme"), `${archivo} referencia la herramienta interna`);
   }
 });
+
+test("Títulos: los números usan una letra propia y el archivo existe", () => {
+  assert.match(leer("public/css/styles.css"), /--titulos: "Cifras Pixel", "Silkscreen"/);
+  const regla = leer("public/css/fuentes.css").match(/@font-face \{[^}]*Cifras Pixel[^}]*\}/)[0];
+  assert.match(regla, /unicode-range: U\+30-39;/, "solo los números: las letras siguen en Silkscreen");
+  assert.ok(fs.existsSync(path.join(raiz, "public/fonts/jersey15-cifras.woff2")));
+});
+
+test("Música: con la barra presente se oculta el botón propio de la página", () => {
+  assert.match(leer("public/css/styles.css"), /header\.barra ~ main > \.musica-boton-barra \{ display: none; \}/);
+});
