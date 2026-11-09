@@ -2435,3 +2435,60 @@ main > section { position: relative; }
 .mensual .mensual-recordar:hover { background: var(--masa); color: var(--noche); transform: translateY(-2px); }
 .mensual .mensual-recordar:focus-visible { outline: 2px solid var(--diamante); outline-offset: 3px; }
 .mensual .mensual-recordatorio { min-height: 1.1rem; font-size: var(--t-xs); color: var(--diamante); }
+
+/* ===== Pulido: nada tapa lo que se vende ===================================
+   Las piezas flotantes ceden el sitio al catálogo y al pedido, y en el tema
+   oscuro cada sabor recupera su color. Va al final para ganarle a lo anterior.
+   ========================================================================== */
+
+/* --- HUD de niveles: sube al hueco libre de la cabecera. Abajo se sentaba
+   encima de los precios de las tarjetas. Donde no cabe, lo resuelve el menú. --- */
+@media (max-width: 63.98rem) { .nivel-hud { display: none; } }
+@media (min-width: 64rem) {
+  .nivel-hud,
+  body:has(.mini-carrito.activo) .nivel-hud { top: 1rem; bottom: auto; }
+  .nivel-hud.nivel-hud-fuera { translate: -50% -1rem; }
+  .nivel-mapa { top: calc(100% + var(--s-3)); bottom: auto; }
+}
+
+/* --- WhatsApp fijo: solo el icono mientras el texto no quepa en el margen, y
+   fuera de la vista en «Tu pedido», donde se ponía sobre el formulario. --- */
+@media (max-width: 110rem) {
+  .barra-whatsapp span { display: none; }
+  .barra-whatsapp { padding: var(--s-3); }
+}
+.barra-whatsapp { transition: transform var(--d-micro) ease, filter var(--d-micro) ease, opacity var(--d-ui) ease; }
+body:has(.nivel-hud.nivel-hud-fuera) .barra-whatsapp { opacity: 0; pointer-events: none; }
+
+/* --- Tema oscuro: el catálogo sube por encima de las líneas de pantalla (z 16)
+   y sigue bajo la barra (z 20). La galleta tiene que verse nítida y apetitosa. --- */
+:root:not([data-tema="claro"]) #catalogo { position: relative; z-index: 17; }
+
+/* --- Tema oscuro: cada tarjeta con el color de su sabor y brillo de neón --- */
+:root:not([data-tema="claro"]) #lista-productos .producto {
+  background:
+    radial-gradient(ellipse calc(var(--sprite) * .6) .8rem at 50% calc(var(--zona) - 1.2rem), rgba(0, 0, 0, .4), transparent 72%),
+    linear-gradient(to bottom,
+      color-mix(in srgb, var(--sabor, #F5902F) 46%, var(--pantalla-alta)) 0,
+      color-mix(in srgb, var(--sabor, #F5902F) 46%, var(--pantalla-alta)) var(--zona),
+      color-mix(in srgb, var(--sabor, #F5902F) 20%, var(--pantalla)) var(--zona));
+}
+:root:not([data-tema="claro"]) #lista-productos .producto:not(:hover):not(:focus-within) {
+  box-shadow: var(--sombra-tarjeta),
+    0 0 0 2px color-mix(in srgb, var(--sabor, #F5902F) 60%, transparent),
+    0 0 26px color-mix(in srgb, var(--sabor, #F5902F) 32%, transparent);
+}
+/* La Special es gris de base: en su lugar, el arcoíris que la distingue. */
+:root:not([data-tema="claro"]) #lista-productos .producto[data-sabor="special-edition"] {
+  --sabor: #A855F7;
+  background:
+    linear-gradient(to bottom, transparent var(--zona), color-mix(in srgb, #A855F7 20%, var(--pantalla)) var(--zona)),
+    linear-gradient(90deg, #A33A55, #B07B24, #2F8F5B, #2F6FB5, #7A45B8);
+}
+
+/* --- Tema oscuro: «FAVORITOS» es la palabra que más brilla del título --- */
+:root:not([data-tema="claro"]) .hero h1 em {
+  background: linear-gradient(92deg, #FFD966, #FF9A3D 48%, #FF6B9E);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 16px rgba(255, 154, 61, .55));
+}
