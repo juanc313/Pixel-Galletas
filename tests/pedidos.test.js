@@ -636,3 +636,216 @@ test("Carrito: no se puede llevar más de lo que queda, ni agregar un agotado", 
   assert.equal(c.agregar({ id: 2, nombre: "Quedan 3", precio: 6000, cantidadDisponible: 0 }), false);
   assert.equal(c.agregar({ id: 0, nombre: "Otro", precio: 6000, cantidadDisponible: null }), true);
 });
+
+// ---------- Compra: carrito al día, sesión vencida y guardado fallido ----------
+
+const limpiarCuenta = () => {
+  for (const k of ["pixel_galletas_carrito_union", "pixel_galletas_carrito_pendiente", "pixel_galletas_sesion", "pixel_galletas_sesion_vencida"]) delete memoria[k];
+};
+const lineaGuardada = (extra = {}) => ({ producto_id: 7, nombre: "Pixel Monster", precio: 6000, disponible: null, cantidad: 2, ...extra });
+const catalogo = (extra = {}) => [{ id: 7, nombre: "Pixel Monster", precio: 6000, cantidadDisponible: null, ...extra }];
+
+test("Reconciliar: el carrito guardado toma nombre, precio y existencias del catálogo y lo cuenta", async () => {
+  const { Carrito, pesos } = await cargar();
+  memoria["pixel_galletas_carrito"] = JSON.stringify([lineaGuardada({ cantidad: 5 })]);
+  const c = new Carrito();
+  const cambios = c.reconciliar(catalogo({ nombre: "Pixel Monster XL", precio: 7000, cantidadDisponible: 3 }));
+  assert.deepEqual(c.items, [{ producto_id: 7, nombre: "Pixel Monster XL", precio: 7000, disponible: 3, cantidad: 3 }]);
+  assert.equal(cambios.length, 3);
+  assert.ok(cambios.some((t) => t.includes(pesos(7000))), "se dice el precio nuevo");
+  assert.equal(new Carrito().subtotal, 21000, "y queda guardado");
+  assert.deepEqual(new Carrito().reconciliar(catalogo({ nombre: "Pixel Monster XL", precio: 7000, cantidadDisponible: 3 })), [], "sin cambios no hay nada que contar");
+});
+
+test("Reconciliar: lo agotado o retirado sale del carrito, y un catálogo vacío no borra nada", async () => {
+  const { Carrito } = await cargar();
+  memoria["pixel_galletas_carrito"] = JSON.stringify([lineaGuardada(), lineaGuardada({ producto_id: 9, nombre: "Pixel Klim" })]);
+  const c = new Carrito();
+  assert.deepEqual(c.reconciliar([]), []);
+  assert.equal(c.items.length, 2, "un fallo del servidor no vacía el carrito");
+  const cambios = c.reconciliar(catalogo({ cantidadDisponible: 0 }));
+  assert.equal(c.items.length, 0);
+  assert.equal(cambios.length, 2);
+  assert.ok(cambios[0].includes("agotó"));
+  assert.ok(cambios[1].includes("Pixel Klim"));
+});
+
+test("Carrito: una línea en 0 no sobrevive, porque bloquearía todo el pedido", async () => {
+  const { Carrito } = await cargar();
+  memoria["pixel_galletas_carrito"] = JSON.stringify([lineaGuardada({ cantidad: 0 }), lineaGuardada({ producto_id: 9 })]);
+  assert.deepEqual(new Carrito().paraApi(), [{ producto_id: 9, cantidad: 2 }], "las guardadas en 0 no se recuperan");
+
+  memoria["pixel_galletas_carrito"] = JSON.stringify([lineaGuardada({ disponible: 0 })]);
+  const agotada = new Carrito();
+  agotada.cambiarCantidad(7, 1);
+  assert.equal(agotada.items.length, 0, "con el sabor agotado, la línea sale en vez de quedar en 0");
+
+  memoria["pixel_galletas_carrito"] = JSON.stringify([lineaGuardada()]);
+  const repetida = new Carrito();
+  assert.equal(repetida.agregar({ id: 7, nombre: "Pixel Monster", precio: 6000, cantidadDisponible: 0 }), false);
+  assert.equal(repetida.items.length, 0, "agregar un sabor recién agotado también lo saca");
+});
+
+test("Combo: faltaPara dice qué sabor no alcanza, contando lo que ya hay en el carrito", async () => {
+  const { Carrito } = await cargar();
+  const c = new Carrito();
+  const special = { id: 1, nombre: "Pixel Special Edition", precio: 9000, cantidadDisponible: 3 };
+  const normal = { id: 2, nombre: "Pixel Monster", precio: 6000, cantidadDisponible: null };
+  c.agregar(special);
+  c.agregar(special);
+  assert.equal(c.faltaPara([{ producto: special, cantidad: 1 }, { producto: normal, cantidad: 2 }]), null);
+  assert.deepEqual(c.faltaPara([{ producto: normal, cantidad: 2 }, { producto: special, cantidad: 2 }]), { nombre: "Pixel Special Edition", caben: 1 });
+  assert.equal(c.cuantasCaben({ id: 3, cantidadDisponible: 0 }), 0);
+});
+
+test("Sesión vencida: el carrito se queda, y al volver a entrar lo guardado es lo que el cliente ve", async () => {
+  const { Carrito, Sesion, ApiClient, CarritoServicio } = await cargar();
+  limpiarCuenta();
+  Sesion.guardar("token-viejo", { id: 31, nombre: "Ana" });
+  memoria[Carrito.CLAVE_UNION] = "31";
+  memoria["pixel_galletas_carrito"] = JSON.stringify([lineaGuardada()]);
+  respuesta = { ok: false, status: 401, cuerpo: { error: "Token inválido o expirado" } };
+  const c = new Carrito(new CarritoServicio(new ApiClient()));
+  await c.unirConCuenta(); // el servidor rechaza el token vencido
+  assert.equal(Sesion.obtener(), null);
+  assert.equal(Sesion.vencio(), true);
+
+  // Próxima carga, ya sin sesión: es donde antes desaparecía.
+  const recarga = new Carrito(new CarritoServicio(new ApiClient()));
+  await recarga.unirConCuenta();
+  assert.equal(recarga.cantidadTotal, 2);
+  recarga.agregar({ id: 9, nombre: "Pixel Klim", precio: 6000 });
+
+  // Vuelve a entrar con la misma cuenta: lo agregado mientras tanto no se pierde.
+  Sesion.guardar("token-nuevo", { id: 31, nombre: "Ana" });
+  const enviado = [];
+  const cuenta = {
+    hayCuenta: () => true,
+    obtener: async () => [lineaGuardada()],
+    guardar: async (items) => { enviado.push(items.map((i) => [i.producto_id, i.cantidad])); },
+  };
+  const deVuelta = new Carrito(cuenta);
+  await deVuelta.unirConCuenta();
+  assert.deepEqual(deVuelta.paraApi(), [{ producto_id: 7, cantidad: 2 }, { producto_id: 9, cantidad: 1 }]);
+  assert.deepEqual(enviado, [[[7, 2], [9, 1]]]);
+  assert.equal(Sesion.vencio(), false);
+  limpiarCuenta();
+});
+
+test("Cerrar sesión a propósito sí saca el carrito, aunque antes hubiera vencido otra", async () => {
+  const { Carrito, Sesion } = await cargar();
+  limpiarCuenta();
+  Sesion.vencer();
+  Sesion.guardar("token", { id: 32, nombre: "Ana" });
+  memoria[Carrito.CLAVE_UNION] = "32";
+  memoria["pixel_galletas_carrito"] = JSON.stringify([lineaGuardada()]);
+  Sesion.limpiar();
+  const c = new Carrito({ hayCuenta: () => false });
+  await c.unirConCuenta();
+  assert.equal(c.cantidadTotal, 0);
+  limpiarCuenta();
+});
+
+test("Guardado fallido: la próxima carga conserva el carrito del navegador y lo reenvía", async () => {
+  const { Carrito, Sesion } = await cargar();
+  // Los guardados diferidos de pruebas anteriores tocan la misma marca: se dejan terminar.
+  await new Promise((r) => setTimeout(r, 450));
+  limpiarCuenta();
+  Sesion.guardar("token", { id: 33, nombre: "Ana" });
+  memoria[Carrito.CLAVE_UNION] = "33";
+  memoria["pixel_galletas_carrito"] = JSON.stringify([lineaGuardada()]);
+  let falla = true;
+  let servidor = [lineaGuardada()];
+  const cuenta = {
+    hayCuenta: () => true,
+    obtener: async () => servidor,
+    guardar: async (items) => {
+      if (falla) throw new Error("sin red");
+      servidor = items.map((i) => ({ ...i }));
+      return servidor;
+    },
+  };
+  const c = new Carrito(cuenta);
+  c.cambiarCantidad(7, 5);
+  await new Promise((r) => setTimeout(r, 500)); // falla el guardado en la cuenta
+
+  falla = false;
+  const recarga = new Carrito(cuenta);
+  await recarga.unirConCuenta();
+  assert.equal(recarga.cantidadTotal, 5, "no vuelve el carrito viejo del servidor");
+  assert.equal(servidor[0].cantidad, 5, "y la cuenta se pone al día");
+
+  servidor = [lineaGuardada({ cantidad: 1 })];
+  const otraCarga = new Carrito(cuenta);
+  await otraCarga.unirConCuenta();
+  assert.equal(otraCarga.cantidadTotal, 1, "sin nada pendiente, el servidor vuelve a mandar");
+  limpiarCuenta();
+});
+
+test("Unir carritos: se adopta lo que el servidor aceptó, ya recortado al inventario", async () => {
+  const { Carrito, Sesion, CarritoServicio } = await cargar();
+  limpiarCuenta();
+  Sesion.guardar("token", { id: 34, nombre: "Ana" });
+  memoria["pixel_galletas_carrito"] = JSON.stringify([lineaGuardada({ cantidad: 9 })]);
+  const api = {
+    get: async () => [],
+    put: async () => [{ producto_id: 7, nombre_sabor: "Pixel Monster", precio_venta: "6000.00", cantidad_disponible: 4, cantidad: 4 }],
+  };
+  const c = new Carrito(new CarritoServicio(api));
+  await c.unirConCuenta();
+  assert.deepEqual(c.items, [{ producto_id: 7, nombre: "Pixel Monster", precio: 6000, disponible: 4, cantidad: 4 }]);
+  assert.equal(new Carrito().cantidadTotal, 4);
+  limpiarCuenta();
+});
+
+test("textoPedido: un combo se nombra y el total cuadra con lo cobrado", async () => {
+  const { Pedido, textoPedido, pesos } = await cargar();
+  const texto = textoPedido(new Pedido({
+    id: 8, cliente_nombre: "Ana", cliente_telefono: "3001112233", estado: "pendiente",
+    creado_en: new Date().toISOString(), direccion: "Calle 5", notas: null,
+    entrega: "cucuta", envio: "5000.00", total: "31000.00", descuento: "0.00",
+    detalles: [
+      { nombre_sabor: "Pixel Special Edition", precio_unitario: "9000.00", cantidad: 1 },
+      { nombre_sabor: "Pixel Monster", precio_unitario: "6000.00", cantidad: 2 },
+    ],
+  }));
+  assert.ok(texto.includes(`*Combo Pixel x1:* ${pesos(26000)}`));
+  assert.ok(texto.includes("• 2 × Pixel Monster\n"), "las galletas del combo no llevan precio suelto");
+  assert.ok(!texto.includes(pesos(12000)));
+  assert.ok(texto.includes(`*Total:* ${pesos(31000)}`));
+});
+
+test("Reconciliar: las líneas que llegan de la cuenta también pasan por el catálogo", async () => {
+  const { Carrito, Sesion } = await cargar();
+  limpiarCuenta();
+  Sesion.guardar("token", { id: 35, nombre: "Ana" });
+  memoria[Carrito.CLAVE_UNION] = "35";
+  const enviado = [];
+  const cuenta = {
+    hayCuenta: () => true,
+    obtener: async () => [lineaGuardada({ cantidad: 5 }), lineaGuardada({ producto_id: 9, nombre: "Pixel Klim", disponible: 0 })],
+    guardar: async (items) => { enviado.push(items.map((i) => [i.producto_id, i.cantidad])); },
+  };
+  const c = new Carrito(cuenta);
+  await c.unirConCuenta();
+  assert.equal(c.items.length, 2, "el servidor manda el carrito tal como lo tiene");
+  const cambios = c.reconciliar([...catalogo({ cantidadDisponible: 3 }), { id: 9, nombre: "Pixel Klim", precio: 6000, cantidadDisponible: 0 }]);
+  assert.deepEqual(c.paraApi(), [{ producto_id: 7, cantidad: 3 }]);
+  assert.equal(cambios.length, 2);
+  await new Promise((r) => setTimeout(r, 500));
+  assert.deepEqual(enviado, [[[7, 3]]], "y la cuenta se entera del ajuste");
+  limpiarCuenta();
+});
+
+test("Navegación: sin cabecera se carga la página entera y el menú lleva a la portada", async () => {
+  const { cabeEnCascara, destinoDeAncla } = await import("../public/js/navegacion.js");
+  const doc = (...piezas) => ({ querySelector: (s) => (piezas.includes(s) ? {} : null) });
+  const portada = doc("header.barra", "footer.pie", "#mini-carrito");
+  const combo = doc();
+  assert.equal(cabeEnCascara(portada, combo), false, "la portada no se pinta sobre una página sin cabecera");
+  assert.equal(cabeEnCascara(combo, portada), true, "el combo sí se pinta dentro de la portada");
+  assert.equal(cabeEnCascara(portada, portada), true);
+  assert.equal(destinoDeAncla("/combo-personalizado.html", "#pedido", null), "/#pedido");
+  assert.equal(destinoDeAncla("/combo-personalizado.html", "#armador", {}), null, "un ancla que existe se queda");
+  assert.equal(destinoDeAncla("/", "#pedido", null), null);
+});

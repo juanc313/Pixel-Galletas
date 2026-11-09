@@ -1,9 +1,21 @@
 // Guarda y recupera la sesión (token + datos del usuario) en el navegador.
 export class Sesion {
   static #CLAVE = "pixel_galletas_sesion";
+  static #CLAVE_VENCIDA = "pixel_galletas_sesion_vencida";
   static guardar(token, usuario) { localStorage.setItem(Sesion.#CLAVE, JSON.stringify({ token, usuario })); }
   static obtener() { try { return JSON.parse(localStorage.getItem(Sesion.#CLAVE)); } catch { return null; } }
-  static limpiar() { localStorage.removeItem(Sesion.#CLAVE); }
+  static limpiar() {
+    localStorage.removeItem(Sesion.#CLAVE);
+    localStorage.removeItem(Sesion.#CLAVE_VENCIDA);
+  }
+  // Vencer no es salir: la marca avisa al carrito de que el cliente no se fue
+  // por su cuenta, para que no borre lo que tenía.
+  static vencer() {
+    Sesion.limpiar();
+    try { localStorage.setItem(Sesion.#CLAVE_VENCIDA, "1"); } catch { /* modo privado */ }
+  }
+  static vencio() { try { return localStorage.getItem(Sesion.#CLAVE_VENCIDA) !== null; } catch { return false; } }
+  static olvidarVencida() { try { localStorage.removeItem(Sesion.#CLAVE_VENCIDA); } catch { /* modo privado */ } }
 }
 
 // Único lugar del frontend que habla con la API.
@@ -25,7 +37,7 @@ export class ApiClient {
     }
     const datos = await respuesta.json().catch(() => ({}));
     if (!respuesta.ok) {
-      if (respuesta.status === 401 && sesion) Sesion.limpiar(); // sesión vencida
+      if (respuesta.status === 401 && sesion) Sesion.vencer(); // sesión vencida
       throw new Error(datos.error || "Ocurrió un error inesperado.");
     }
     return datos;

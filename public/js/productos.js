@@ -149,8 +149,14 @@ class ProductosVista {
   }
 
   async cargar() {
-    try { this.productos = await this.servicio.listar(); this.pintar(); }
-    catch (error) { this.mensaje(error.message); }
+    window.__catalogoPixel = null; // el de la página anterior ya no vale
+    try {
+      this.productos = await this.servicio.listar();
+      this.pintar();
+      // El carrito guardado se pone al día con esto (ver pedidos.js).
+      window.__catalogoPixel = this.productos;
+      window.dispatchEvent(new CustomEvent("catalogo-cargado", { detail: this.productos }));
+    } catch (error) { this.mensaje(error.message); }
   }
 
   // Sello de familia de una tarjeta: una placa con el sigilo de su familia.

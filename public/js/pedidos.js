@@ -129,6 +129,14 @@ export function descuentoPara(unidades, subtotal) {
 
 // Habla con /api/carrito para guardar el carrito en la cuenta del cliente.
 // Sin sesión no hace nada: el carrito queda solo en el navegador.
+const lineasDeCuenta = (filas) => filas.map((f) => ({
+  producto_id: f.producto_id,
+  nombre: f.nombre_sabor,
+  precio: Number(f.precio_venta),
+  disponible: f.cantidad_disponible,
+  cantidad: f.cantidad,
+}));
+
 export class CarritoServicio {
   constructor(api) { this.api = api; }
 
@@ -136,20 +144,16 @@ export class CarritoServicio {
 
   // Devuelve las líneas con la forma que usa Carrito.
   async obtener() {
-    const filas = await this.api.get("/carrito");
-    return filas.map((f) => ({
-      producto_id: f.producto_id,
-      nombre: f.nombre_sabor,
-      precio: Number(f.precio_venta),
-      disponible: f.cantidad_disponible,
-      cantidad: f.cantidad,
-    }));
+    return lineasDeCuenta(await this.api.get("/carrito"));
   }
 
-  guardar(items) {
-    return this.api.put("/carrito", {
+  // El servidor responde con lo que de verdad guardó (ya recortado al
+  // inventario): se devuelve con la misma forma para poder adoptarlo.
+  async guardar(items) {
+    const filas = await this.api.put("/carrito", {
       items: items.map((i) => ({ producto_id: i.producto_id, cantidad: i.cantidad })),
     });
+    return Array.isArray(filas) ? lineasDeCuenta(filas) : null;
   }
 }
 
@@ -158,8 +162,11 @@ export class CarritoServicio {
 export class Carrito {
   static CLAVE = "pixel_galletas_carrito";
   static CLAVE_UNION = "pixel_galletas_carrito_union";
+  // Marca que hay cambios en el navegador que la cuenta todavía no confirmó.
+  static CLAVE_PENDIENTE = "pixel_galletas_carrito_pendiente";
 
   #temporizador = null;
+  #version = 0; // sube con cada cambio: una respuesta vieja no pisa uno nuevo
 
   // servicioCuenta (opcional) sabe si hay sesión y habla con /api/carrito.
   constructor(servicioCuenta = null) {
@@ -176,7 +183,8 @@ export class Carrito {
   #recuperar() {
     try {
       const datos = JSON.parse(localStorage.getItem(Carrito.CLAVE));
-      return Array.isArray(datos) ? datos : [];
+      // Una línea en 0 (de versiones anteriores) bloquearía el pedido entero.
+      return Array.isArray(datos) ? datos.filter((i) => i && i.cantidad >= 1) : [];
     } catch {
       return [];
     }
@@ -188,8 +196,18 @@ export class Carrito {
     } catch {
       /* sin localStorage el carrito solo vive en memoria */
     }
+    this.#version += 1;
+    if (this.servicioCuenta?.hayCuenta() || Sesion.vencio()) this.#marcarPendiente();
     this.#programarEnvio();
     window.dispatchEvent(new Event("carrito-cambio"));
+  }
+
+  #marcarPendiente() {
+    try { localStorage.setItem(Carrito.CLAVE_PENDIENTE, "1"); } catch { /* modo privado */ }
+  }
+
+  #olvidarPendiente() {
+    try { localStorage.removeItem(Carrito.CLAVE_PENDIENTE); } catch { /* modo privado */ }
   }
 
   // Con sesión, el carrito también se guarda en la cuenta. Se agrupan los cambios
@@ -202,10 +220,13 @@ export class Carrito {
 
   async #enviar() {
     if (!this.servicioCuenta?.hayCuenta()) return;
+    const version = this.#version;
     try {
       await this.servicioCuenta.guardar(this.items);
+      if (version === this.#version) this.#olvidarPendiente();
     } catch {
-      /* sin conexión: el carrito local sigue guardado y se reintenta en el próximo cambio */
+      /* sin conexión: el carrito local sigue guardado, queda marcado como
+         pendiente y se reintenta en el próximo cambio o en la próxima carga */
     }
   }
 
@@ -213,11 +234,14 @@ export class Carrito {
   // se suman por sabor y el servidor recorta al inventario disponible.
   async unirConCuenta() {
     if (!this.servicioCuenta?.hayCuenta()) {
+      // Si la sesión venció, el cliente no pidió salir: su carrito se queda.
+      if (Sesion.vencio()) return;
       // Al cerrar sesión, el carrito que era de la cuenta sale del navegador:
       // si no, el siguiente cliente que entre lo heredaría.
       if (localStorage.getItem(Carrito.CLAVE_UNION) !== null) {
         this.items = [];
         localStorage.removeItem(Carrito.CLAVE_UNION);
+        this.#olvidarPendiente();
         try { localStorage.setItem(Carrito.CLAVE, "[]"); } catch { /* modo privado */ }
         window.dispatchEvent(new Event("carrito-cambio"));
       }
@@ -228,22 +252,38 @@ export class Carrito {
       const delServidor = await this.servicioCuenta.obtener();
       // Solo se suma la primera vez que esta cuenta entra en este navegador.
       // Después el servidor manda: sumar en cada carga duplicaba el carrito.
+      // Excepto si quedaron cambios sin confirmar (falló el guardado, se cerró
+      // la página o venció la sesión): ahí manda lo que el cliente ve aquí.
       const yaUnida = localStorage.getItem(Carrito.CLAVE_UNION) === idCuenta;
-      if (yaUnida) {
+      const pendiente = localStorage.getItem(Carrito.CLAVE_PENDIENTE) !== null;
+      if (yaUnida && !pendiente) {
         this.items = delServidor;
       } else {
-        const union = new Map();
-        for (const item of [...delServidor, ...this.items]) {
-          const previo = union.get(item.producto_id);
-          if (previo) previo.cantidad += item.cantidad;
-          else union.set(item.producto_id, { ...item });
+        if (!yaUnida) {
+          const union = new Map();
+          for (const item of [...delServidor, ...this.items]) {
+            const previo = union.get(item.producto_id);
+            if (previo) previo.cantidad += item.cantidad;
+            else union.set(item.producto_id, { ...item });
+          }
+          this.items = [...union.values()];
         }
-        this.items = [...union.values()];
         try {
           localStorage.setItem(Carrito.CLAVE_UNION, idCuenta);
         } catch { /* modo privado: se volverá a unir en la próxima carga */ }
-        await this.servicioCuenta.guardar(this.items);
+        // Si este guardado falla, la marca evita que la próxima carga lo pierda.
+        this.#marcarPendiente();
+        const version = this.#version;
+        const antes = this.cantidadTotal;
+        const confirmadas = await this.servicioCuenta.guardar(this.items);
+        if (version === this.#version) {
+          // El servidor recorta al inventario: se muestra lo que aceptó.
+          if (Array.isArray(confirmadas)) this.items = confirmadas;
+          this.#olvidarPendiente();
+          if (this.cantidadTotal < antes) window.dispatchEvent(new Event("carrito-recortado"));
+        }
       }
+      Sesion.olvidarVencida();
       try {
         localStorage.setItem(Carrito.CLAVE, JSON.stringify(this.items));
       } catch { /* modo privado: solo en memoria */ }
@@ -267,8 +307,11 @@ export class Carrito {
   // que la vista se lo pueda decir al cliente en el momento.
   agregar(producto) {
     const disponible = producto.cantidadDisponible ?? null;
-    if (disponible === 0) return false; // agotado: no entra al carrito
     const existente = this.items.find((i) => i.producto_id === producto.id);
+    if (disponible === 0) { // agotado: no entra, y si ya estaba, sale
+      if (existente) this.quitar(producto.id);
+      return false;
+    }
     if (!existente) {
       this.items.push({
         producto_id: producto.id, nombre: producto.nombre, precio: producto.precio, disponible, cantidad: 1,
@@ -295,9 +338,71 @@ export class Carrito {
     const item = this.items.find((i) => i.producto_id === id);
     if (!item) return;
     if (cantidad < 1) return this.quitar(id);
-    // Al bajar la cantidad tampoco se sube del tope disponible.
-    item.cantidad = Math.min(this.#tope(item), cantidad);
+    // Al bajar la cantidad tampoco se sube del tope disponible. Si el tope es
+    // 0 (se agotó), la línea sale: en 0 el servidor rechazaría todo el pedido.
+    const tope = this.#tope(item);
+    if (tope < 1) return this.quitar(id);
+    item.cantidad = Math.min(tope, cantidad);
     this.#guardar();
+  }
+
+  // Cuántas unidades más de un producto caben, con lo que ya hay en el carrito.
+  cuantasCaben(producto) {
+    const disponible = producto.cantidadDisponible ?? null;
+    const tope = disponible === null ? 100 : Math.min(100, disponible);
+    const yaLleva = this.items.find((i) => i.producto_id === producto.id)?.cantidad ?? 0;
+    return Math.max(0, tope - yaLleva);
+  }
+
+  // lineas: [{ producto, cantidad }]. Devuelve la primera que no cabe, o null.
+  // Un combo entra entero o no entra: a medias se cobraría por galleta.
+  faltaPara(lineas) {
+    for (const { producto, cantidad } of lineas) {
+      const caben = this.cuantasCaben(producto);
+      if (cantidad > caben) return { nombre: producto.nombre, caben };
+    }
+    return null;
+  }
+
+  // Pone las líneas guardadas al día con el catálogo actual: nombre, precio y
+  // existencias, y saca lo agotado o retirado. Devuelve los cambios en frases
+  // para contárselos al cliente. Un catálogo vacío no se considera respuesta
+  // válida: un fallo del servidor no debe vaciar ningún carrito.
+  reconciliar(catalogo) {
+    if (!Array.isArray(catalogo) || !catalogo.length) return [];
+    const porId = new Map(catalogo.map((p) => [p.id, p]));
+    const cambios = [];
+    const lineas = [];
+    let tocado = false;
+    for (const item of this.items) {
+      const p = porId.get(item.producto_id);
+      if (!p) {
+        cambios.push(`${item.nombre} ya no está en el catálogo y salió de tu carrito.`);
+        tocado = true;
+        continue;
+      }
+      const disponible = p.cantidadDisponible ?? null;
+      if (disponible === 0) {
+        cambios.push(`${p.nombre} se agotó y salió de tu carrito.`);
+        tocado = true;
+        continue;
+      }
+      if (item.nombre !== p.nombre) cambios.push(`${item.nombre} ahora se llama ${p.nombre}.`);
+      if (item.precio !== p.precio) cambios.push(`${p.nombre} ahora cuesta ${pesos(p.precio)} (antes ${pesos(item.precio)}).`);
+      const linea = { ...item, nombre: p.nombre, precio: p.precio, disponible };
+      const tope = this.#tope(linea);
+      if (linea.cantidad > tope) {
+        linea.cantidad = tope;
+        cambios.push(`De ${p.nombre} solo quedan ${tope}: ajustamos tu carrito.`);
+      }
+      if (["nombre", "precio", "disponible", "cantidad"].some((c) => linea[c] !== item[c])) tocado = true;
+      lineas.push(linea);
+    }
+    if (tocado) {
+      this.items = lineas;
+      this.#guardar();
+    }
+    return cambios;
   }
 
   quitar(id) {
@@ -408,7 +513,13 @@ export function textoPedido(pedido) {
   const zona = ENTREGAS[pedido.entrega];
   if (zona) lineas.push(`*Entrega:* ${zona.nombre} — ${pedido.envio > 0 ? pesos(pedido.envio) : "gratis"}`);
   lineas.push("", "*Pedido:*");
-  for (const d of pedido.detalles) lineas.push(`• ${d.cantidad} × ${d.nombre} — ${pesos(d.precio * d.cantidad)}`);
+  // Un combo se cobra a precio fijo: se nombra con su precio y las galletas van
+  // sin precio, porque sumadas por separado no darían el total real.
+  const combo = comboDe(pedido.detalles);
+  if (combo) lineas.push(`*${combo.veces > 1 ? `${combo.veces} × ` : ""}${combo.nombre}:* ${pesos(combo.precio)}`);
+  for (const d of pedido.detalles) {
+    lineas.push(combo ? `• ${d.cantidad} × ${d.nombre}` : `• ${d.cantidad} × ${d.nombre} — ${pesos(d.precio * d.cantidad)}`);
+  }
   // El descuento por volumen se enseña solo cuando existe, y se enseña el
   // subtotal para que el total no parezca un número salido de la nada.
   if (pedido.descuento > 0) {
@@ -438,6 +549,20 @@ export function unaSolaVez(accion, alCambiar = () => {}) {
       alCambiar(false);
     }
   };
+}
+
+// Lo que vive fuera de <main> (contador del menú y chip flotante): existe en
+// cualquier página que conserve la cabecera, tenga o no el formulario de pedido.
+function pintarBarraCarrito(carrito) {
+  const contador = document.getElementById("carrito-contador");
+  if (contador) contador.textContent = carrito.cantidadTotal;
+  const mini = document.getElementById("mini-carrito");
+  if (!mini) return;
+  const unidades = carrito.cantidadTotal;
+  document.getElementById("mini-carrito-resumen").textContent =
+    `${unidades} ${unidades === 1 ? "galleta" : "galletas"} · ${pesos(carrito.total)}`;
+  mini.classList.toggle("activo", carrito.items.length > 0);
+  if (!document.getElementById("pedido")) mini.classList.remove("en-pedido");
 }
 
 class PedidoVista {
@@ -470,7 +595,12 @@ class PedidoVista {
     });
     this.$("btn-vaciar-carrito").addEventListener("click", () => this.carrito.vaciar());
     this.$("lista-carrito").addEventListener("click", (e) => this.accionesCarrito(e));
-    escucharGlobal("pedidos:carrito-cambio", "carrito-cambio", () => this.pintarCarrito());
+    // Dentro de la sección de pedido el chip sobra y taparía "Vaciar carrito".
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(([e]) => {
+        this.$("mini-carrito")?.classList.toggle("en-pedido", e.isIntersecting);
+      }).observe(this.$("pedido"));
+    }
     // El carrito responde si pudo agregar: cuando el sabor está agotado o ya se
     // llevó todas las unidades disponibles, el cliente se entera al instante en
     // vez de descubrirlo al confirmar el pedido.
@@ -496,15 +626,27 @@ class PedidoVista {
   // Si hay sesión iniciada, rellena nombre y teléfono del formulario.
   prefill() {
     const u = Sesion.obtener()?.usuario;
-    if (u) {
+    if (u && this.$("pedido-nombre")) {
       if (!this.$("pedido-nombre").value) this.$("pedido-nombre").value = u.nombre;
       if (u.correo && !this.$("pedido-telefono").value) this.$("pedido-telefono").placeholder = "Tu número con WhatsApp";
     }
   }
 
+  // Cambios que encontró el catálogo en lo que el cliente ya tenía guardado.
+  avisoCarrito(texto) {
+    this.$("aviso-carrito").textContent = texto;
+    this.$("aviso-carrito").hidden = !texto;
+  }
+
   pintarCarrito() {
-    this.$("carrito-contador").textContent = this.carrito.cantidadTotal;
+    pintarBarraCarrito(this.carrito);
     const lista = this.$("lista-carrito");
+    if (!lista) return; // navegación sin recarga: esta vista ya no está en pantalla
+    // Con un carrito nuevo en marcha, la confirmación anterior ya no aplica.
+    if (this.carrito.items.length && !this.$("confirmacion").hidden) {
+      this.$("confirmacion").hidden = true;
+      this.mensaje("");
+    }
     lista.replaceChildren();
     for (const item of this.carrito.items) {
       const li = document.createElement("li");
@@ -539,7 +681,6 @@ class PedidoVista {
     // Desglose del descuento por volumen: solo aparece cuando hay algo que
     // descontar, para no ensuciar el carrito de una o dos galletas.
     const { porcentaje, valor, siguiente } = this.carrito.descuento;
-    const unidades = this.carrito.cantidadTotal;
     const hayDescuento = porcentaje > 0;
     const envio = this.carrito.envio;
     const hayEnvio = this.carrito.entrega !== "recoger";
@@ -579,10 +720,6 @@ class PedidoVista {
       }
     }
     this.$("carrito-total").textContent = pesos(this.carrito.total);
-    // Resumen flotante (chip fijo abajo a la izquierda): plural correcto y total.
-    this.$("mini-carrito-resumen").textContent =
-      `${unidades} ${unidades === 1 ? "galleta" : "galletas"} · ${pesos(this.carrito.total)}`;
-    this.$("mini-carrito").classList.toggle("activo", this.carrito.items.length > 0);
     this.$("vacio").hidden = this.carrito.items.length > 0;
     this.$("btn-pedir").disabled = this.enviando || this.carrito.items.length === 0;
     // Sin galletas no hay nada que vaciar: el botón se apaga en vez de quedarse
@@ -650,8 +787,12 @@ class PedidoVista {
   async #crearPedido(datos, formulario) {
     try {
       const pedido = await this.servicio.crear(datos);
-      this.carrito.vaciar();
+      // El formulario vuelve a "recoger": el carrito siguiente también, o
+      // seguiría cobrando el domicilio de este pedido con el formulario en cero.
+      this.carrito.entrega = "recoger";
       this.carrito.distancia = 0;
+      this.carrito.vaciar();
+      this.avisoCarrito("");
       formulario.reset();
       this.prefill();
       this.#confirmar(new Pedido(pedido));
@@ -776,6 +917,14 @@ export function calcularCombo(especiales, normales, precioSueltaEspecial, precio
 
 // Vista de la calculadora: lee el catálogo real (precio de la Special y de una
 // normal) y recalcula cada vez que el cliente cambia las cantidades.
+// Forma que entiende el carrito a partir de una fila de GET /productos.
+const disponibleDe = (p) =>
+  (p.cantidad_disponible === null || p.cantidad_disponible === undefined ? null : Number(p.cantidad_disponible));
+const hayUnidades = (p) => disponibleDe(p) !== 0;
+const productoParaCarrito = (p) => ({
+  id: p.id, nombre: p.nombre_sabor, precio: Number(p.precio_venta), cantidadDisponible: disponibleDe(p),
+});
+
 export class CalculadoraCombos {
   constructor(carrito) {
     this.carrito = carrito;
@@ -802,8 +951,13 @@ export class CalculadoraCombos {
     const { especiales, normales } = this.cantidades();
     const area = this.$("armador-sabores");
     area.replaceChildren();
-    const sabores = this.productos.filter((p) => p.nombre_sabor !== NOMBRE_SPECIAL);
-    for (let i = 0; i < normales; i++) {
+    const normalesCatalogo = this.productos.filter((p) => p.nombre_sabor !== NOMBRE_SPECIAL);
+    // Lo agotado no se ofrece, pero se dice: si no, el cliente busca su sabor.
+    const sabores = normalesCatalogo.filter(hayUnidades);
+    const agotados = normalesCatalogo.filter((p) => !hayUnidades(p)).map((p) => p.nombre_sabor);
+    const aviso = this.$("armador-aviso");
+    if (aviso) aviso.textContent = agotados.length ? `Agotado por ahora: ${agotados.join(", ")}.` : "";
+    for (let i = 0; sabores.length && i < normales; i++) {
       const label = document.createElement("label");
       label.textContent = `Galleta normal ${i + 1}`;
       const select = document.createElement("select");
@@ -822,9 +976,10 @@ export class CalculadoraCombos {
   }
 
   pintarArmador() {
-    const { especiales } = this.cantidades();
+    const { especiales, normales } = this.cantidades();
     const special = this.productos.find((p) => p.nombre_sabor === NOMBRE_SPECIAL);
     const selects = [...this.$("armador-sabores").querySelectorAll("select")];
+    const elegidos = selects.map((sel) => this.productos.find((x) => String(x.id) === sel.value)).filter(Boolean);
     const total = selects.reduce((s, sel) => {
       const p = this.productos.find((x) => String(x.id) === sel.value);
       return s + (p ? Number(p.precio_venta) : 0);
@@ -833,13 +988,33 @@ export class CalculadoraCombos {
       { nombre: NOMBRE_SPECIAL, cantidad: especiales },
       { nombre: "normal", cantidad: selects.length },
     ]);
+    const sinSpecial = especiales > 0 && (!special || !hayUnidades(special));
+    const sinSabores = normales > 0 && selects.length === 0;
+    const falta = combo && !sinSpecial ? this.carrito.faltaPara(this.#lineasCombo(especiales, special, elegidos)) : null;
+    const sePuede = combo && !sinSpecial && !sinSabores && !falta;
     const txt = this.$("armador-total");
-    this.$("btn-armador-agregar").disabled = !combo;
+    this.$("btn-armador-agregar").disabled = !sePuede;
     const btnCompartir = this.$("btn-armador-compartir");
-    if (btnCompartir) btnCompartir.hidden = !combo;
-    txt.textContent = combo
+    if (btnCompartir) btnCompartir.hidden = !sePuede;
+    if (sinSpecial) txt.textContent = `${NOMBRE_SPECIAL} está agotada por ahora: sin ella no podemos armar el combo. Escríbenos por WhatsApp y te contamos cuándo vuelve.`;
+    else if (sinSabores) txt.textContent = "No nos quedan sabores normales por ahora, así que no podemos armar el combo. Escríbenos por WhatsApp y te contamos cuándo vuelven.";
+    else if (falta) txt.textContent = falta.caben
+      ? `De ${falta.nombre} solo puedes agregar ${falta.caben} más: cambia el sabor o la cantidad.`
+      : `Ya no puedes agregar más ${falta.nombre}: cambia el sabor o la cantidad.`;
+    else txt.textContent = combo
       ? `${combo.nombre}: ${pesos(combo.precio)} (sabores elegidos: ${pesos(total)} sueltos)`
       : "Este número de galletas no forma un combo: revisa la cantidad de Special y de normales.";
+  }
+
+  // Galletas del combo agrupadas por sabor, como las espera el carrito.
+  #lineasCombo(especiales, special, elegidos) {
+    const lineas = new Map();
+    for (const p of [...Array(especiales).fill(special), ...elegidos]) {
+      const linea = lineas.get(p.id);
+      if (linea) linea.cantidad += 1;
+      else lineas.set(p.id, { producto: productoParaCarrito(p), cantidad: 1 });
+    }
+    return [...lineas.values()];
   }
 
   // Tarjeta del combo lista para el grupo de WhatsApp: se dibuja aquí mismo,
@@ -966,14 +1141,28 @@ export class CalculadoraCombos {
     const { especiales } = this.cantidades();
     const special = this.productos.find((p) => p.nombre_sabor === NOMBRE_SPECIAL);
     const selects = [...this.$("armador-sabores").querySelectorAll("select")];
-    const aCarrito = (p) => ({ id: p.id, nombre: p.nombre_sabor, precio: Number(p.precio_venta), cantidadDisponible: p.cantidad_disponible ?? null });
     const elegidos = selects.map((sel) => this.productos.find((x) => String(x.id) === sel.value)).filter(Boolean);
-    if (!special || !comboDe([
+    const combo = special && comboDe([
       { nombre: NOMBRE_SPECIAL, cantidad: especiales },
       { nombre: "normal", cantidad: elegidos.length },
-    ])) return;
-    for (let i = 0; i < especiales; i++) this.carrito.agregar(aCarrito(special));
-    for (const p of elegidos) this.carrito.agregar(aCarrito(p));
+    ]);
+    if (!combo) return;
+    const lineas = this.#lineasCombo(especiales, special, elegidos);
+    // Se revisa todo antes de agregar nada: un combo a medias no es un combo.
+    // pintarArmador ya explica en pantalla qué sabor es el que no alcanza.
+    if (this.carrito.faltaPara(lineas)) return this.pintarArmador();
+    for (const { producto, cantidad } of lineas) {
+      for (let i = 0; i < cantidad; i++) this.carrito.agregar(producto);
+    }
+    const aviso = this.$("armador-aviso");
+    if (aviso) {
+      aviso.textContent = this.carrito.combo
+        ? `¡Listo! ${combo.nombre} en tu carrito.`
+        : `¡Listo! Agregamos tu ${combo.nombre}. Con lo que ya tenías en el carrito no forma un combo exacto, así que se cobra por galleta: revísalo antes de pedir.`;
+    }
+    const irCarrito = this.$("armador-ir-carrito");
+    if (irCarrito) irCarrito.hidden = false;
+    this.pintarArmador();
   }
 
   // productos: los que devuelve GET /productos (ya con precio_venta real).
@@ -1062,9 +1251,45 @@ export class CalculadoraCombos {
 // Solo arrancan cuando existe la página (así los módulos también se prueban sin navegador).
 if (typeof document !== "undefined") {
   const carrito = new Carrito(new CarritoServicio(new ApiClient()));
-  carrito.unirConCuenta(); // si ya hay sesión al cargar, une los dos carritos
-  escucharGlobal("carrito:unir-sesion", "sesion-cambio", () => carrito.unirConCuenta());
-  if (document.getElementById("form-pedido")) new PedidoVista(new PedidoServicio(new ApiClient()), carrito);
+  let unida = carrito.unirConCuenta().catch(() => {}); // si ya hay sesión al cargar, une los dos carritos
+  const vista = document.getElementById("form-pedido") ? new PedidoVista(new PedidoServicio(new ApiClient()), carrito) : null;
+  // Aquí y no en la vista: al navegar sin recargar este módulo se vuelve a
+  // ejecutar y su carrito es el vigente, aunque la página nueva no tenga
+  // formulario. Sin esto, la página del combo seguía pintando el carrito viejo.
+  escucharGlobal("pedidos:carrito-cambio", "carrito-cambio", () => {
+    if (vista) vista.pintarCarrito();
+    else pintarBarraCarrito(carrito);
+  });
+  pintarBarraCarrito(carrito);
+
+  // Dónde se le cuenta al cliente que su carrito guardado cambió.
+  const avisar = (cambios) => {
+    if (!cambios.length) return;
+    const texto = cambios.join(" ");
+    if (vista) vista.avisoCarrito(texto);
+    else if (document.getElementById("armador-aviso")) {
+      // Se suma a lo que ya dice el aviso (los sabores agotados), no lo borra.
+      const aviso = document.getElementById("armador-aviso");
+      aviso.textContent = [aviso.textContent, texto].filter(Boolean).join(" ");
+    }
+  };
+  // Siempre después de unir con la cuenta: las líneas del servidor también
+  // pasan por el catálogo, y un ajuste hecho antes de que la cuenta responda
+  // quedaría como cambio del cliente y pisaría lo que ella tiene guardado.
+  let catalogo = null;
+  const ponerAlDia = (lista) => {
+    if (lista) catalogo = lista;
+    return unida.then(() => avisar(carrito.reconciliar(catalogo)));
+  };
+  escucharGlobal("carrito:unir-sesion", "sesion-cambio", () => {
+    unida = carrito.unirConCuenta().catch(() => {});
+    ponerAlDia();
+  });
+  escucharGlobal("carrito:recortado", "carrito-recortado", () => avisar(["Ajustamos tu carrito a las unidades disponibles."]));
+  // El catálogo lo pide productos.js; si llegó antes que este módulo, queda
+  // guardado en window y se usa igual.
+  escucharGlobal("carrito:catalogo", "catalogo-cargado", (e) => ponerAlDia(e.detail));
+  if (window.__catalogoPixel) ponerAlDia(window.__catalogoPixel);
   if (document.getElementById("lista-pedidos")) new PedidosAdminVista(new PedidoServicio(new ApiClient()));
   // La calculadora solo existe en la página del combo personalizado.
   if (document.getElementById("calc-especiales")) {
@@ -1075,7 +1300,13 @@ if (typeof document !== "undefined") {
     // Si el catálogo no responde, la página no puede quedarse muda: sin
     // sabores no hay armador ni botón de compartir, y el cliente merece saber
     // por qué y qué hacer mientras tanto.
-    new ApiClient().get("/productos").then((p) => calculadora.cargarProductos(p)).catch(() => {
+    new ApiClient().get("/productos").then((p) => {
+      calculadora.cargarProductos(p);
+      // El armador cuenta lo que ya hay en el carrito: se repinta con él al día.
+      ponerAlDia(p.map(productoParaCarrito)).then(() => {
+        if (calculadora.$("btn-armador-agregar")) calculadora.pintarArmador();
+      });
+    }).catch(() => {
       const aviso = document.getElementById("calc-resultado");
       if (aviso) {
         aviso.textContent = "No pudimos cargar los sabores: el catálogo no está disponible en este momento. Escríbenos por WhatsApp y armamos tu combo contigo.";

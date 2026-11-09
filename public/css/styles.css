@@ -994,7 +994,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .mensual-planes span { color: var(--diamante); font-weight: 500; }
 .mensual-nota { font-size: var(--t-xs); }
 /* Enlace de regreso a los combos: botón pixel con borde, no un link suelto. */
-.volver-combos { display: inline-flex; align-items: center; gap: var(--s-2); margin: var(--s-4) 0 0 var(--s-4); padding: var(--s-2) var(--s-4);
+.volver-combos { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 44px; margin: var(--s-4) 0 0 var(--s-4); padding: var(--s-2) var(--s-4);
   font-family: var(--titulos); font-size: var(--t-sm); letter-spacing: .05em; text-transform: uppercase;
   color: var(--crema); text-decoration: none; background: var(--pantalla); box-shadow: var(--px-3-suave);
   transition: background var(--d-micro) ease, color var(--d-micro) ease, transform var(--d-micro) ease; }
@@ -1023,6 +1023,8 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
   .calc-pieza { animation: calc-caer var(--d-ui) var(--e-rebote) both; animation-delay: calc(var(--i, 0) * 45ms); }
 }
 .calc-detalle { margin: 0; font-size: var(--t-xs); color: var(--suave); }
+#armador-aviso { font-size: var(--t-sm); color: var(--crema); }
+#btn-vaciar-carrito { min-height: 44px; }
 .calc-tabla { width: 100%; border-collapse: collapse; font-size: var(--t-xs); }
 .calc-tabla th, .calc-tabla td { padding: var(--s-2); text-align: left; border-bottom: 1px dashed var(--linea-suave); }
 .calc-tabla th { font-family: var(--titulos); color: var(--diamante); font-weight: 700; }
@@ -1134,7 +1136,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .item-carrito strong { font-family: var(--titulos); font-size: var(--t-md); }
 .item-carrito > span { font-family: var(--titulos); font-size: var(--t-md); color: var(--masa); }
 .controles { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--s-3); }
-.controles button { width: 2.2rem; height: 2.2rem; padding: 0; font-size: var(--t-md); line-height: 1; }
+.controles button { min-width: 44px; min-height: 44px; width: 2.2rem; height: 2.2rem; padding: 0; font-size: var(--t-md); line-height: 1; }
 .controles > span { min-width: 1.6rem; text-align: center; font-family: var(--titulos); font-size: var(--t-lg); }
 .controles button[data-accion="quitar"] { margin-left: auto; }
 /* Desglose del descuento por volumen: aparece encima de la banda del total
@@ -1588,6 +1590,8 @@ section > h2 { font-size: var(--t-2xl); }
   transition: translate .35s var(--e-salida), opacity .35s ease, visibility 0s .35s,
     background-color var(--d-micro) ease; }
 .mini-carrito.activo { visibility: visible; opacity: 1; translate: 0 0; transition-delay: 0s, 0s, 0s, 0s; }
+/* Dentro de la sección de pedido se retira: ahí taparía "Vaciar carrito". */
+.mini-carrito.activo.en-pedido { visibility: hidden; opacity: 0; translate: 0 150%; transition-delay: 0s, 0s, .35s, 0s; }
 .mini-carrito:hover { background: var(--pantalla-alta); }
 .mini-carrito-galleta svg { display: block; width: 1.5rem; height: 1.5rem; }
 .mini-carrito-resumen { color: var(--suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

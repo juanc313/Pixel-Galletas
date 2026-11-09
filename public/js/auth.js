@@ -16,7 +16,9 @@ class AuthVista {
     this.$("form-login").addEventListener("submit", (e) => this.iniciarSesion(e));
     this.$("form-registro").addEventListener("submit", (e) => this.registrar(e));
     this.$("btn-salir").addEventListener("click", () => this.cerrarSesion());
-    this.$("btn-acceso").addEventListener("click", () => this.alternarAcceso());
+    // El botón vive en la cabecera, que sobrevive a la navegación sin recargar:
+    // con addEventListener cada regreso a la portada le sumaba otro clic.
+    escucharGlobal("auth:btn-acceso", "click", () => this.alternarAcceso(), this.$("btn-acceso"));
     escucharGlobal("auth:sesion-vencida", "sesion-vencida", () => {
       this.mostrarSegunSesion();
       this.alternarAcceso(true);
@@ -25,7 +27,9 @@ class AuthVista {
   }
 
   // Muestra u oculta el cuadro de acceso (por defecto, lo contrario de como está).
-  alternarAcceso(abrir = this.$("acceso").hidden) {
+  alternarAcceso(abrir = this.$("acceso")?.hidden) {
+    // El cuadro de acceso solo está en la portada: desde otra página se va allá.
+    if (!this.$("acceso")) { location.href = "/"; return; }
     this.$("acceso").hidden = !abrir;
     this.$("btn-acceso").setAttribute("aria-expanded", String(abrir));
   }
@@ -90,4 +94,4 @@ class AuthVista {
 }
 
 // Solo arranca cuando existe la página (así los módulos también se pueden probar sin navegador).
-if (typeof document !== "undefined") new AuthVista(new ApiClient());
+if (typeof document !== "undefined" && document.getElementById("btn-acceso")) new AuthVista(new ApiClient());
