@@ -422,11 +422,38 @@ export function textoPedido(pedido) {
 }
 
 // Vista del cliente: carrito, formulario de pedido y confirmación con WhatsApp.
+// Envuelve una acción asíncrona para que no pueda correr dos veces a la vez:
+// mientras la primera no termine, las demás llamadas se ignoran. Sin esto, un
+// doble toque en "Hacer pedido" con mala señal crea dos pedidos reales.
+export function unaSolaVez(accion, alCambiar = () => {}) {
+  let enCurso = false;
+  return async (...args) => {
+    if (enCurso) return undefined;
+    enCurso = true;
+    alCambiar(true);
+    try {
+      return await accion(...args);
+    } finally {
+      enCurso = false;
+      alCambiar(false);
+    }
+  };
+}
+
 class PedidoVista {
   constructor(servicio, carrito) {
     this.servicio = servicio;
     this.carrito = carrito;
     this.$ = (id) => document.getElementById(id);
+    this.enviando = false;
+    this.crearPedido = unaSolaVez(
+      (datos, formulario) => this.#crearPedido(datos, formulario),
+      (enCurso) => {
+        this.enviando = enCurso;
+        this.$("btn-pedir").textContent = enCurso ? "Enviando…" : "Hacer pedido";
+        this.$("btn-pedir").disabled = enCurso || this.carrito.items.length === 0;
+      }
+    );
     this.$("form-pedido").addEventListener("submit", (e) => this.enviar(e));
     // La forma de entrega cambia el total (el domicilio cuesta según la zona y
     // sale gratis desde 12 galletas): al elegirla se vuelve a pintar el carrito
@@ -557,7 +584,7 @@ class PedidoVista {
       `${unidades} ${unidades === 1 ? "galleta" : "galletas"} · ${pesos(this.carrito.total)}`;
     this.$("mini-carrito").classList.toggle("activo", this.carrito.items.length > 0);
     this.$("vacio").hidden = this.carrito.items.length > 0;
-    this.$("btn-pedir").disabled = this.carrito.items.length === 0;
+    this.$("btn-pedir").disabled = this.enviando || this.carrito.items.length === 0;
     // Sin galletas no hay nada que vaciar: el botón se apaga en vez de quedarse
     // ahí como una acción muerta al lado del aviso de carrito vacío.
     this.$("btn-vaciar-carrito").disabled = this.carrito.items.length === 0;
@@ -586,6 +613,7 @@ class PedidoVista {
 
   async enviar(e) {
     e.preventDefault();
+    if (this.enviando) return undefined;
     const f = new FormData(e.target);
     if (!this.carrito.items.length) return this.mensaje("Tu carrito está vacío: agrega galletas primero.");
     // El domicilio sin dirección no se puede servir: se avisa aquí, en el
@@ -616,11 +644,15 @@ class PedidoVista {
     const visita = idVisita();
     if (visita) datos.visita = visita;
 
+    return this.crearPedido(datos, e.target);
+  }
+
+  async #crearPedido(datos, formulario) {
     try {
       const pedido = await this.servicio.crear(datos);
       this.carrito.vaciar();
       this.carrito.distancia = 0;
-      e.target.reset();
+      formulario.reset();
       this.prefill();
       this.#confirmar(new Pedido(pedido));
     } catch (error) {

@@ -30,6 +30,31 @@ const cargar = async () => ({
 
 beforeEach(() => { llamadas = []; respuesta = ok({}); delete memoria["pixel_galletas_carrito"]; });
 
+test("Doble envío: un segundo toque mientras se envía no crea otro pedido", async () => {
+  const { unaSolaVez } = await cargar();
+  let veces = 0, soltar;
+  const estados = [];
+  const enviar = unaSolaVez(
+    () => { veces++; return new Promise((ok) => { soltar = ok; }); },
+    (enCurso) => estados.push(enCurso)
+  );
+  const primero = enviar();
+  await enviar();
+  assert.equal(veces, 1);
+  soltar("pedido");
+  assert.equal(await primero, "pedido");
+  assert.deepEqual(estados, [true, false]);
+});
+
+test("Doble envío: si el pedido falla, se puede volver a intentar", async () => {
+  const { unaSolaVez } = await cargar();
+  let veces = 0;
+  const enviar = unaSolaVez(async () => { veces++; if (veces === 1) throw new Error("sin red"); return "ok"; });
+  await assert.rejects(enviar(), /sin red/);
+  assert.equal(await enviar(), "ok");
+  assert.equal(veces, 2);
+});
+
 test("Carrito: agrupa por producto, calcula total y persiste en el navegador", async () => {
   const { Carrito } = await cargar();
   const c = new Carrito();
