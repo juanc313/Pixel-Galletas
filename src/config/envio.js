@@ -6,7 +6,8 @@
 // (public/js/pedidos.js) y una prueba compara las dos para que no se separen.
 //
 // Anunciado en la página: "Cúcuta $5.000 · Villa del Rosario, Los Patios y El
-// Zulia $7.000. Gratis desde 12 galletas; recoger en Ceiba 2, gratis siempre."
+// Zulia $7.000, más distancia (src/config/distancia.js). Gratis desde 12
+// galletas, distancia incluida; recoger en Ceiba 2, gratis siempre."
 
 const ENTREGAS = {
   // `corto` es la etiqueta para el panel de estado del cliente: dice cómo

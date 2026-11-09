@@ -217,3 +217,10 @@
   animation: none;
   transition: opacity var(--d-ui) ease, translate var(--d-ui) ease;
 }
+/* Al salir de la demo el menú vuelve enseguida: si recuperara su animación de
+   entrada, tardaría 2,25 s en verse y el siguiente toque en el fondo sacaría
+   de la entrada a quien acababa de pedir jugar. */
+.js-anim .entrada-tras-demo .entrada-menu {
+  animation: none;
+  transition: opacity var(--d-ui) ease, translate var(--d-ui) ease;
+}

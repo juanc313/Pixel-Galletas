@@ -319,7 +319,7 @@ try {
       const arrancarDemo = () => {
         if (reducido || !entrada.isConnected || eligiendo) return;
         enDemo = true;
-        entrada.classList.add("entrada-en-demo");
+        entrada.classList.add("entrada-en-demo", "entrada-tras-demo");
         if (demoTexto) {
           pasoDemo = 0;
           demoTexto.textContent = LEYENDAS_DEMO[0];
@@ -509,6 +509,10 @@ try {
         if (e.target.closest(".entrada-menu, .musica-boton, .entrada-icono")) return;
         // En plena secuencia de salida solo la ✕ (saltar) cierra de una vez.
         if (eligiendo && !e.target.closest(".entrada-saltar")) return;
+        // En la demo, "Toca para jugar" devuelve el menú: de eso se encarga
+        // despertarDeDemo, que recibe este mismo toque justo después. Salir
+        // de la entrada aquí le quitaría al jugador el menú que se le ofrece.
+        if (enDemo && !e.target.closest(".entrada-saltar")) return;
         cerrar();
       });
       entrada.addEventListener("click", (e) => {

@@ -2,11 +2,21 @@ node_modules/
 .env
 .env.cloud
 .env.*
-!.env.example
 .edge-cdp/
 .vercel
 .env*
+# La plantilla sí se sube. Esta excepción tiene que ir DESPUÉS de .env*: en
+# .gitignore gana la última regla que coincide.
+!.env.example
 
 # Certificado CA de la base en la nube: no se sube al repositorio
 certs/
 *.pem
+
+# Capturas, presupuestos y registros sueltos, solo en la raíz (lo de public/ se publica)
+/*.png
+/*.xlsx
+/*.log
+.cloud-attachments/
+.freebuff/
+.revision-tmp/

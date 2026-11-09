@@ -11,8 +11,12 @@ class UsuarioController {
   static async registrar(req, res) {
     try {
       const { nombre, correo, contrasena } = req.body;
-      if (!nombre || !correo || !contrasena || typeof nombre !== "string" || typeof correo !== "string" || typeof contrasena !== "string" || nombre.length > 100 || correo.length > 254) {
+      if (!nombre || !correo || !contrasena || typeof nombre !== "string" || typeof correo !== "string" || typeof contrasena !== "string" || nombre.length > 100) {
         return res.status(400).json({ error: "nombre, correo y contrasena son obligatorios" });
+      }
+      // El mismo tope de la columna (VARCHAR(150) en database/schema.sql).
+      if (correo.length > 150) {
+        return res.status(400).json({ error: "El correo no puede tener más de 150 caracteres" });
       }
       if (contrasena.length < 8 || contrasena.length > 72) {
         return res.status(400).json({ error: "La contrasena debe tener entre 8 y 72 caracteres" });

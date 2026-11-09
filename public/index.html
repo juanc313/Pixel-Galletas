@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="/css/fuentes.css">
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/tema-claro.css">
-  <link rel="stylesheet" href="/css/entrada-decor.css?v=3">
+  <link rel="stylesheet" href="/css/entrada-decor.css?v=4">
   <link rel="stylesheet" href="/css/contacto-orbita.css">
   <script src="/js/arranque.js"></script>
   <script src="/js/pwa.js" defer></script>
@@ -53,7 +53,7 @@
     "@type": "FAQPage",
     "mainEntity": [
       { "@type": "Question", "name": "¿Hacen entregas en toda la ciudad?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Entregamos en Cúcuta, Villa del Rosario, Los Patios y El Zulia. El domicilio cuesta $5.000 en Cúcuta y $7.000 en esos municipios, y es gratis desde 12 galletas. Recoger en Ceiba 2 siempre sale gratis." } },
+        "acceptedAnswer": { "@type": "Answer", "text": "Entregamos en Cúcuta, Villa del Rosario, Los Patios y El Zulia. El domicilio cuesta $5.000 en Cúcuta y $7.000 en esos municipios, más un cargo por distancia desde el Centro Comercial La Estrella: $2.000 de 0 a 3 km, $4.000 de 3 a 6 km y $6.000 a más de 6 km. Desde 12 galletas el domicilio es gratis, distancia incluida. Recoger en Ceiba 2 siempre sale gratis." } },
       { "@type": "Question", "name": "¿Cómo se paga el pedido?",
         "acceptedAnswer": { "@type": "Answer", "text": "Pagas en efectivo o por transferencia al Nequi 313 783 9935, al coordinar la entrega contigo." } },
       { "@type": "Question", "name": "¿Hay pedido mínimo?",
@@ -314,7 +314,7 @@
         <p class="entrada-perfil-nota" aria-live="polite"></p>
       </div>
       <p class="entrada-secreto-nota">¡Modo secreto! Doble lluvia desbloqueada</p>
-      <p class="entrada-menu-pista">↑ ↓ elegir · Enter entrar · Esc salir</p>
+      <p class="entrada-menu-pista"><span class="pista-teclado">↑ ↓ elegir · Enter entrar · Esc salir</span><span class="pista-tacto">Toca una opción · ✕ salir</span></p>
     </nav>
     <button type="button" class="musica-boton musica-boton-entrada" aria-label="Abrir reproductor de música" aria-expanded="false" aria-controls="musica-panel" title="Abrir reproductor"><span aria-hidden="true">♫</span></button>
     <button type="button" class="entrada-saltar" aria-label="Saltar la entrada">✕</button>
@@ -759,7 +759,7 @@
       <div class="faq">
         <details class="faq-item" open>
           <summary>¿Hacen entregas en toda la ciudad?</summary>
-          <p>Entregamos en <b>Cúcuta, Villa del Rosario, Los Patios y El Zulia</b>. El domicilio cuesta <b>$5.000 en Cúcuta</b> y <b>$7.000 en los alrededores</b>, y es <b>gratis desde 12 galletas</b>. Recoger en Ceiba 2 siempre sale gratis. Si estás en otra zona, escríbenos y vemos qué podemos hacer contigo.</p>
+          <p>Entregamos en <b>Cúcuta, Villa del Rosario, Los Patios y El Zulia</b>. El domicilio cuesta <b>$5.000 en Cúcuta</b> y <b>$7.000 en los alrededores</b>, más un cargo por distancia desde el Centro Comercial La Estrella: <b>$2.000 de 0 a 3 km, $4.000 de 3 a 6 km y $6.000 a más de 6 km</b>. Desde 12 galletas el domicilio es <b>gratis, distancia incluida</b>. Recoger en Ceiba 2 siempre sale gratis. Si estás en otra zona, escríbenos y vemos qué podemos hacer contigo.</p>
         </details>
         <details class="faq-item">
           <summary>¿Cómo se paga el pedido?</summary>
@@ -816,7 +816,7 @@
             <h3 id="titulo-entrega-pago">Cómo se entrega y se paga</h3>
             <ul class="detalles-lista">
               <li><span class="icono icono-ubi" aria-hidden="true"><svg viewBox="0 0 384 512"><path fill="currentColor" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg></span>
-                <span><b>Cúcuta y alrededores</b><br>Cúcuta $5.000 · Villa del Rosario, Los Patios y El Zulia $7.000. Gratis desde 12 galletas; recoger en Ceiba 2, gratis siempre.</span></li>
+                <span><b>Cúcuta y alrededores</b><br>Cúcuta $5.000 · Villa del Rosario, Los Patios y El Zulia $7.000, más distancia desde La Estrella: $2.000 (0 a 3 km), $4.000 (3 a 6 km) o $6.000 (más de 6 km). Gratis desde 12 galletas, distancia incluida; recoger en Ceiba 2, gratis siempre.</span></li>
               <li><span class="icono icono-wa" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 3.9A11.9 11.9 0 0 0 3.5 17.7L2 22l4.4-1.5A11.9 11.9 0 1 0 20 3.9Zm-8 19.6a9.9 9.9 0 0 1-5-1.4l-.4-.2-2.6.9.9-2.5-.2-.4a9.9 9.9 0 1 1 7.3 3.6Zm5.4-7.4c-.3-.1-1.7-.8-2-1s-.5-.1-.7.1-.8 1-1 1.2-.4.2-.7.1a8 8 0 0 1-2.4-1.5 9 9 0 0 1-1.6-2.1c-.2-.3 0-.5.1-.6l.5-.6.3-.5c.1-.2 0-.4 0-.5l-.9-2.2c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.8.4 3.5 3.5 0 0 0-1.1 2.6 6.2 6.2 0 0 0 1.3 3.3 14.2 14.2 0 0 0 5.4 4.8c2.1.9 2.9 1 3.9.8a3 3 0 0 0 2-1.4 2.5 2.5 0 0 0 .2-1.4c-.1-.2-.3-.2-.6-.3Z"/></svg></span>
                 <span><b>Efectivo o Nequi</b><br>Pagas en efectivo o por transferencia al Nequi 313 783 9935 al coordinar la entrega.</span></li>
               <li><span class="icono icono-caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" opacity=".5" d="M12 2 21 6.5 12 11 3 6.5Z"/><path fill="currentColor" d="M3 6.5V17.5L12 22V11Z"/><path fill="currentColor" opacity=".72" d="M12 11V22L21 17.5V6.5Z"/></svg></span>
@@ -829,7 +829,7 @@
           <h3 id="titulo-entrega">Datos de entrega</h3>
           <form id="form-pedido" aria-labelledby="titulo-entrega">
             <label>Nombre <input type="text" id="pedido-nombre" name="nombre" required maxlength="100" autocomplete="name"></label>
-            <label>Teléfono / WhatsApp <input type="tel" id="pedido-telefono" name="telefono" required pattern="[0-9+\s\-]{7,20}" autocomplete="tel" inputmode="tel"></label>
+            <label>Teléfono / WhatsApp <input type="tel" id="pedido-telefono" name="telefono" required maxlength="20" pattern="[\s+\-]*([0-9][\s+\-]*){7,15}" title="De 7 a 15 dígitos; puede llevar +, espacios o guiones" autocomplete="tel" inputmode="tel"></label>
             <label>Entrega
               <select id="pedido-entrega" name="entrega" required>
                 <option value="recoger">Recoger en Ceiba 2 — gratis</option>
@@ -897,7 +897,7 @@
       <p class="subtitulo">Pon el número de pedido y el teléfono con el que lo hiciste. No necesitas cuenta ni registro.</p>
       <form id="form-estado">
         <label>Número de pedido <input type="number" name="id" id="estado-id" min="1" required placeholder="12" inputmode="numeric"></label>
-        <label>Teléfono con el que pediste <input type="tel" name="telefono" id="estado-telefono" required minlength="7" maxlength="20" pattern="[0-9+\s\-]{7,20}" placeholder="313 783 9935" inputmode="tel"></label>
+        <label>Teléfono con el que pediste <input type="tel" name="telefono" id="estado-telefono" required minlength="7" maxlength="20" pattern="[\s+\-]*([0-9][\s+\-]*){7,15}" title="De 7 a 15 dígitos; puede llevar +, espacios o guiones" placeholder="313 783 9935" inputmode="tel"></label>
         <button type="submit" class="boton-grande">Ver estado</button>
       </form>
       <p id="mensaje-estado" role="alert"></p>

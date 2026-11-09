@@ -1,13 +1,10 @@
 require("dotenv").config();
 
-// Sin clave secreta no se pueden firmar ni verificar tokens: mejor no arrancar.
-// En producción la clave debe ser larga: una clave corta se adivina offline a partir de un token.
-if (process.env.NODE_ENV === "production" && (process.env.JWT_SECRET || "").length < 32) {
-  console.error("JWT_SECRET debe tener al menos 32 caracteres en producción.");
-  process.exit(1);
-}
-if (!process.env.JWT_SECRET) {
-  console.error("Falta JWT_SECRET en el archivo .env. El servidor no puede iniciar sin ese valor.");
+// Sin clave secreta válida no se pueden firmar ni verificar tokens: mejor no arrancar.
+const { problemaDeJwtSecret } = require("./src/config/jwtSecreto");
+const problemaSecreto = problemaDeJwtSecret();
+if (problemaSecreto) {
+  console.error(problemaSecreto);
   process.exit(1);
 }
 

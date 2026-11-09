@@ -429,3 +429,42 @@ test("Estado: se consulta con número y teléfono, sin cuenta, y sin exponer a o
   assert.equal((await llamar("GET", `/api/pedidos/${id}`)).estado, 401);
   assert.equal((await llamar("GET", `/api/pedidos/${id}`, null, tokAdmin)).estado, 200);
 });
+
+test("Pedido: producto_id tiene que ser un entero positivo (400)", async () => {
+  const { datos: producto } = await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Id", precio_venta: 6000 }, tokAdmin);
+  const pedir = (producto_id) => llamar("POST", "/api/pedidos", {
+    cliente_nombre: "Ana", cliente_telefono: "3001112233", items: [{ producto_id, cantidad: 1 }],
+  });
+  for (const malo of [0, -1, 1.5, "abc", "1e2", " 1", "", null, true, [producto.id], { id: producto.id }]) {
+    const r = await pedir(malo);
+    assert.equal(r.estado, 400, `producto_id ${JSON.stringify(malo)}`);
+    assert.match(r.datos.error, /entero positivo/);
+  }
+  assert.equal((await pedir(producto.id)).estado, 201);
+  assert.equal((await pedir(String(producto.id))).estado, 201, "un id numérico como texto sigue valiendo");
+});
+
+test("Registro: el correo no pasa de 150 caracteres, el tope de la columna", async () => {
+  const conLargo = (largo) => "a".repeat(largo - "@x.com".length) + "@x.com";
+  const registrar = (correo) => llamar("POST", "/api/usuarios/registro", { nombre: "Largo", correo, contrasena: "secreto1" });
+  const largo = await registrar(conLargo(151));
+  assert.equal(largo.estado, 400);
+  assert.match(largo.datos.error, /150 caracteres/);
+  assert.equal((await registrar(conLargo(150))).estado, 201);
+});
+
+test("Teléfono: exige de 7 a 15 dígitos de verdad al pedir y al consultar", async () => {
+  const { datos: producto } = await llamar("POST", "/api/productos", { nombre_sabor: "Pixel Tel", precio_venta: 6000 }, tokAdmin);
+  const pedir = (cliente_telefono) => llamar("POST", "/api/pedidos", {
+    cliente_nombre: "Ana", cliente_telefono, items: [{ producto_id: producto.id, cantidad: 1 }],
+  });
+  const consultar = (telefono) => llamar("POST", "/api/pedidos/estado", { id: 1, telefono });
+  for (const malo of ["+-+-+-+", "123456", "12 34 56", "1234567890123456"]) {
+    assert.equal((await pedir(malo)).estado, 400, `pedir con ${malo}`);
+    assert.equal((await consultar(malo)).estado, 400, `consultar con ${malo}`);
+  }
+  for (const bueno of ["1234567", "123456789012345", "+57 300 111-2233"]) {
+    assert.equal((await pedir(bueno)).estado, 201, `pedir con ${bueno}`);
+    assert.notEqual((await consultar(bueno)).estado, 400, `consultar con ${bueno}`);
+  }
+});

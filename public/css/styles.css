@@ -1958,6 +1958,13 @@ html.velado .entrada-nombre { visibility: hidden; }
 .entrada-op-secreta.activa, .entrada-op-secreta.activa::before { color: #FFD21F; }
 .entrada-menu-pista { margin: var(--s-2) 0 0; text-align: center;
   font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .14em; color: var(--linea-suave); }
+/* Cada pista dice lo que de verdad funciona: teclas donde hay teclado y toques
+   donde el dedo es la entrada principal. */
+.pista-tacto { display: none; }
+@media (pointer: coarse) {
+  .pista-teclado { display: none; }
+  .pista-tacto { display: inline; }
+}
 .entrada-secreto-nota { display: none; margin: 0; text-align: center;
   font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .14em; color: #FFD21F; }
 /* Selector con ID a propósito: la regla global de barrido de brillo

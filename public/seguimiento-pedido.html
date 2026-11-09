@@ -30,7 +30,7 @@
       <h2 id="titulo-seguimiento">¿Dónde va mi pedido?</h2>
       <form id="form-estado">
         <label>Número de pedido <input type="number" name="id" id="estado-id" min="1" required placeholder="12" inputmode="numeric"></label>
-        <label>Teléfono con el que pediste <input type="tel" name="telefono" id="estado-telefono" required minlength="7" maxlength="20" pattern="[0-9+\s\-]{7,20}" placeholder="313 783 9935" inputmode="tel"></label>
+        <label>Teléfono con el que pediste <input type="tel" name="telefono" id="estado-telefono" required minlength="7" maxlength="20" pattern="[\s+\-]*([0-9][\s+\-]*){7,15}" title="De 7 a 15 dígitos; puede llevar +, espacios o guiones" placeholder="313 783 9935" inputmode="tel"></label>
         <button type="submit" class="boton-grande">Ver estado</button>
       </form>
       <p id="mensaje-estado" role="alert"></p>

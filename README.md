@@ -23,7 +23,14 @@ Node.js, Express y MySQL) y **frontend** (HTML, CSS y JavaScript con clases), co
 | `DB_NAME` | Nombre de la base (`pixel_galletas_api`) |
 | `PORT` | Puerto de la aplicación (por defecto `3000`) |
 | `SITIO_URL` | Dominio público (`https://…`). Activa `/sitemap.xml`; vacía, el sitemap responde 404 |
-| `JWT_SECRET` | Clave para firmar los tokens. **Obligatoria**: sin ella el servidor no inicia |
+| `DB_SSL` | `true` para conectar con TLS (obligatorio en Aiven); `false` en local |
+| `DB_SSL_CA` | Ruta al `ca.pem` del proveedor (para servidores con archivos propios) |
+| `DB_SSL_CA_PEM` | El mismo certificado como texto, con `\n` literales si va en una línea. Es el que se usa en Vercel y manda sobre `DB_SSL_CA` |
+| `DB_SSL_VERIFY` | `false` omite verificar el certificado; por defecto se verifica |
+| `JWT_SECRET` | Clave para firmar los tokens. **Obligatoria**: sin ella el servidor no inicia. En producción debe tener al menos 32 caracteres |
+| `CRON_SECRET` | Secreto del cron de Vercel que purga eventos antiguos. Sin él, la ruta de purga no existe |
+| `TRUST_PROXY` | Número de proxies delante de la app, para que los límites de tasa cuenten al cliente real. En Vercel no hace falta |
+| `ORIGENES_PERMITIDOS` | Orígenes extra que pueden llamar a la API, separados por comas. Normalmente vacía |
 | `TELEGRAM_BOT_TOKEN` | Llave del bot de Telegram que avisa al obrador de cada pedido nuevo (opcional) |
 | `TELEGRAM_CHAT_ID` | Chat que recibe el aviso (opcional). Sin las dos variables, el aviso no sale y nada más cambia |
 
@@ -31,7 +38,8 @@ Node.js, Express y MySQL) y **frontend** (HTML, CSS y JavaScript con clases), co
 ```
 database/schema.sql      Script de la base de datos (usuarios, productos, pedidos y detalle)
 scripts/crearAdmin.js    Crea el primer administrador
-server.js                Punto de entrada
+server.js                Punto de entrada en local
+api/index.js             Punto de entrada en Vercel
 src/                     Backend: config, models, controllers, middlewares, routes
 public/                  Frontend: index.html, css/, img/ (logo y fotos), js/
                          (api.js, auth.js, productos.js, pedidos.js, contacto.js, config.js, usuarios.js)
@@ -77,42 +85,48 @@ una acción sin permisos responde **403**.
 - **Contacto:** la sección Contacto enlaza WhatsApp (313 783 9935), Instagram (@pixel_galletas) y la ubicación
   (Ceiba 2, Cúcuta). Esos datos viven en `public/js/config.js`.
 - **Entrega:** Cúcuta, Villa del Rosario, Los Patios y El Zulia. Domicilio $5.000 en Cúcuta y $7.000 en los
-  alrededores, gratis desde 12 galletas; recoger en Ceiba 2 siempre gratis. Esos números están en el HTML
-  (FAQ, «Cómo se entrega y se paga», Power up y caja mensual): si cambian, hay que tocarlos en esos cuatro sitios.
+  alrededores, más un cargo por distancia desde el Centro Comercial La Estrella ($2.000 de 0 a 3 km, $4.000 de 3 a
+  6 km y $6.000 a más de 6 km). Desde 12 galletas el domicilio es gratis, distancia incluida; recoger en Ceiba 2
+  siempre gratis. El cobro sale de `src/config/envio.js` y `src/config/distancia.js`, con su copia en
+  `public/js/pedidos.js`. Los textos están en cuatro sitios: en `public/index.html`, las preguntas frecuentes (la
+  sección visible y los datos estructurados del `<head>`), «Cómo se entrega y se paga» y las opciones del formulario
+  de pedido; y en `public/preguntas-gamer.html`. Si cambian los números, hay que tocarlos en todos. `tests/mensajes.test.js`
+  avisa si un texto se queda sin la distancia.
+- **Teléfono:** al pedir y al consultar el estado se exigen de 7 a 15 dígitos; puede llevar `+`, espacios o guiones.
 
 ## Pruebas
-`npm test` ejecuta 63 pruebas automáticas (API, lógica del frontend, pantalla de acceso, pedidos/carrito/WhatsApp,
-inventario del obrador y aviso por Telegram). Usan una base de datos simulada en memoria, por lo que no necesitan
+`npm test` ejecuta 146 pruebas automáticas (API, lógica del frontend, pantalla de acceso, pedidos/carrito/WhatsApp,
+inventario del obrador, aviso por Telegram, seguridad, límites de tasa, PWA y textos de la tienda). Usan una base de datos simulada en memoria, por lo que no necesitan
 MySQL. Las pruebas manuales sobre MySQL real están en `docs/PLAN_DE_PRUEBAS.md`.
 
 Dos pruebas cuidan de que el precio que ve el cliente sea el que se cobra: una compara la escalera de descuentos
 del frontend con la del servidor, y las de inventario comprueban que un pedido rechazado por falta de unidades no
 descuente nada (ni al guardar ni al cancelar).
 
-## Desplegar en DigitalOcean (App Platform + MySQL gestionado)
+## Despliegue actual: Vercel + Aiven
 
-Elegido porque la app es un Express con pool de conexiones que debe estar siempre encendido: Vercel ejecuta
-funciones que se suspenden y hay que adaptar el pool (`attachDatabasePool`), así que no encaja tal cual.
-Costo de referencia (octubre de 2026): US$5/mes el contenedor de 512 MiB + US$15/mes el MySQL gestionado de
-un nodo, más el dominio al registrador (unos US$10-15 al año).
+La tienda está publicada en Vercel (https://pixel-galletas.vercel.app) y la base de datos es un MySQL de Aiven.
+Vercel sirve `public/` directamente, y `api/index.js` atiende `/api/*` y `/sitemap.xml` como función
+(`vercel.json`). `.vercelignore` deja fuera del sitio publicado lo que no debe salir: secretos, pruebas,
+documentación y la herramienta interna de fotos (`public/_fotos-dyme.html` y `public/img/_dyme/`).
 
-1. **Base de datos:** crear un clúster *Managed MySQL* en la misma región que la app. Anotar host, puerto,
-   usuario, contraseña y nombre de la base.
-2. **App:** en App Platform, *Create App* desde el repositorio de GitHub. Detecta Node solo; el comando de
-   arranque es `npm start` y el puerto lo toma de `PORT`, que DigitalOcean inyecta.
-3. **Variables de entorno** (Settings → Environment): `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`,
-   `DB_NAME`, `JWT_SECRET` y **`DB_SSL=true`** (la base gestionada exige TLS; `db.js` ya lo soporta).
-   Si además quieres el aviso por Telegram: `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID`.
-4. **Esquema:** ejecutar `database/schema.sql` contra un clúster nuevo y vacío. No volver a ejecutar el script
-   completo sobre datos existentes sin revisar y respaldar la base: incluye operaciones que borran sabores y
-   modifican algunos precios o descripciones. Para una base existente, aplicar solo las migraciones necesarias.
-5. **Administrador:** correr `npm run crear-admin` apuntando a esa base (o crearlo desde la consola del
-   contenedor) para poder entrar al panel.
-6. **Dominio:** añadirlo en el App Platform y apuntar los DNS del registrador; el certificado TLS se emite solo.
+**Variables en Vercel** (Settings → Environment Variables): `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`,
+`DB_NAME`, `DB_SSL=true`, `DB_SSL_CA_PEM` (el certificado de Aiven como texto), `JWT_SECRET`, `CRON_SECRET` y
+`SITIO_URL`. Si además quieres el aviso por Telegram: `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID`.
 
-Sobre límites de los planes gratuitos, por si se comparan: el servicio gratis de Render duerme a los 15 minutos
-sin tráfico y su base gratuita es PostgreSQL (caduca a los 30 días); el MySQL gratis de Aiven tiene 1 GB y
-puede apagarse sin aviso. Para una tienda que recibe pedidos, conviene un plan que no duerma.
+Si `JWT_SECRET` falta o tiene menos de 32 caracteres, la API de producción no arranca a medias: responde **503** con
+`codigo: "JWT_SECRET_INVALIDO"` y deja el motivo en los registros de Vercel.
+
+**Si el servicio de Aiven se detiene, la tienda se cae.** El plan gratis de Aiven (1 GB) puede apagarse sin aviso.
+La página carga, pero el catálogo, los pedidos y el acceso dependen de la base y responden 500 con un `codigo` de
+conexión (como `ETIMEDOUT`, `ECONNREFUSED` o `ENOTFOUND`). Se arregla encendiendo otra vez el servicio en la
+consola de Aiven. Para una tienda que recibe pedidos, conviene un plan que no se apague.
+
+**Esquema:** ejecutar `database/schema.sql` solo contra una base nueva y vacía. No volver a ejecutar el script
+completo sobre datos existentes sin revisar y respaldar la base: incluye operaciones que borran sabores y
+modifican algunos precios o descripciones. Para una base existente, aplicar solo las migraciones necesarias.
+
+**Administrador:** correr `npm run crear-admin` apuntando a esa base para poder entrar al panel.
 
 ## Seguridad aplicada y limitaciones conocidas
 - Contraseñas con hash bcrypt; consultas SQL parametrizadas; el texto del frontend se inserta con `textContent`.
@@ -123,10 +137,12 @@ puede apagarse sin aviso. Para una tienda que recibe pedidos, conviene un plan q
   (`sabor_visto`, `carrito_agregar`, `checkout_iniciado`) y el resumen es solo del admin.
 - Límites de tasa: inicio de sesión, registro, pedidos, consulta de estado y una red general para `/api`.
   Detrás de un proxy, se activa con `TRUST_PROXY=1` para contar al cliente real.
-- Los errores 500 responden solo un mensaje genérico; el detalle va al log del servidor.
+- Los errores 500 responden un mensaje genérico y, si lo hay, el `codigo` del error de MySQL o de red
+  (por ejemplo `ER_ACCESS_DENIED_ERROR` o `ETIMEDOUT`) para poder diagnosticar. El código no revela usuario, host
+  ni SQL; el detalle completo va al log del servidor.
 - Cabeceras de seguridad con helmet y una CSP estricta: sin scripts inline (el arranque está en `public/js/arranque.js`)
   y sin estilos inline salvo los atributos `style` de las brasas (`style-src-attr`).
 - Retención: los eventos de la medición de más de 180 días se borran al arrancar y cada 24 horas.
-- Limitaciones: el token se guarda en `localStorage`; el servidor funciona por HTTP (uso local); `POST /api/eventos`
+- Limitaciones: el token se guarda en `localStorage`; en local el servidor funciona por HTTP (Vercel publica por HTTPS); `POST /api/eventos`
   es público (un script puede inflar la medición, aunque no puede tocar precios ni pedidos).
 - Integración continua: `.github/workflows/ci.yml` instala con el lockfile, verifica sintaxis y ejecuta `npm test`.

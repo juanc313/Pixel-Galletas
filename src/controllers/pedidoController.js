@@ -5,6 +5,7 @@ const { descuentoDe, COMBOS } = require("../config/descuentos");
 const { ENTREGAS, envioDe } = require("../config/envio");
 const { notificarPedido } = require("../config/telegram");
 const { cargoDeRango, RANGOS_DISTANCIA } = require("../config/distancia");
+const { telefonoValido } = require("../util/telefono");
 
 const ESTADOS_VALIDOS = ["pendiente", "en_preparacion", "listo", "entregado", "cancelado"];
 
@@ -68,8 +69,8 @@ class PedidoController {
       if (!cliente_nombre || !String(cliente_nombre).trim()) {
         return res.status(400).json({ error: "cliente_nombre es obligatorio" });
       }
-      if (!cliente_telefono || !/^[0-9+\s-]{7,20}$/.test(String(cliente_telefono))) {
-        return res.status(400).json({ error: "cliente_telefono debe ser un número de contacto válido (7 a 20 dígitos)" });
+      if (!telefonoValido(cliente_telefono)) {
+        return res.status(400).json({ error: "cliente_telefono debe ser un número de contacto válido (7 a 15 dígitos)" });
       }
       if (!Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: "El pedido debe incluir al menos un producto (items)" });
@@ -98,7 +99,15 @@ class PedidoController {
         if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > 100) {
           return res.status(400).json({ error: "La cantidad de cada producto debe ser un entero entre 1 y 100" });
         }
-        const producto = await Producto.buscarPorId(Number(item.producto_id));
+        // Un entero de verdad: Number() convertiría true en 1, "1e2" en 100 o
+        // [5] en 5, y el pedido saldría con un sabor que nadie eligió.
+        const productoId = typeof item.producto_id === "string" && /^[0-9]+$/.test(item.producto_id)
+          ? Number(item.producto_id)
+          : item.producto_id;
+        if (!Number.isSafeInteger(productoId) || productoId < 1) {
+          return res.status(400).json({ error: "producto_id debe ser un entero positivo" });
+        }
+        const producto = await Producto.buscarPorId(productoId);
         if (!producto) {
           return res.status(400).json({ error: `El producto con id ${item?.producto_id} no existe en el catálogo` });
         }
@@ -197,8 +206,8 @@ class PedidoController {
     if (!Number.isInteger(id) || id < 1) {
       return res.status(400).json({ error: "Falta el número de pedido" });
     }
-    if (!/^[0-9+\s-]{7,20}$/.test(telefono)) {
-      return res.status(400).json({ error: "telefono debe ser un número de contacto válido (7 a 20 dígitos)" });
+    if (!telefonoValido(telefono)) {
+      return res.status(400).json({ error: "telefono debe ser un número de contacto válido (7 a 15 dígitos)" });
     }
     try {
       const pedido = await Pedido.buscarPublico(id, telefono);
