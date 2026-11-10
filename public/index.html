@@ -852,6 +852,14 @@
             <span id="linea-envio">Envío <b id="carrito-envio">$ 0</b></span>
           </p>
           <p class="total-linea">Total <strong id="carrito-total">$ 0</strong></p>
+          <!-- Barra de poder: la escalera de descuentos como niveles (la pinta
+               pedidos.js; las metas salen de DESCUENTOS). -->
+          <div class="barra-poder" id="barra-poder" hidden>
+            <p class="barra-poder-cabeza"><b id="poder-nivel">Nivel 1</b> <span id="poder-premio"></span></p>
+            <div class="barra-poder-pista" id="poder-pista" role="progressbar" aria-label="Galletas para el descuento máximo" aria-valuemin="0" aria-valuemax="48" aria-valuenow="0">
+              <i class="barra-poder-relleno" id="poder-relleno"></i>
+            </div>
+          </div>
           <!-- Empujón al tramo siguiente: "te faltan 4 galletas para el 8%". -->
           <p class="aviso-descuento" id="aviso-descuento" hidden></p>
           <button type="button" id="btn-vaciar-carrito" class="secundario">Vaciar carrito</button>
@@ -899,7 +907,15 @@
             <p><span aria-hidden="true">🛡️</span> <strong>Aviso de seguridad:</strong> nunca te pediremos un captcha, una descarga ni un código para pagar. Si ves algo así, no sigas y escríbenos al <strong>313 783 9935</strong> por WhatsApp.</p>
           </aside>
           <div id="confirmacion" class="confirmacion" hidden>
-            <p><svg class="icono" viewBox="0 0 9 7" aria-hidden="true"  shape-rendering="crispEdges"><path fill="currentColor" d="M8 0h1v1h-1zM7 1h2v1h-2zM6 2h2v1h-2zM0 3h1v1h-1zM5 3h2v1h-2zM0 4h2v1h-2zM4 4h2v1h-2zM1 5h4v1h-4zM2 6h2v1h-2z"/></svg> <span>Tu pedido quedó registrado. Ahora envíanoslo por WhatsApp para coordinar el pago y la entrega:</span></p>
+            <div class="completado-lluvia" id="completado-lluvia" aria-hidden="true"></div>
+            <p class="completado-titulo">¡Nivel completado!</p>
+            <dl class="completado-marcador">
+              <div><dt>Pedido</dt><dd id="completado-pedido">#0</dd></div>
+              <div><dt>Galletas</dt><dd id="completado-galletas">0</dd></div>
+              <div id="completado-ahorro-fila" hidden><dt>Ahorraste</dt><dd id="completado-ahorro">$ 0</dd></div>
+              <div><dt>Total</dt><dd id="completado-total">$ 0</dd></div>
+            </dl>
+            <p><svg class="icono" viewBox="0 0 9 7" aria-hidden="true"  shape-rendering="crispEdges"><path fill="currentColor" d="M8 0h1v1h-1zM7 1h2v1h-2zM6 2h2v1h-2zM0 3h1v1h-1zM5 3h2v1h-2zM0 4h2v1h-2zM4 4h2v1h-2zM1 5h4v1h-4zM2 6h2v1h-2z"/></svg> <span><b>Último paso:</b> envíanos el pedido por WhatsApp para coordinar el pago y la entrega.</span></p>
             <a id="btn-whatsapp-pedido" class="boton-whatsapp" target="_blank" rel="noopener" href="#">Enviar por WhatsApp</a>
           </div>
         </div>

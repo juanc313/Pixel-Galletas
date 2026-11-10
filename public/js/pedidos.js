@@ -127,6 +127,32 @@ export function descuentoPara(unidades, subtotal) {
   return { porcentaje, valor: Math.round((subtotal * porcentaje) / 100), siguiente };
 }
 
+// Barra de poder del carrito: la escalera de descuentos dibujada como niveles.
+// Se llena con las galletas que cuentan para el descuento (un combo tiene precio
+// fijo, así que no la llena) y una meta solo se enciende cuando el descuento se
+// aplica de verdad: nunca promete un ahorro que el total no trae.
+export function progresoPoder(sueltas) {
+  const tope = DESCUENTOS[DESCUENTOS.length - 1].desde;
+  const { actual, siguiente } = tramoDescuento(sueltas);
+  const logrados = DESCUENTOS.filter((t) => sueltas >= t.desde).length;
+  return {
+    nivel: logrados === DESCUENTOS.length ? "MAX" : String(logrados + 1),
+    porcentaje: actual ? actual.porcentaje : 0,
+    siguiente,
+    faltan: siguiente ? siguiente.desde - sueltas : 0,
+    llenado: Math.min(sueltas / tope, 1),
+    metas: DESCUENTOS.map((t) => ({ ...t, posicion: t.desde / tope, logrado: sueltas >= t.desde })),
+  };
+}
+
+// Lo que el cliente se ahorró en un pedido ya guardado: el descuento por volumen
+// más la diferencia del combo frente a las mismas galletas sueltas.
+export function ahorroDe(pedido) {
+  const combo = comboDe(pedido.detalles);
+  const sueltas = pedido.detalles.reduce((s, d) => s + d.precio * d.cantidad, 0);
+  return (pedido.descuento || 0) + (combo ? Math.max(sueltas - combo.precio, 0) : 0);
+}
+
 // Habla con /api/carrito para guardar el carrito en la cuenta del cliente.
 // Sin sesión no hace nada: el carrito queda solo en el navegador.
 const lineasDeCuenta = (filas) => filas.map((f) => ({
@@ -737,6 +763,8 @@ class PedidoVista {
       if (sugerido) {
         aviso.hidden = false;
         aviso.textContent = `Te faltan ${sugerido.faltan} galleta${sugerido.faltan === 1 ? "" : "s"} normal${sugerido.faltan === 1 ? "" : "es"} para armar el ${sugerido.nombre} a ${pesos(sugerido.precio)}.`;
+      } else if (this.$("barra-poder")) {
+        aviso.hidden = true; // la barra de poder ya dice cuánto falta para el siguiente descuento
       } else if (!aviso.hidden) {
         aviso.textContent = hayDescuento
           ? `Con ${siguiente.desde} galletas el descuento sube al ${siguiente.porcentaje}%: te faltan ${faltan}.`
@@ -744,11 +772,60 @@ class PedidoVista {
       }
     }
     this.$("carrito-total").textContent = pesos(this.carrito.total);
+    this.#pintarPoder();
     this.$("vacio").hidden = this.carrito.items.length > 0;
     this.$("btn-pedir").disabled = this.enviando || this.carrito.items.length === 0;
     // Sin galletas no hay nada que vaciar: el botón se apaga en vez de quedarse
     // ahí como una acción muerta al lado del aviso de carrito vacío.
     this.$("btn-vaciar-carrito").disabled = this.carrito.items.length === 0;
+  }
+
+  // Barra de poder: se oculta sin galletas y con combo (precio fijo, sin
+  // descuento por volumen; el aviso de arriba ya lo explica).
+  #nivelPintado = null;
+  #pintarPoder() {
+    const barra = this.$("barra-poder");
+    if (!barra) return;
+    const visible = this.carrito.items.length > 0 && !this.carrito.combo;
+    barra.hidden = !visible;
+    if (!visible) { this.#nivelPintado = null; return; }
+    const p = progresoPoder(this.carrito.cantidadSueltas);
+
+    const pista = this.$("poder-pista");
+    if (!pista.querySelector(".barra-poder-meta")) {
+      for (const meta of p.metas) {
+        const marca = document.createElement("span");
+        marca.className = "barra-poder-meta";
+        marca.dataset.desde = meta.desde;
+        marca.style.left = `${meta.posicion * 100}%`;
+        const pct = document.createElement("b");
+        pct.textContent = `${meta.porcentaje}%`;
+        const unidades = document.createElement("small");
+        unidades.textContent = meta.desde;
+        marca.append(pct, unidades);
+        pista.append(marca);
+      }
+    }
+    for (const marca of pista.querySelectorAll(".barra-poder-meta")) {
+      marca.classList.toggle("logrado", this.carrito.cantidadSueltas >= Number(marca.dataset.desde));
+    }
+    this.$("poder-relleno").style.transform = `scaleX(${p.llenado})`;
+    pista.setAttribute("aria-valuenow", String(Math.min(this.carrito.cantidadSueltas, p.metas.at(-1).desde)));
+
+    this.$("poder-nivel").textContent = `Nivel ${p.nivel}`;
+    this.$("poder-premio").textContent = p.siguiente
+      ? `${p.faltan === 1 ? "Falta" : "Faltan"} ${p.faltan} para el ${p.siguiente.porcentaje}%${p.siguiente.desde <= ENVIO_GRATIS_DESDE ? " + envío gratis" : ""}`
+      : `${p.porcentaje}% de descuento: ¡nivel máximo!`;
+    barra.classList.toggle("max", !p.siguiente);
+
+    // "¡LEVEL UP!" solo cuando el cliente sube de nivel, no al cargar la página.
+    const subio = this.#nivelPintado !== null && p.nivel !== this.#nivelPintado && (p.nivel === "MAX" || Number(p.nivel) > Number(this.#nivelPintado));
+    this.#nivelPintado = p.nivel;
+    if (subio) {
+      barra.classList.remove("subio");
+      void barra.offsetWidth; // reinicia la animación si sube dos veces seguidas
+      barra.classList.add("subio");
+    }
   }
 
   #boton(texto, titulo, id, accion) {
@@ -830,8 +907,39 @@ class PedidoVista {
     this.mensaje(`¡Pedido #${pedido.id} registrado! Total ${pesos(pedido.total)}. Te esperamos.`, false);
     const enlace = this.$("btn-whatsapp-pedido");
     enlace.href = urlWhatsApp(textoPedido(pedido));
+    // Marcador de "¡Nivel completado!": lo que el cliente logró con su pedido.
+    const galletas = pedido.detalles.reduce((s, d) => s + d.cantidad, 0);
+    const ahorro = ahorroDe(pedido);
+    const poner = (id, texto) => { const n = this.$(id); if (n) n.textContent = texto; };
+    poner("completado-pedido", `#${pedido.id}`);
+    poner("completado-galletas", String(galletas));
+    poner("completado-ahorro", pesos(ahorro));
+    poner("completado-total", pesos(pedido.total));
+    const filaAhorro = this.$("completado-ahorro-fila");
+    if (filaAhorro) {
+      filaAhorro.hidden = ahorro <= 0;
+      filaAhorro.parentElement?.classList.toggle("sin-ahorro", ahorro <= 0);
+    }
+    this.#lluviaDePixeles();
     this.$("confirmacion").hidden = false;
-    this.$("confirmacion").scrollIntoView({ behavior: "smooth" });
+    this.$("confirmacion").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // Píxeles de colores que caen sobre el marcador. Es decoración (aria-hidden) y
+  // con "reducir movimiento" el CSS no la anima ni la muestra.
+  #lluviaDePixeles() {
+    const capa = this.$("completado-lluvia");
+    if (!capa) return;
+    const colores = ["var(--masa)", "var(--moneda)", "var(--diamante)", "var(--corazon)"];
+    capa.replaceChildren();
+    for (let i = 0; i < 28; i++) {
+      const px = document.createElement("i");
+      px.style.setProperty("--x", `${Math.round(Math.random() * 100)}%`);
+      px.style.setProperty("--retraso", `${(Math.random() * 0.9).toFixed(2)}s`);
+      px.style.setProperty("--giro", `${Math.round(Math.random() * 360)}deg`);
+      px.style.setProperty("--color", colores[i % colores.length]);
+      capa.append(px);
+    }
   }
 }
 

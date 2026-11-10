@@ -1165,6 +1165,76 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .confirmacion p { display: flex; align-items: flex-start; gap: var(--s-3); }
 .confirmacion .icono { flex: none; width: 1.7rem; height: 1.5rem; margin-top: .15rem; color: var(--diamante); }
 
+/* Barra de poder: la escalera de descuentos como una barra de nivel. Las metas
+   (5%, 8%, 10%) se encienden solo cuando el descuento ya se aplica. */
+.barra-poder { margin: calc(var(--s-6) * -1 + var(--s-3)) 0 var(--s-6); padding-bottom: var(--s-4); position: relative; }
+.barra-poder-cabeza { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
+  gap: var(--s-1) var(--s-3); margin: 0 0 var(--s-2); font-size: var(--t-sm); color: var(--suave); }
+.barra-poder-cabeza b { font-family: var(--titulos); font-size: var(--t-md); color: var(--masa);
+  text-transform: uppercase; letter-spacing: .04em; }
+.barra-poder-pista { position: relative; height: 1.1rem; margin-bottom: 2.4rem; background: var(--tinta);
+  box-shadow: var(--px-3); }
+.barra-poder-relleno { position: absolute; inset: 0; transform-origin: left; transform: scaleX(0);
+  background: repeating-linear-gradient(90deg, var(--masa) 0 10px, var(--masa-clara) 10px 12px);
+  transition: transform var(--d-reveal) var(--e-salida); }
+.barra-poder.max .barra-poder-relleno {
+  background: repeating-linear-gradient(90deg, var(--moneda) 0 10px, var(--masa-clara) 10px 12px); }
+.barra-poder-meta { position: absolute; top: 0; display: flex; flex-direction: column;
+  align-items: center; transform: translateX(-50%); pointer-events: none; }
+.barra-poder-meta::before { content: ""; flex: none; width: 3px; height: 1.1rem; background: var(--linea); }
+.barra-poder-meta:last-child { transform: translateX(-100%); align-items: flex-end; }
+.barra-poder-meta b { margin-top: .35rem; font-family: var(--titulos); font-size: var(--t-sm); line-height: 1;
+  color: var(--suave); }
+.barra-poder-meta small { font-size: .72rem; color: var(--suave); }
+.barra-poder-meta.logrado b { color: var(--diamante); }
+.barra-poder-meta.logrado::before { background: var(--diamante); }
+/* "¡LEVEL UP!" destella sobre la barra al subir de nivel (decorativo: el aviso
+   de texto de arriba ya dice el descuento nuevo). */
+.barra-poder-pista::after { content: "¡LEVEL UP!"; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%); font-family: var(--titulos); font-size: var(--t-lg); white-space: nowrap;
+  color: #FFF3DC; text-shadow: 2px 0 0 #2A1A4A, -2px 0 0 #2A1A4A, 0 2px 0 #2A1A4A, 0 -2px 0 #2A1A4A, 3px 3px 0 #2A1A4A;
+  opacity: 0; pointer-events: none; z-index: 1; }
+.barra-poder.subio .barra-poder-pista::after { animation: subir-nivel-quieto 1.4s ease-out; }
+@keyframes subir-nivel-quieto { 10%, 70% { opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  .barra-poder.subio .barra-poder-pista::after { animation: subir-nivel 1.4s var(--e-salida); }
+  .barra-poder.subio .barra-poder-pista { animation: pista-brilla .6s steps(3) 2; }
+}
+@keyframes subir-nivel {
+  0% { opacity: 0; transform: translate(-50%, -20%) scale(.7); }
+  15% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+  70% { opacity: 1; transform: translate(-50%, -60%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -90%); }
+}
+@keyframes pista-brilla { 50% { box-shadow: var(--px-3-diamante), 0 0 18px var(--diamante); } }
+
+/* "¡Nivel completado!": el marcador del pedido recién hecho. */
+.confirmacion { position: relative; overflow: hidden; }
+.completado-titulo { justify-content: center; margin: 0 0 var(--s-4); font-family: var(--titulos);
+  font-size: var(--t-2xl); line-height: 1.1; text-align: center; text-transform: uppercase; color: var(--moneda);
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, .45); }
+.completado-marcador { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3);
+  margin: 0 0 var(--s-5); }
+/* Sin ahorro quedan tres casillas: el total ocupa la fila entera. */
+.completado-marcador.sin-ahorro > div:last-child { grid-column: 1 / -1; }
+.completado-marcador > div { padding: var(--s-3); text-align: center; background: var(--tinta); box-shadow: var(--px-3-suave); }
+.completado-marcador > div[hidden] { display: none; }
+.completado-marcador dt { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .06em; color: var(--suave); }
+.completado-marcador dd { margin: var(--s-1) 0 0; font-family: var(--titulos); font-size: var(--t-xl); color: var(--crema); }
+#completado-ahorro { color: var(--diamante); }
+#completado-total { color: var(--masa); }
+.confirmacion .boton-whatsapp { position: relative; }
+.completado-lluvia { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .completado-titulo { animation: titulo-completado .7s steps(4) both; }
+  .completado-lluvia { display: block; position: absolute; inset: 0; pointer-events: none; }
+  .completado-lluvia i { position: absolute; top: -12px; left: var(--x); width: 8px; height: 8px;
+    background: var(--color); transform: rotate(var(--giro));
+    animation: pixel-cae 1.8s var(--retraso) cubic-bezier(.3, .1, .7, 1) forwards; }
+}
+@keyframes titulo-completado { from { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } }
+@keyframes pixel-cae { to { transform: translateY(26rem) rotate(calc(var(--giro) + 220deg)); opacity: 0; } }
+
 /* Listas de administración (pedidos y usuarios) */
 .productos:not(#lista-productos) .producto { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
   gap: var(--s-3) var(--s-5); padding: var(--s-4) var(--s-5); background: var(--tinta);

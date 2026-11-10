@@ -216,6 +216,20 @@
 :root[data-tema="claro"] .desglose { color: #4A3B68; }
 :root[data-tema="claro"] .desglose b { color: #2A1A4A; }
 
+/* --- Barra de poder y "¡Nivel completado!": cifras oscuras, sin sombra negra --- */
+:root[data-tema="claro"] .barra-poder-cabeza b,
+:root[data-tema="claro"] #completado-total { color: #B4470A; }
+:root[data-tema="claro"] .barra-poder-pista { background: #FFFFFF; box-shadow: 0 0 0 2px #2A1A4A; }
+:root[data-tema="claro"] .barra-poder-meta::before { background: rgba(42, 26, 74, .35); }
+:root[data-tema="claro"] .barra-poder-meta b,
+:root[data-tema="claro"] .barra-poder-meta small { color: #4A3B68; }
+:root[data-tema="claro"] .barra-poder-meta.logrado b { color: #0B6F60; }
+:root[data-tema="claro"] .completado-titulo { color: #B4470A; text-shadow: 2px 2px 0 rgba(42, 26, 74, .15); }
+:root[data-tema="claro"] .completado-marcador > div { background: #FFFFFF; box-shadow: 0 0 0 2px rgba(42, 26, 74, .25); }
+:root[data-tema="claro"] .completado-marcador dt { color: #4A3B68; }
+:root[data-tema="claro"] .completado-marcador dd { color: #2A1A4A; }
+:root[data-tema="claro"] #completado-ahorro { color: #0B6F60; }
+
 /* --- Etiqueta de nivel: chip blanco en cualquier contenedor, no solo en las
    secciones de la portada (las páginas 8-bit la metían en su propia caja). --- */
 :root[data-tema="claro"] .etiqueta {

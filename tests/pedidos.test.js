@@ -909,3 +909,52 @@ test("Carrito: a 100 de un sabor se detiene y no pasa del tope", async () => {
   assert.equal(c.agregar(galleta), false);
   assert.equal(c.cantidadTotal, 100);
 });
+
+// ---------- Barra de poder y "¡Nivel completado!" ----------
+
+test("Barra de poder: los niveles siguen la escalera real de descuentos", async () => {
+  const { progresoPoder } = await cargar();
+  const vacio = progresoPoder(0);
+  assert.equal(vacio.nivel, "1");
+  assert.equal(vacio.faltan, 12);
+  assert.equal(vacio.llenado, 0);
+  assert.deepEqual(vacio.metas.map((m) => [m.desde, m.porcentaje, m.posicion]), [[12, 5, 0.25], [24, 8, 0.5], [48, 10, 1]]);
+
+  const once = progresoPoder(11);
+  assert.equal(once.nivel, "1");
+  assert.equal(once.faltan, 1, "a una galleta del 5%");
+  assert.ok(once.metas.every((m) => !m.logrado), "nada encendido antes de tener el descuento");
+
+  const doce = progresoPoder(12);
+  assert.equal(doce.nivel, "2");
+  assert.equal(doce.porcentaje, 5);
+  assert.deepEqual(doce.metas.map((m) => m.logrado), [true, false, false]);
+  assert.equal(doce.siguiente.porcentaje, 8);
+
+  const maximo = progresoPoder(60);
+  assert.equal(maximo.nivel, "MAX");
+  assert.equal(maximo.siguiente, null);
+  assert.equal(maximo.llenado, 1, "la barra no se pasa del tope");
+});
+
+test("Barra de poder: un combo no la llena (precio fijo, sin descuento por volumen)", async () => {
+  const { Carrito, progresoPoder } = await cargar();
+  const c = new Carrito();
+  c.items = [
+    { producto_id: 6, nombre: "Pixel Special Edition", precio: 9500, cantidad: 6 },
+    { producto_id: 1, nombre: "Pixel Monster", precio: 7000, cantidad: 6 },
+  ];
+  assert.ok(c.combo, "12 galletas que forman 2 Combo x3");
+  assert.equal(progresoPoder(c.cantidadSueltas).porcentaje, 0, "la barra no promete el 5%");
+});
+
+test("Nivel completado: el ahorro suma descuento por volumen y diferencia del combo", async () => {
+  const { ahorroDe } = await cargar();
+  assert.equal(ahorroDe({ descuento: 4200, detalles: [{ nombre: "Pixel Monster", precio: 7000, cantidad: 12 }] }), 4200);
+  // Combo x1: 1 Special + 2 normales = 23.500 sueltas, se cobra 22.000.
+  assert.equal(ahorroDe({ descuento: 0, detalles: [
+    { nombre: "Pixel Special Edition", precio: 9500, cantidad: 1 },
+    { nombre: "Pixel Monster", precio: 7000, cantidad: 2 },
+  ] }), 1500);
+  assert.equal(ahorroDe({ descuento: 0, detalles: [{ nombre: "Pixel Monster", precio: 7000, cantidad: 1 }] }), 0);
+});
