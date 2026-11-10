@@ -635,7 +635,7 @@ class PedidoVista {
     // llevó todas las unidades disponibles, el cliente se entera al instante en
     // vez de descubrirlo al confirmar el pedido.
     escucharGlobal("pedidos:agregar-al-carrito", "agregar-al-carrito", (e) => {
-      if (this.carrito.agregar(e.detail)) { sonar("moneda"); return; }
+      if (this.carrito.agregar(e.detail)) { sonar("galleta"); return; }
       if (this.carrito.items.find((i) => i.producto_id === e.detail?.id)?.cantidad >= 100) {
         this.#avisarTopeSabor(e.detail?.nombre);
         return;
@@ -855,7 +855,7 @@ class PedidoVista {
     const id = Number(b.dataset.id);
     const item = this.carrito.items.find((i) => i.producto_id === id);
     if (!item) return;
-    sonar(b.dataset.accion === "mas" ? "moneda" : "clic");
+    sonar(b.dataset.accion === "mas" ? "galleta" : "clic");
     if (b.dataset.accion === "mas") this.carrito.cambiarCantidad(id, item.cantidad + 1);
     else if (b.dataset.accion === "menos") this.carrito.cambiarCantidad(id, item.cantidad - 1);
     else if (b.dataset.accion === "quitar") this.carrito.quitar(id);

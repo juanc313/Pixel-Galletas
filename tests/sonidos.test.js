@@ -18,7 +18,7 @@ test("Sonidos: cada efecto usa notas válidas y dura poco (nada de canciones)", 
   for (const [nombre, efecto] of Object.entries(EFECTOS)) {
     let total = 0;
     for (const [nota, dur, forma] of efecto.notas) {
-      if (nota) { frecuencia(nota); assert.ok(["square", "triangle"].includes(forma), `${nombre}: onda ${forma}`); }
+      if (nota && nota !== "ruido") { frecuencia(nota); assert.ok(["square", "triangle"].includes(forma), `${nombre}: onda ${forma}`); }
       assert.ok(dur > 0 && dur < 0.5, `${nombre}: duración ${dur}`);
       total += dur;
     }
@@ -35,10 +35,32 @@ test("Sonidos: cada nivel de la barra suena más épico que el anterior", async 
   assert.ok(dura("nivel2") < dura("nivel3") && dura("nivel3") < dura("max"));
 });
 
-test("Sonidos: si suenan dos a la vez, gana el logro (no la moneda)", async () => {
+test("Sonidos: si suenan dos a la vez, gana el logro (no la galleta)", async () => {
   const { elegirEfecto } = await cargar();
-  assert.equal(elegirEfecto(["moneda", "nivel2"]), "nivel2");
-  assert.equal(elegirEfecto(["clic", "moneda"]), "moneda");
-  assert.equal(elegirEfecto(["moneda", "max", "combo"]), "max");
+  assert.equal(elegirEfecto(["galleta", "nivel2"]), "nivel2");
+  assert.equal(elegirEfecto(["clic", "galleta"]), "galleta");
+  assert.equal(elegirEfecto(["galleta", "max", "combo"]), "max");
   assert.equal(elegirEfecto(["no-existe"]), null);
+});
+
+// Melodías famosas que la tienda NO puede usar (solo las alturas, en orden).
+// Si alguien escribe un efecto que las contenga, esta prueba lo frena.
+const PROHIBIDAS = {
+  "moneda de Mario Bros": ["B5", "E6"],
+  "1-up de Mario Bros": ["E5", "G5", "E6", "C6", "D6", "G6"],
+  "nivel superado de Mario Bros": ["G4", "C5", "E5", "G5", "E5", "G5"],
+  "objeto encontrado de Zelda": ["A4", "A#4", "B4", "C5"],
+};
+
+test("Sonidos: ningún efecto copia sonidos famosos de videojuegos", async () => {
+  const { EFECTOS } = await cargar();
+  for (const [nombre, efecto] of Object.entries(EFECTOS)) {
+    const alturas = efecto.notas.map((n) => n[0]).filter((n) => n && n !== "ruido");
+    for (const [famosa, notas] of Object.entries(PROHIBIDAS)) {
+      const contiene = alturas.some((_, i) => notas.every((n, j) => alturas[i + j] === n));
+      assert.ok(!contiene, `${nombre} contiene la ${famosa}`);
+    }
+  }
+  assert.ok(!EFECTOS.moneda, "la moneda de Mario no existe");
+  assert.equal(EFECTOS.galleta.notas[0][0], "ruido", "agregar galleta empieza con el crujido");
 });

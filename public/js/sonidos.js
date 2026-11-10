@@ -20,19 +20,23 @@ export function frecuencia(nota) {
   return 440 * 2 ** (semitonos / 12);
 }
 
-// Cada efecto: prioridad y notas [nota | null (silencio), segundos, forma de onda].
+// Cada efecto: prioridad y notas [nota | "ruido" | null (silencio), segundos, forma de onda].
+// Todos son ORIGINALES: ninguno copia sonidos conocidos de videojuegos (hay
+// una prueba que vigila, por ejemplo, que no vuelva la moneda de Mario: Si5 → Mi6).
 export const EFECTOS = {
   clic:     { prioridad: 0, notas: [["A5", 0.03, "square"]], volumen: 0.5 },
   blip:     { prioridad: 0, notas: [["E5", 0.035, "triangle"]], volumen: 0.6 },
   dialogo:  { prioridad: 1, notas: [["C5", 0.05, "triangle"], ["G5", 0.08, "triangle"]] },
-  moneda:   { prioridad: 1, notas: [["B5", 0.06, "square"], ["E6", 0.14, "square"]] },
+  // Agregar galleta: mordisco crujiente y un "bling" de sexta, la firma de Pixel Galletas.
+  galleta:  { prioridad: 1, notas: [["ruido", 0.04], [null, 0.015], ["C6", 0.05, "triangle"], ["A6", 0.12, "triangle"]] },
   combo:    { prioridad: 2, notas: ["C5", "D5", "E5", "F#5", "G#5", "A#5", "C6"].map((n) => [n, 0.04, "square"]) },
   nivel2:   { prioridad: 3, notas: [["C5", 0.07, "square"], ["E5", 0.07, "square"], ["G5", 0.07, "square"], ["C6", 0.18, "square"]] },
   nivel3:   { prioridad: 3, notas: [["D5", 0.06, "square"], ["F#5", 0.06, "square"], ["A5", 0.06, "square"], ["D6", 0.06, "square"], ["F#6", 0.06, "square"], ["A6", 0.22, "square"]] },
   max:      { prioridad: 4, notas: [["C5", 0.08, "square"], ["E5", 0.08, "square"], ["G5", 0.08, "square"], ["C6", 0.16, "square"], [null, 0.05],
     ["A5", 0.08, "square"], ["B5", 0.08, "square"], ["C6", 0.08, "square"], ["E6", 0.36, "square"]] },
-  victoria: { prioridad: 5, notas: [["G4", 0.11, "square"], ["C5", 0.11, "square"], ["E5", 0.11, "square"], ["G5", 0.22, "square"], [null, 0.04],
-    ["E5", 0.11, "square"], ["G5", 0.45, "square"]] },
+  // Pedido confirmado: jingle propio de la marca, en Fa mayor.
+  victoria: { prioridad: 5, notas: [["F4", 0.1, "square"], ["A4", 0.1, "square"], ["C5", 0.1, "square"], [null, 0.04],
+    ["A#4", 0.1, "square"], ["C5", 0.1, "square"], ["D5", 0.1, "square"], ["F5", 0.42, "square"]] },
 };
 
 // El efecto de subir al nivel N de la barra de poder ("2", "3" o "MAX").
@@ -69,7 +73,19 @@ function tocar(nombre) {
   salida.connect(contexto.destination);
   let t = contexto.currentTime + 0.01;
   for (const [nota, dur, forma] of efecto.notas) {
-    if (nota) {
+    if (nota === "ruido") {
+      // Crujido: ruido blanco que se apaga rápido, como un mordisco.
+      const muestras = Math.ceil(contexto.sampleRate * dur);
+      const buffer = contexto.createBuffer(1, muestras, contexto.sampleRate);
+      const datos = buffer.getChannelData(0);
+      for (let i = 0; i < muestras; i++) datos[i] = (Math.random() * 2 - 1) * (1 - i / muestras) ** 2;
+      const fuente = contexto.createBufferSource();
+      const env = contexto.createGain();
+      env.gain.value = 0.7;
+      fuente.buffer = buffer;
+      fuente.connect(env).connect(salida);
+      fuente.start(t);
+    } else if (nota) {
       const osc = contexto.createOscillator();
       const env = contexto.createGain();
       osc.type = forma;
@@ -112,7 +128,7 @@ function agregarInterruptor() {
   casilla.checked = sonidosActivos();
   casilla.addEventListener("change", () => {
     activarSonidos(casilla.checked);
-    if (casilla.checked) sonar("moneda"); // para que se oiga cómo suenan
+    if (casilla.checked) sonar("galleta"); // para que se oiga cómo suenan
   });
   etiqueta.append(casilla, document.createTextNode(" Efectos de sonido (galletas, niveles y Pixelito)"));
   volumen.after(etiqueta);
