@@ -2,6 +2,7 @@ import { ApiClient, Sesion } from "./api.js";
 import { CONTACTO, urlWhatsApp } from "./config.js";
 import { idVisita } from "./analitica.js";
 import { escucharGlobal } from "./registro-global.js";
+import { sonar, efectoDeNivel } from "./sonidos.js";
 
 // Etiquetas legibles de los estados del pedido.
 export const ESTADOS = {
@@ -634,7 +635,7 @@ class PedidoVista {
     // llevó todas las unidades disponibles, el cliente se entera al instante en
     // vez de descubrirlo al confirmar el pedido.
     escucharGlobal("pedidos:agregar-al-carrito", "agregar-al-carrito", (e) => {
-      if (this.carrito.agregar(e.detail)) return;
+      if (this.carrito.agregar(e.detail)) { sonar("moneda"); return; }
       if (this.carrito.items.find((i) => i.producto_id === e.detail?.id)?.cantidad >= 100) {
         this.#avisarTopeSabor(e.detail?.nombre);
         return;
@@ -751,6 +752,9 @@ class PedidoVista {
     // Un combo se cobra a precio fijo y no cuenta para el descuento: el aviso
     // de tramo solo habla de las galletas sueltas.
     const combo = this.carrito.combo;
+    // Power-up cuando el carrito arma un combo (no al cargar la página con él ya armado).
+    if (combo && this.comboPrevio === null) sonar("combo");
+    this.comboPrevio = combo ? combo.nombre : null;
     const sueltas = this.carrito.cantidadSueltas;
     const faltan = siguiente ? siguiente.desde - sueltas : 0;
     const aviso = this.$("aviso-descuento");
@@ -828,6 +832,7 @@ class PedidoVista {
     const subio = this.#nivelPintado !== null && p.nivel !== this.#nivelPintado && (p.nivel === "MAX" || Number(p.nivel) > Number(this.#nivelPintado));
     this.#nivelPintado = p.nivel;
     if (subio) {
+      sonar(efectoDeNivel(p.nivel)); // 12, 24 y 48 suenan cada vez más épicos
       barra.classList.remove("subio");
       void barra.offsetWidth; // reinicia la animación si sube dos veces seguidas
       barra.classList.add("subio");
@@ -850,6 +855,7 @@ class PedidoVista {
     const id = Number(b.dataset.id);
     const item = this.carrito.items.find((i) => i.producto_id === id);
     if (!item) return;
+    sonar(b.dataset.accion === "mas" ? "moneda" : "clic");
     if (b.dataset.accion === "mas") this.carrito.cambiarCantidad(id, item.cantidad + 1);
     else if (b.dataset.accion === "menos") this.carrito.cambiarCantidad(id, item.cantidad - 1);
     else if (b.dataset.accion === "quitar") this.carrito.quitar(id);
@@ -927,6 +933,7 @@ class PedidoVista {
       filaAhorro.parentElement?.classList.toggle("sin-ahorro", ahorro <= 0);
     }
     this.#lluviaDePixeles();
+    sonar("victoria");
     this.$("confirmacion").hidden = false;
     this.$("confirmacion").scrollIntoView({ behavior: "smooth", block: "center" });
   }

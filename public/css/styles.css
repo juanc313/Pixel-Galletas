@@ -639,6 +639,10 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .musica-panel .musica-controles .musica-reproducir { min-width: 3rem; min-height: 3rem; color: var(--noche); background: var(--masa); }
 .musica-volumen { display: flex; align-items: center; gap: var(--s-3); margin: var(--s-3) 0; font-size: var(--t-sm); }
 .musica-volumen input { flex: 1; }
+/* Interruptor de efectos de sonido (lo agrega sonidos.js donde hay sonidos). */
+.musica-efectos { display: flex; align-items: center; gap: var(--s-2); min-height: 44px; margin: 0 0 var(--s-2);
+  font-size: var(--t-sm); cursor: pointer; }
+.musica-efectos input { width: 1.2rem; height: 1.2rem; accent-color: var(--masa); cursor: pointer; }
 .musica-estado { margin: 0; color: var(--masa-clara); font-size: var(--t-xs); }
 .musica-estado:not(:empty) { margin-bottom: var(--s-3); }
 .musica-lista { list-style: none; margin: var(--s-2) 0 0; padding: 0; }

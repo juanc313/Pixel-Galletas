@@ -19,6 +19,7 @@ import {
 import { MINIMO_GALLETAS, diasDeAviso } from "./pedidos-grandes.js";
 import { CONTACTO, urlWhatsApp } from "./config.js";
 import { Sesion } from "./api.js";
+import { sonar } from "./sonidos.js";
 
 // ---------- Lo que dice (lógica pura, con pruebas) ----------
 
@@ -262,7 +263,11 @@ class PixelitoVista {
   }
 
   escuchar() {
-    this.$(".pixelito-lanzador").addEventListener("click", () => (this.abierto ? this.cerrar() : this.abrir("inicio")));
+    this.$(".pixelito-lanzador").addEventListener("click", () => {
+      if (this.abierto) return this.cerrar();
+      sonar("dialogo");
+      return this.abrir("inicio");
+    });
     this.$(".pixelito-cerrar").addEventListener("click", () => this.cerrar());
     this.$(".pixelito-burbuja-cerrar").addEventListener("click", () => this.silenciar());
     this.raiz.addEventListener("click", (e) => {
@@ -386,6 +391,7 @@ class PixelitoVista {
       await new Promise((r) => setTimeout(r, Math.min(900, 300 + parrafo.length * 6)));
       escribiendo.className = "pixelito-msg pixelito";
       escribiendo.textContent = parrafo;
+      sonar("blip"); // Pixelito "habla" como personaje de RPG
       this.bajar();
     }
     this.pintarOpciones(opciones, n.opciones);
@@ -420,6 +426,7 @@ class PixelitoVista {
 
   elegir(opcion, texto) {
     if (opcion.cerrar) { this.silenciar(); return; }
+    sonar("clic");
     if (!this.abierto) {
       // Viene de la burbuja: lo que Pixelito dijo queda arriba en el chat.
       const dicho = this.$(".pixelito-burbuja-texto").textContent;
