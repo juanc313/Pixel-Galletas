@@ -610,7 +610,7 @@
                número escogido aparte: 6 × $7.000 y 12 × $7.000 con el 5%. El
                gancho de la suscripción es la entrega gratis y el acceso
                anticipado, no un descuento que el resto del sitio no respalde. -->
-          <p>Eliges el tamaño una vez y cada mes te llega tu caja con sabores seleccionados, novedades del obrador y acceso anticipado a las ediciones especiales.</p>
+          <p>Cada mes, tu caja con sabores seleccionados y acceso anticipado a las ediciones especiales.</p>
           <ul class="mensual-planes">
             <li><b>Caja x6</b> <span>$ 42.000 / mes</span></li>
             <li><b>Caja x12</b> <span>$ 79.800 / mes</span></li>
@@ -635,6 +635,10 @@
           </ul>
           <p class="grandes-nota">Para más de 100 galletas acordamos el plazo contigo.</p>
         </div>
+        <!-- Plegado: el formulario ocupaba casi dos pantallas en celular. Se abre
+             al tocar; pedidos-grandes.js lo maneja igual, abierto o cerrado. -->
+        <details class="desplegable grandes-desplegable">
+        <summary class="desplegable-boton">📝 Cotizar mi pedido grande</summary>
         <form id="form-grandes">
           <fieldset class="grandes-ocasion">
             <legend>¿Para qué ocasión?</legend>
@@ -664,6 +668,7 @@
           <p class="grandes-plazo" id="grandes-plazo" role="status" aria-live="polite"></p>
           <button type="submit" class="boton-grande">Cotizar por WhatsApp</button>
         </form>
+        </details>
       </div>
     </section>
 
@@ -699,8 +704,11 @@
     <section id="juego" data-reveal aria-labelledby="titulo-juego" class="banda banda-par">
       <p class="etiqueta">Sala de juegos</p>
       <h2 id="titulo-juego">Atrapa la galleta</h2>
-      <p class="subtitulo">Una ronda de reflejos de 30 segundos, cortesía de la casa. Sin premios ni trampas: el único trofeo es quedar en el rango más alto y batir tu propio récord.</p>
+      <p class="subtitulo">30 segundos de reflejos, cortesía de la casa. El único trofeo: batir tu propio récord.</p>
 
+      <!-- Plegado: la partida se abre al tocar (el tablero ocupaba una pantalla). -->
+      <details class="desplegable juego-desplegable">
+      <summary class="desplegable-boton">🎮 Jugar una ronda</summary>
       <div class="juego" id="juego-panel">
         <div class="juego-marcador">
           <p class="juego-dato"><span>Puntos</span> <b id="juego-puntos">0</b></p>
@@ -737,6 +745,8 @@
           <a class="boton-whatsapp" id="juego-wa" href="#" target="_blank" rel="noopener">Contar mi ronda por WhatsApp</a>
         </div>
       </div>
+      </details>
+      <p class="mas-juegos"><a href="/memoria-8bit.html">¿Más? Prueba la Memoria 8 bits →</a></p>
     </section>
 
     <!-- Power up: banda de acción a sangre con tipografía gigante.
@@ -760,6 +770,8 @@
       <h2 id="titulo-marca">De la pantalla a tu paladar</h2>
       <p class="subtitulo">No vendemos solo una galleta: vendemos una experiencia completa para amantes de los videojuegos.</p>
 
+      <details class="desplegable marca-desplegable">
+      <summary class="desplegable-boton">Misión, visión y para quién horneamos</summary>
       <div class="mision-grid">
         <article class="mision-tarjeta">
           <h3>Misión</h3>
@@ -774,6 +786,7 @@
           <p>Niños, jóvenes y adultos de 10 a 70 años: estudiantes, familias y gamers que buscan productos artesanales y novedosos.</p>
         </article>
       </div>
+      </details>
 
       <div class="diferencia">
         <div>
@@ -793,6 +806,7 @@
           <figcaption class="diferencia-pie">Hecho a mano, galleta por galleta</figcaption>
         </figure>
       </div>
+      <p class="mas-enlace"><a href="/historia-marca.html">Conoce la historia completa de Pixel Galletas →</a></p>
     </section>
 
     <!-- Preguntas frecuentes (acordeón nativo: funciona sin JavaScript) -->
@@ -801,7 +815,7 @@
       <h2 id="titulo-faq">Lo que más nos preguntan</h2>
       <p class="subtitulo">Si tu duda no está aquí, escríbenos por WhatsApp y te respondemos al instante.</p>
       <div class="faq">
-        <details class="faq-item" open>
+        <details class="faq-item">
           <summary>¿Hacen entregas en toda la ciudad?</summary>
           <p>Entregamos en <b>Cúcuta, Villa del Rosario, Los Patios y El Zulia</b>. El domicilio cuesta <b>$5.000 en Cúcuta</b> y <b>$7.000 en los alrededores</b>, más un cargo por distancia desde el Centro Comercial La Estrella: <b>$2.000 de 0 a 3 km, $4.000 de 3 a 6 km y $6.000 a más de 6 km</b>. Desde 12 galletas el domicilio es <b>gratis, distancia incluida</b>. Recoger en Ceiba 2 siempre sale gratis. Si estás en otra zona, escríbenos y vemos qué podemos hacer contigo.</p>
         </details>
@@ -813,6 +827,8 @@
           <summary>¿Hay pedido mínimo?</summary>
           <p>No. Puedes pedir <b>desde una sola galleta</b>; el total se actualiza al instante en tu carrito.</p>
         </details>
+        <details class="faq-mas">
+        <summary class="faq-mas-boton">Ver más preguntas</summary>
         <details class="faq-item">
           <summary>¿Dan descuento por cantidad?</summary>
           <p>Sí: <b>12 galletas</b> 5% de descuento, <b>24 galletas</b> 8% y <b>48 o más</b> 10%. Cada pedido se ajusta según empaque, entrega y preparación.</p>
@@ -829,7 +845,9 @@
           <summary>¿Cómo sé en qué va mi pedido?</summary>
           <p>Con el <b>número de pedido</b> y el teléfono con el que pediste puedes verlo en <a href="#estado">Estado del pedido</a>. No necesitas cuenta.</p>
         </details>
+        </details>
       </div>
+      <p class="mas-enlace"><a href="/preguntas-gamer.html">Ver todas las preguntas frecuentes →</a></p>
     </section>
 
     <!-- Carrito + formulario de pedido -->
@@ -871,8 +889,8 @@
           <p class="aviso-descuento" id="aviso-descuento" hidden></p>
           <button type="button" id="btn-vaciar-carrito" class="secundario">Vaciar carrito</button>
 
-          <div class="detalles" role="region" aria-labelledby="titulo-entrega-pago">
-            <h3 id="titulo-entrega-pago">Cómo se entrega y se paga</h3>
+          <details class="detalles">
+            <summary class="detalles-boton"><h3 id="titulo-entrega-pago">Cómo se entrega y se paga</h3></summary>
             <ul class="detalles-lista">
               <li><span class="icono icono-ubi" aria-hidden="true"><svg viewBox="0 0 384 512"><path fill="currentColor" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg></span>
                 <span><b>Cúcuta y alrededores</b><br>Cúcuta $5.000 · Villa del Rosario, Los Patios y El Zulia $7.000, más distancia desde La Estrella: $2.000 (0 a 3 km), $4.000 (3 a 6 km) o $6.000 (más de 6 km). Gratis desde 12 galletas, distancia incluida; recoger en Ceiba 2, gratis siempre.</span></li>
@@ -881,7 +899,7 @@
               <li><span class="icono icono-caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" opacity=".5" d="M12 2 21 6.5 12 11 3 6.5Z"/><path fill="currentColor" d="M3 6.5V17.5L12 22V11Z"/><path fill="currentColor" opacity=".72" d="M12 11V22L21 17.5V6.5Z"/></svg></span>
                 <span><b>Pedidos grandes</b><br>Para 24 unidades o más pedimos anticipo y acordamos el plazo de preparación.</span></li>
             </ul>
-          </div>
+          </details>
         </div>
 
         <div>
@@ -962,12 +980,15 @@
     <section class="tarjeta" id="estado" data-reveal aria-labelledby="titulo-estado">
       <p class="etiqueta">Estado</p>
       <h2 id="titulo-estado">¿Dónde va mi pedido?</h2>
-      <p class="subtitulo">Pon el número de pedido y el teléfono con el que lo hiciste. No necesitas cuenta ni registro.</p>
+      <p class="subtitulo">Con tu número de pedido y tu teléfono. Sin cuenta ni registro.</p>
+      <details class="desplegable estado-desplegable">
+      <summary class="desplegable-boton">🔎 Consultar mi pedido</summary>
       <form id="form-estado">
         <label>Número de pedido <input type="number" name="id" id="estado-id" min="1" required placeholder="12" inputmode="numeric"></label>
         <label>Teléfono con el que pediste <input type="tel" name="telefono" id="estado-telefono" required minlength="7" maxlength="20" pattern="[\s+\-]*([0-9][\s+\-]*){7,15}" title="De 7 a 15 dígitos; puede llevar +, espacios o guiones" placeholder="313 783 9935" inputmode="tel"></label>
         <button type="submit" class="boton-grande">Ver estado</button>
       </form>
+      </details>
       <p id="mensaje-estado" role="alert"></p>
       <div id="estado-resultado" class="estado-resultado" hidden></div>
     </section>
@@ -1151,6 +1172,7 @@
   <script type="module" src="/js/recordatorio.js"></script>
   <script type="module" src="/js/pedidos-grandes.js"></script>
   <script type="module" src="/js/pixelito.js"></script>
+  <script type="module" src="/js/desplegables.js"></script>
   <script src="/js/musica.js" defer></script>
 </body>
 </html>

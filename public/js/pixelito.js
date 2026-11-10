@@ -21,6 +21,7 @@ import { CONTACTO, urlWhatsApp } from "./config.js";
 import { Sesion } from "./api.js";
 import { sonar } from "./sonidos.js";
 import { resumenStats } from "./stats-sabores.js";
+import { abrirDesplegable } from "./desplegables.js";
 
 // ---------- Lo que dice (lógica pura, con pruebas) ----------
 
@@ -447,6 +448,7 @@ class PixelitoVista {
     if (opcion.ancla) {
       this.cerrar();
       const destino = document.getElementById(opcion.ancla);
+      abrirDesplegable(opcion.ancla); // si la sección está plegada, se abre antes de llegar
       if (destino) destino.scrollIntoView({ behavior: "smooth", block: "start" });
       else location.href = `/#${opcion.ancla}`;
       return undefined;

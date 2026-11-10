@@ -2806,3 +2806,180 @@ body:has(.nivel-hud.nivel-hud-fuera) #pixelito-bot:not(.abierto) .pixelito-burbu
 @keyframes pixelito-llama { 50% { transform: translateY(-5px) rotate(-6deg); } }
 @keyframes pixelito-burbuja-entra { from { opacity: 0; transform: translateY(.6rem) scale(.92); } }
 @keyframes pixelito-msg-entra { from { opacity: 0; transform: translateY(.4rem); } }
+
+/* =====================================================================
+   PORTADA COMPACTA
+   La portada medía ~25.000 px en celular (unas 30 pantallas). Lo que no
+   vende directamente se pliega (se abre al tocar) y en celular el catálogo
+   va a dos columnas y las cajas y combos se deslizan de lado. Nada se borra:
+   todo sigue a un toque, y lo que tiene página propia enlaza a ella.
+   ===================================================================== */
+
+/* Un separador de niveles solo se ve si la sección que sigue se ve. Antes de
+   las tres secciones del administrador (ocultas para los clientes) quedaban
+   tres separadores seguidos: en PC parecía una sección vacía entre "Tu pedido"
+   y "Estado". Al entrar el admin, sus secciones y separadores aparecen solos. */
+main > .divisor:has(+ section[hidden]) { display: none; }
+
+/* Botón que abre una sección plegada (<details>): parece un botón de verdad. */
+.desplegable { margin-top: var(--s-4); }
+.desplegable-boton { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 48px;
+  padding: var(--s-3) var(--s-5); cursor: pointer; list-style: none; user-select: none;
+  font-family: var(--titulos); font-weight: 700; font-size: var(--t-sm); line-height: 1.2; color: var(--noche);
+  background: linear-gradient(180deg, var(--masa-clara), var(--masa) 55%);
+  box-shadow: var(--px-4-tinta), inset 4px 4px 0 0 rgba(255, 255, 255, .38), inset -4px -4px 0 0 rgba(0, 0, 0, .28);
+  transition: transform var(--d-micro) ease, filter var(--d-micro) ease; }
+.desplegable-boton::-webkit-details-marker { display: none; }
+.desplegable-boton::after { content: "▼"; font-size: .7em; transition: transform var(--d-micro) ease; }
+.desplegable-boton:hover { filter: brightness(1.08); transform: translateY(-2px); }
+.desplegable-boton:focus-visible { outline: 3px solid var(--diamante); outline-offset: 4px; }
+/* Abierto, el botón se vuelve discreto: lo importante ya es el contenido. */
+.desplegable[open] > .desplegable-boton { color: var(--crema); background: transparent;
+  box-shadow: var(--px-3-suave); margin-bottom: var(--s-5); }
+.desplegable[open] > .desplegable-boton::after { transform: rotate(180deg); }
+/* La misión y la visión, ya plegadas, no necesitan su gran margen inferior. */
+.marca-desplegable .mision-grid { margin-bottom: var(--s-5); }
+.marca-desplegable { margin: 0 0 var(--s-6); }
+
+/* "Ver más preguntas" y los enlaces a las páginas propias. */
+.faq-mas { display: contents; }
+.faq-mas[open] { display: grid; gap: var(--s-4); }
+.faq-mas-boton { justify-self: start; min-height: 44px; display: inline-flex; align-items: center; gap: var(--s-2);
+  cursor: pointer; list-style: none; font-family: var(--titulos); font-size: var(--t-sm); color: var(--diamante); }
+.faq-mas-boton::-webkit-details-marker { display: none; }
+.faq-mas-boton::after { content: "▼"; font-size: .7em; }
+.faq-mas[open] > .faq-mas-boton { display: none; }
+.mas-enlace, .mas-juegos { margin: var(--s-5) 0 0; }
+.mas-enlace a, .mas-juegos a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600;
+  color: var(--masa); text-underline-offset: .3em; }
+.mas-enlace a:hover, .mas-juegos a:hover { color: var(--masa-clara); }
+
+@media (max-width: 40rem) {
+  /* Menos aire entre secciones: el ritmo lo dan los títulos, no el vacío. */
+  :root { --gap-seccion: 2.5rem; }
+  /* Los puntitos entre niveles sumaban su alto y dos huecos más cada vez (~1.100 px
+     en total). En celular la etiqueta "NIVEL 0X" ya marca dónde empieza cada sección. */
+  main > .divisor { display: none; }
+  .banda { padding-block: var(--s-6); }
+  .hero h1 { font-size: 1.85rem; }
+  .subtitulo { margin-bottom: var(--s-4); }
+
+  /* --- Catálogo a dos columnas, como cualquier tienda de comida --- */
+  #lista-productos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-6) var(--s-3); padding: var(--s-3) 3px var(--s-2); }
+  #lista-productos .familia-cabecera { grid-column: 1 / -1; }
+  #lista-productos .producto { --sprite: 4.6rem; gap: var(--s-2);
+    padding: calc(var(--zona) - var(--s-2)) var(--s-3) var(--s-3); }
+  #lista-productos .producto[data-foto] { --sprite: 6.4rem; }
+  #lista-productos .producto strong { font-size: var(--t-sm); line-height: 1.2; }
+  /* La descripción completa sigue ahí: se recorta a tres líneas para no estirar la tarjeta. */
+  #lista-productos .producto small { font-size: var(--t-xs); line-height: 1.35; }
+  #lista-productos .producto > div small:not(.stock) { display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
+    -webkit-box-orient: vertical; overflow: hidden; }
+  #lista-productos .producto > b { font-size: var(--t-lg); }
+  #lista-productos .producto > .btn-agregar { padding: var(--s-2) var(--s-2); font-size: var(--t-xs); min-height: 44px; }
+  #lista-productos .sello-sabor { transform: scale(.75); transform-origin: top right; }
+  /* Ficha de stats en columna angosta: la etiqueta arriba y la barra debajo. */
+  .ficha-sabor summary { font-size: var(--t-xs); }
+  .ficha-clase { font-size: var(--t-sm); }
+  .ficha-barras li { grid-template-columns: 1fr; gap: 2px; }
+  .ficha-nombre { font-size: var(--t-xs); }
+  .ficha-nota { display: none; }
+
+  /* --- Cajas y combos: carrusel que se desliza de lado --- */
+  .cajas { display: flex; gap: var(--s-3); overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; padding: var(--s-5) 4px var(--s-4); margin: 0 0 var(--s-4);
+    scrollbar-width: thin; }
+  .cajas > .caja { flex: 0 0 78%; scroll-snap-align: start; padding: var(--s-4); }
+  .caja h3 { font-size: var(--t-lg); }
+  .caja-para { margin-bottom: var(--s-3); }
+  .caja-precio { font-size: var(--t-num); margin-bottom: var(--s-2); }
+  .caja-insignia { left: var(--s-4); }
+  .combos-special .subtitulo { margin-bottom: 0; }
+  .volumen, .mensual, .grandes { padding: var(--s-4); }
+  .volumen ul { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+  .volumen li { padding: var(--s-2); }
+  .volumen li b { font-size: var(--t-xs); }
+  .volumen li span { font-size: var(--t-xs); }
+  .mensual { margin-top: var(--s-4); gap: var(--s-3); }
+  .grandes { margin-top: var(--s-4); gap: var(--s-3); }
+  .grandes-datos li { grid-template-columns: 4.5rem minmax(0, 1fr); }
+
+  /* --- Cómo funciona: tres pasos compactos, número al lado --- */
+  .pasos { gap: var(--s-3); }
+  .paso { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: var(--s-4); align-items: start; padding: var(--s-4); }
+  .paso-num { grid-row: span 2; margin: 0; font-size: var(--t-num); }
+  .paso h3 { font-size: var(--t-md); margin-bottom: var(--s-1); }
+
+  /* --- Comunidad: foto más baja y datos en pareja --- */
+  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+  .bento > li { padding: var(--s-4); }
+  .bento-foto, .bento-cita, .bento-cta { grid-column: 1 / -1; }
+  .bento-foto img { max-height: 15rem; }
+  .bento-dato b { font-size: var(--t-num); }
+  .bento-cita p { font-size: var(--t-sm); }
+
+  /* --- La marca: lista compacta y foto apaisada --- */
+  .diferencia-lista { gap: var(--s-3); }
+  .diferencia-foto { max-width: none; }
+  .diferencia-foto img { aspect-ratio: 16 / 9; object-fit: cover; }
+
+  /* --- Preguntas, estado y contacto --- */
+  .faq { gap: var(--s-3); }
+  .faq-mas[open] { gap: var(--s-3); }
+  #contacto .contacto-montaje { display: none; }
+  #contacto .subtitulo { display: none; }
+
+  /* --- Catálogo: filtros en una sola fila que se desliza --- */
+  .filtros { flex-wrap: nowrap; overflow-x: auto; gap: var(--s-2); margin-bottom: var(--s-4); padding: 4px 4px var(--s-2);
+    scrollbar-width: none; }
+  .filtros::-webkit-scrollbar { display: none; }
+  .filtros .filtro { flex: none; padding: var(--s-2) var(--s-3); font-size: var(--t-xs); }
+  .filtros-contador { display: none; }
+  .familia-desc { display: none; }
+  .familia-cabecera { padding-top: var(--s-4); }
+
+  /* --- La marca: los títulos de "¿Por qué Pixel Galletas?" bastan; el detalle vive en la historia --- */
+  .diferencia-lista span { display: none; }
+  .diferencia-lista b { font-size: var(--t-sm); }
+  .diferencia-lista { gap: var(--s-2); }
+  .calculadora-combos .subtitulo { display: none; }
+  .calculadora-combos { margin-bottom: var(--s-4); }
+  .calculadora-combos h3 { margin-bottom: var(--s-2); }
+
+  /* Descuentos por volumen: una franja de una línea (la barra de poder del carrito ya los explica). */
+  .volumen { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3); padding: var(--s-3); }
+  .volumen h3 { margin: 0; font-size: var(--t-sm); }
+  .volumen ul { margin: 0; flex: 1 1 100%; }
+  .volumen p { display: none; }
+
+  /* Pedidos grandes: título, cifras clave y el botón; el texto largo sobra aquí. */
+  .grandes > div > p:not(.grandes-etiqueta) { display: none; }
+  .grandes-datos { margin: var(--s-2) 0 0; }
+  .grandes h3 { font-size: var(--t-md); }
+
+  /* Catálogo: la descripción en dos líneas y sin el contador de cada familia. */
+  #lista-productos .producto > div small:not(.stock) { -webkit-line-clamp: 2; line-clamp: 2; }
+  .familia-cabecera .etiqueta { display: none; }
+
+  /* Comunidad y pie: adornos más discretos. */
+  .bento-foto img { max-height: 12rem; }
+  .pie-maquina { display: none; }
+
+  /* --- Pie: enlaces en dos columnas y menos relleno --- */
+  .pie-wordmark { display: none; }
+  .pie { padding-top: var(--s-6); padding-bottom: calc(var(--s-5) + 6rem); }
+  .pie-cols { gap: var(--s-5); margin-bottom: var(--s-4); }
+  .pie-links { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-4); }
+}
+
+/* "Cómo se entrega y se paga" dentro del pedido: plegado, se abre al tocar
+   (repite lo que ya dicen las opciones de entrega y las preguntas). */
+.detalles-boton { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3);
+  min-height: 44px; cursor: pointer; list-style: none; }
+.detalles-boton::-webkit-details-marker { display: none; }
+.detalles-boton h3 { margin: 0; }
+.detalles-boton::after { content: "+"; flex: none; font-size: var(--t-xl); line-height: 1; color: var(--masa);
+  transition: transform var(--d-micro) ease; }
+.detalles[open] .detalles-boton { margin-bottom: var(--s-4); }
+.detalles[open] .detalles-boton::after { transform: rotate(45deg); }
+@media (max-width: 40rem) { .detalles { margin-top: var(--s-5); padding-top: var(--s-4); } }
