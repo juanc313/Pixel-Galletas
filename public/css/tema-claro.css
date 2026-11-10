@@ -367,3 +367,15 @@
   :root[data-tema="claro"] .menu a.actual { color: #B4470A; border-bottom-color: #B4470A; }
 }
 :root[data-tema="claro"] .musica-estado { color: #B4470A; }
+
+/* --- Pixelito, el asistente: cajas blancas con borde oscuro --- */
+:root[data-tema="claro"] #pixelito-bot .pixelito-lanzador { background: #FFFFFF; box-shadow: 0 0 0 3px #F5902F, 5px 6px 0 rgba(42, 26, 74, .2); }
+:root[data-tema="claro"] .pixelito-burbuja,
+:root[data-tema="claro"] .pixelito-panel { background: #FFFFFF; color: #2A1A4A; box-shadow: 0 0 0 3px #F5902F, 6px 8px 0 rgba(42, 26, 74, .18); }
+:root[data-tema="claro"] .pixelito-panel-cabeza { background: #FFF4E0; }
+:root[data-tema="claro"] .pixelito-panel-cabeza b { color: #B4470A; }
+:root[data-tema="claro"] .pixelito-msg.pixelito { background: #FDF4E3; color: #2A1A4A; box-shadow: 0 0 0 2px rgba(42, 26, 74, .15); }
+:root[data-tema="claro"] #pixelito-bot .pixelito-opcion { background: #FFFFFF; color: #2A1A4A; box-shadow: 0 0 0 2px #F5902F; }
+:root[data-tema="claro"] #pixelito-bot .pixelito-opcion:hover { background: #FFF3DF; }
+:root[data-tema="claro"] #pixelito-bot .pixelito-cerrar,
+:root[data-tema="claro"] #pixelito-bot .pixelito-burbuja-cerrar { color: #4A3B68; }
