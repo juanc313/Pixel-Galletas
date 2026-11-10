@@ -250,6 +250,11 @@
 
 /* --- Invitación a instalar la app --- */
 :root[data-tema="claro"] .instalar-aviso { background: #FFFFFF; color: #2A1A4A; }
+:root[data-tema="claro"] .actualizar-aviso { background: #FFFFFF; color: #2A1A4A; box-shadow: 0 0 0 3px #0E8F7C, 6px 8px 0 rgba(42, 26, 74, .18); }
+:root[data-tema="claro"] .actualizar-aviso b { color: #0B6F60; }
+/* "Luego" y "Ahora no" son enlaces de texto, no botones naranjas. */
+:root[data-tema="claro"] .actualizar-aviso .actualizar-no,
+:root[data-tema="claro"] .instalar-aviso .instalar-no { background: none; border: 0; box-shadow: none; color: #2A1A4A; }
 
 /* ===== Arcade de día =======================================================
    El tema claro también es un videojuego: misma energía que el oscuro, pero a

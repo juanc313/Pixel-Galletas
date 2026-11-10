@@ -93,6 +93,15 @@ app.get("/api", (req, res) => {
   });
 });
 
+// Versión publicada: la app la compara con la que tiene abierta para avisar
+// "¡Nueva versión disponible!". En Vercel es el commit del despliegue; en local,
+// "local" (nunca cambia, así que en desarrollo no salta el aviso).
+app.get("/api/version", (req, res) => {
+  const version = process.env.VERCEL_GIT_COMMIT_SHA || process.env.VERCEL_DEPLOYMENT_ID || "local";
+  res.set("Cache-Control", "no-store");
+  res.json({ version: String(version).slice(0, 12) });
+});
+
 app.use("/api/usuarios/login", limiteLogin);
 app.use("/api/usuarios/registro", limiteRegistro);
 app.use("/api/usuarios", usuarioRoutes);

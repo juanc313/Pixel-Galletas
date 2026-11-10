@@ -2564,6 +2564,27 @@ main > section { position: relative; }
 body:has(.mini-carrito.activo) .instalar-aviso { bottom: 5.5rem; }
 body:has(.menu.abierto) .instalar-aviso { visibility: hidden; }
 
+/* ===== Aviso de versión nueva (lo crea pwa.js) =====
+   Arriba y centrado, justo bajo la cabecera: se ve sin tapar los botones de
+   compra de abajo. No es una ventana: la tienda sigue usable debajo. */
+.actualizar-aviso { position: fixed; left: 50%; translate: -50% 0; top: calc(4.9rem + env(safe-area-inset-top, 0px)); z-index: 41;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--s-2) var(--s-4);
+  width: min(30rem, calc(100vw - 2 * var(--s-4))); padding: var(--s-3) var(--s-4);
+  background: var(--pantalla); color: var(--crema); box-shadow: var(--px-3-diamante), 8px 10px 24px rgba(0, 0, 0, .45);
+  font-size: var(--t-sm); line-height: 1.4; text-align: center; }
+@media (min-width: 62rem) { .actualizar-aviso { top: 8.6rem; } }
+.actualizar-aviso p { margin: 0; }
+.actualizar-aviso b { color: var(--diamante); }
+.actualizar-acciones { display: flex; align-items: center; gap: var(--s-3); }
+.actualizar-aviso .actualizar-si, .actualizar-aviso .actualizar-no { min-height: 2.75rem; padding: var(--s-1) var(--s-4); font-size: var(--t-sm); }
+.actualizar-aviso .actualizar-no { background: none; box-shadow: none; color: inherit; text-decoration: underline; text-underline-offset: .2em; }
+.actualizar-aviso .actualizar-no::after { display: none; }
+body:has(.menu.abierto) .actualizar-aviso { visibility: hidden; }
+@media (prefers-reduced-motion: no-preference) {
+  .actualizar-aviso { animation: actualizar-entra .4s var(--e-rebote); }
+}
+@keyframes actualizar-entra { from { opacity: 0; transform: translateY(-1rem); } }
+
 /* ===== Página sin conexión ===== */
 .offline-logo { display: block; width: 7rem; height: auto; margin: 0 auto var(--s-4); }
 

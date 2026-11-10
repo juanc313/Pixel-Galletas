@@ -9,7 +9,7 @@
     "crear-admin": "node scripts/crearAdmin.js",
     "respaldo": "node scripts/respaldo.js",
     "actualizar-base": "node scripts/actualizar-base.js",
-    "test": "node --test tests/api.test.js tests/frontend.test.js tests/acceso.test.js tests/pedidos.test.js tests/juego.test.js tests/telegram.test.js tests/seguridad.test.js tests/seguridad-api.test.js tests/carrito-api.test.js tests/distancia.test.js tests/regresion-pedidos.test.js tests/limites.test.js tests/pwa.test.js tests/mensajes.test.js tests/arranque.test.js tests/respaldo.test.js tests/actualizar-base.test.js tests/pixelito.test.js tests/sonidos.test.js"
+    "test": "node --test tests/api.test.js tests/frontend.test.js tests/acceso.test.js tests/pedidos.test.js tests/juego.test.js tests/telegram.test.js tests/seguridad.test.js tests/seguridad-api.test.js tests/carrito-api.test.js tests/distancia.test.js tests/regresion-pedidos.test.js tests/limites.test.js tests/pwa.test.js tests/mensajes.test.js tests/arranque.test.js tests/respaldo.test.js tests/actualizar-base.test.js tests/pixelito.test.js tests/sonidos.test.js tests/version.test.js"
   },
   "keywords": [],
   "author": "",
