@@ -1172,6 +1172,11 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
   gap: var(--s-1) var(--s-3); margin: 0 0 var(--s-2); font-size: var(--t-sm); color: var(--suave); }
 .barra-poder-cabeza b { font-family: var(--titulos); font-size: var(--t-md); color: var(--masa);
   text-transform: uppercase; letter-spacing: .04em; }
+/* Carril de Pixelito: corre sobre la barra al ritmo del relleno. */
+.barra-poder-carril { position: relative; z-index: 2; height: 2.9rem; margin-top: calc(var(--s-1) * -1); }
+/* bottom negativo: la sombra morada de la imagen se apoya sobre el borde de la barra. */
+.pixelito-corredor { position: absolute; bottom: -5px; left: 0; width: auto; height: 2.6rem;
+  transition: left var(--d-reveal) var(--e-salida), translate var(--d-reveal) var(--e-salida); }
 .barra-poder-pista { position: relative; height: 1.1rem; margin-bottom: 2.4rem; background: var(--tinta);
   box-shadow: var(--px-3); }
 .barra-poder-relleno { position: absolute; inset: 0; transform-origin: left; transform: scaleX(0);
@@ -1199,6 +1204,16 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 @media (prefers-reduced-motion: no-preference) {
   .barra-poder.subio .barra-poder-pista::after { animation: subir-nivel 1.4s var(--e-salida); }
   .barra-poder.subio .barra-poder-pista { animation: pista-brilla .6s steps(3) 2; }
+  .barra-poder.subio .pixelito-corredor { animation: pixelito-salto .9s var(--e-salida); }
+  /* Mientras el cliente suma galletas, Pixelito trota en su sitio. */
+  .pixelito-corredor { animation: pixelito-trote 1.2s steps(2) infinite; }
+}
+@keyframes pixelito-trote { 50% { transform: translateY(-2px) rotate(-3deg); } }
+@keyframes pixelito-salto {
+  0%, 100% { transform: translateY(0) scale(1); }
+  20% { transform: translateY(2px) scale(1.08, .9); }
+  50% { transform: translateY(-.9rem) rotate(-8deg); }
+  80% { transform: translateY(0) scale(1.06, .94); }
 }
 @keyframes subir-nivel {
   0% { opacity: 0; transform: translate(-50%, -20%) scale(.7); }
@@ -1225,6 +1240,20 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 #completado-total { color: var(--masa); }
 .confirmacion .boton-whatsapp { position: relative; }
 .completado-lluvia { display: none; }
+.pixelito-celebra { display: block; position: relative; width: 6.5rem; height: auto; margin: 0 auto var(--s-2); }
+
+/* Carrito vacío: Pixelito saluda e invita al menú. */
+.carrito-vacio { display: flex; align-items: center; gap: var(--s-4); margin: var(--s-3) 0; color: var(--suave); }
+.carrito-vacio[hidden] { display: none; }
+.carrito-vacio p { margin: 0; }
+.carrito-vacio b { color: var(--crema); }
+.pixelito-saluda { flex: none; width: 5.5rem; height: auto; transform-origin: 50% 90%; }
+@media (prefers-reduced-motion: no-preference) {
+  .pixelito-saluda { animation: pixelito-saludo 2.6s ease-in-out infinite; }
+  .pixelito-celebra { animation: pixelito-fiesta .8s var(--e-salida) 4 both; }
+}
+@keyframes pixelito-saludo { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(-6deg); } 80% { transform: rotate(5deg); } 90% { transform: rotate(-3deg); } }
+@keyframes pixelito-fiesta { 0%, 100% { transform: translateY(0) scale(1); } 15% { transform: scale(1.1, .88); } 50% { transform: translateY(-1.2rem) rotate(6deg); } }
 @media (prefers-reduced-motion: no-preference) {
   .completado-titulo { animation: titulo-completado .7s steps(4) both; }
   .completado-lluvia { display: block; position: absolute; inset: 0; pointer-events: none; }

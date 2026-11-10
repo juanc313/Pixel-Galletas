@@ -810,6 +810,12 @@ class PedidoVista {
       marca.classList.toggle("logrado", this.carrito.cantidadSueltas >= Number(marca.dataset.desde));
     }
     this.$("poder-relleno").style.transform = `scaleX(${p.llenado})`;
+    const corredor = this.$("poder-pixelito");
+    if (corredor) {
+      // Pegado al borde del relleno sin salirse de la barra en 0 ni en el tope.
+      corredor.style.left = `${p.llenado * 100}%`;
+      corredor.style.translate = `${-p.llenado * 100}% 0`;
+    }
     pista.setAttribute("aria-valuenow", String(Math.min(this.carrito.cantidadSueltas, p.metas.at(-1).desde)));
 
     this.$("poder-nivel").textContent = `Nivel ${p.nivel}`;

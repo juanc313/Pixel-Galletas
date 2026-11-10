@@ -842,7 +842,10 @@
           <h3>Carrito</h3>
           <p class="aviso-descuento" id="aviso-carrito" role="status" hidden></p>
           <ul id="lista-carrito" class="productos"></ul>
-          <p id="vacio">Tu carrito está vacío. Agrega galletas desde el catálogo.</p>
+          <div id="vacio" class="carrito-vacio">
+            <img class="pixelito pixelito-saluda" src="/img/pixelito.webp" alt="" width="360" height="397" loading="lazy" decoding="async">
+            <p><b>¡Tu carrito está vacío!</b> Soy Pixelito: ve al <a href="#catalogo">menú de galletas</a> y elige tus sabores.</p>
+          </div>
           <!-- Desglose del descuento por volumen (lo rellena pedidos.js): solo
                se ve cuando la cantidad alcanza el primer tramo, así el carrito
                de una galleta no enseña cuentas que no hacen falta. -->
@@ -856,6 +859,10 @@
                pedidos.js; las metas salen de DESCUENTOS). -->
           <div class="barra-poder" id="barra-poder" hidden>
             <p class="barra-poder-cabeza"><b id="poder-nivel">Nivel 1</b> <span id="poder-premio"></span></p>
+            <!-- Pixelito corre sobre la barra: avanza con las galletas y salta al subir de nivel. -->
+            <div class="barra-poder-carril" aria-hidden="true">
+              <img class="pixelito pixelito-corredor" id="poder-pixelito" src="/img/pixelito.webp" alt="" width="360" height="397" loading="lazy" decoding="async">
+            </div>
             <div class="barra-poder-pista" id="poder-pista" role="progressbar" aria-label="Galletas para el descuento máximo" aria-valuemin="0" aria-valuemax="48" aria-valuenow="0">
               <i class="barra-poder-relleno" id="poder-relleno"></i>
             </div>
@@ -908,6 +915,7 @@
           </aside>
           <div id="confirmacion" class="confirmacion" hidden>
             <div class="completado-lluvia" id="completado-lluvia" aria-hidden="true"></div>
+            <img class="pixelito pixelito-celebra" src="/img/pixelito.webp" alt="Pixelito, la mascota de Pixel Galletas, celebrando" width="360" height="397" loading="lazy" decoding="async">
             <p class="completado-titulo">¡Nivel completado!</p>
             <dl class="completado-marcador">
               <div><dt>Pedido</dt><dd id="completado-pedido">#0</dd></div>
