@@ -1,5 +1,6 @@
 import { ApiClient, Sesion } from "./api.js";
 import { escucharGlobal } from "./registro-global.js";
+import { STATS_MAX, BARRAS_STATS, statsDe } from "./stats-sabores.js";
 
 // Modelo: un producto del catálogo. Convierte el precio (la API lo envía como texto "4500.00").
 export class Producto {
@@ -180,6 +181,44 @@ class ProductosVista {
     return placa;
   }
 
+  // Ficha de personaje desplegable ("Ver stats"). <details> nativo: se abre con
+  // toque o teclado y los lectores de pantalla lo anuncian sin código extra.
+  ficha(idSab) {
+    const s = statsDe(idSab);
+    if (!s) return null;
+    const detalles = document.createElement("details");
+    detalles.className = "ficha-sabor";
+    const resumen = document.createElement("summary");
+    resumen.textContent = "Ver stats";
+    const clase = document.createElement("p");
+    clase.className = "ficha-clase";
+    clase.textContent = s.clase;
+    const lista = document.createElement("ul");
+    lista.className = "ficha-barras";
+    for (const barra of BARRAS_STATS) {
+      const fila = document.createElement("li");
+      const etiqueta = document.createElement("span");
+      etiqueta.className = "ficha-nombre";
+      etiqueta.textContent = `${barra.icono} ${barra.nombre}`;
+      const medidor = document.createElement("span");
+      medidor.className = "ficha-medidor";
+      medidor.setAttribute("role", "img");
+      medidor.setAttribute("aria-label", `${barra.nombre}: ${s[barra.clave]} de ${STATS_MAX}`);
+      for (let i = 1; i <= STATS_MAX; i++) {
+        const bloque = document.createElement("i");
+        if (i <= s[barra.clave]) bloque.className = "lleno";
+        medidor.append(bloque);
+      }
+      fila.append(etiqueta, medidor);
+      lista.append(fila);
+    }
+    const nota = document.createElement("p");
+    nota.className = "ficha-nota";
+    nota.textContent = "Como todas: crujiente por fuera, suave por dentro.";
+    detalles.append(resumen, clase, lista, nota);
+    return detalles;
+  }
+
   // Dibuja una tarjeta de producto del catálogo (foto, nombre, precio y botón).
   tarjeta(p) {
     const li = document.createElement("li");
@@ -212,6 +251,8 @@ class ProductosVista {
       desc.textContent = p.descripcion;
       info.append(document.createElement("br"), desc);
     }
+    const ficha = this.ficha(li.dataset.sabor);
+    if (ficha) info.append(ficha);
     // "Quedan 3" empuja la decisión; "Agotado" evita que el cliente arme un
     // carrito que no se puede servir.
     const aviso = p.avisoStock;

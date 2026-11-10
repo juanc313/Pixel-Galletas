@@ -876,6 +876,40 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .producto br { display: none; }
 .producto small { display: block; font-size: var(--t-sm); line-height: 1.45; color: var(--suave); }
 
+/* "Elige tu personaje": ficha desplegable de cada sabor con barras pixeladas. */
+.ficha-sabor { margin-top: var(--s-3); }
+.ficha-sabor summary { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 44px; cursor: pointer;
+  list-style: none; font-family: var(--titulos); font-size: var(--t-sm); color: var(--diamante); }
+.ficha-sabor summary::-webkit-details-marker { display: none; }
+.ficha-sabor summary::before { content: "▶"; font-size: .7em; transition: transform var(--d-micro) ease; }
+.ficha-sabor[open] summary::before { transform: rotate(90deg); }
+.ficha-sabor summary:hover { color: var(--masa); }
+.ficha-sabor summary:focus-visible { outline: 3px solid var(--diamante); outline-offset: 3px; }
+.ficha-clase { margin: var(--s-1) 0 var(--s-2); font-family: var(--titulos); font-size: var(--t-md); color: var(--crema); }
+.ficha-barras { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+.ficha-barras li { display: grid; grid-template-columns: 7.2rem 1fr; align-items: center; gap: var(--s-3); }
+.ficha-nombre { font-size: var(--t-sm); color: var(--suave); white-space: nowrap; }
+.ficha-medidor { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; max-width: 9rem; }
+.ficha-medidor i { height: .8rem; background: var(--tinta); box-shadow: inset 0 0 0 2px var(--linea-suave); }
+.ficha-medidor i.lleno { background: var(--sabor, var(--masa)); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .25); }
+/* La Special Edition (base gris) llena sus barras con el arcoíris de su aura. */
+[data-sabor="special-edition"] .ficha-medidor i.lleno {
+  background: linear-gradient(90deg, #FF4D6D, #FFB84D, #FFF066, #6BE675, #4DE8D0, #4D9CFF, #B06BFF) 0 0 / 500% 100%; }
+/* Cada bloque muestra su tramo: el arcoíris corre seguido a lo largo de la barra. */
+[data-sabor="special-edition"] .ficha-medidor i.lleno:nth-child(2) { background-position: 25% 0; }
+[data-sabor="special-edition"] .ficha-medidor i.lleno:nth-child(3) { background-position: 50% 0; }
+[data-sabor="special-edition"] .ficha-medidor i.lleno:nth-child(4) { background-position: 75% 0; }
+[data-sabor="special-edition"] .ficha-medidor i.lleno:nth-child(5) { background-position: 100% 0; }
+.ficha-nota { margin: var(--s-3) 0 0; font-size: var(--t-xs); color: var(--suave); }
+@media (prefers-reduced-motion: no-preference) {
+  .ficha-sabor[open] .ficha-medidor i.lleno { animation: ficha-llena .35s steps(3) both; }
+  .ficha-sabor[open] .ficha-medidor i:nth-child(2) { animation-delay: .06s; }
+  .ficha-sabor[open] .ficha-medidor i:nth-child(3) { animation-delay: .12s; }
+  .ficha-sabor[open] .ficha-medidor i:nth-child(4) { animation-delay: .18s; }
+  .ficha-sabor[open] .ficha-medidor i:nth-child(5) { animation-delay: .24s; }
+}
+@keyframes ficha-llena { from { transform: scaleY(0); } }
+
 /* Color de cada sabor (los mismos del presupuesto del modelo DYME) */
 [data-sabor="monster"]         { --sabor: #2F8CFF; --chips: #0B2A66; }
 [data-sabor="red-velvet"]      { --sabor: #E02A33; --chips: #5E0D15; }

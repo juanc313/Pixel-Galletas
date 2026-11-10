@@ -20,6 +20,7 @@ import { MINIMO_GALLETAS, diasDeAviso } from "./pedidos-grandes.js";
 import { CONTACTO, urlWhatsApp } from "./config.js";
 import { Sesion } from "./api.js";
 import { sonar } from "./sonidos.js";
+import { resumenStats } from "./stats-sabores.js";
 
 // ---------- Lo que dice (lógica pura, con pruebas) ----------
 
@@ -159,8 +160,10 @@ export function nodo(id, datos = {}) {
         if (!antojo) return nodo("inicio", datos);
         const producto = saborDelCatalogo(catalogo, antojo.sabor);
         if (!producto && catalogo.length) return nodo("agotado", datos);
+        const ficha = resumenStats(antojo.sabor);
         return {
-          texto: [`Te recomiendo la ${antojo.sabor}${producto ? ` (${pesos(producto.precio)})` : ""}: ${antojo.frase}`],
+          texto: [`Te recomiendo la ${antojo.sabor}${producto ? ` (${pesos(producto.precio)})` : ""}: ${antojo.frase}`,
+            ...(ficha ? [`Su ficha de personaje: ${ficha} 🎮`] : [])],
           opciones: [
             producto ? { texto: "➕ Agregar al carrito", agregar: antojo.sabor } : { texto: "👀 Ver el menú", ancla: "catalogo" },
             { texto: "🔄 Otra opción", ir: "recomendar" },
