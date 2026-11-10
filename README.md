@@ -128,6 +128,28 @@ modifican algunos precios o descripciones. Para una base existente, aplicar solo
 
 **Administrador:** correr `npm run crear-admin` apuntando a esa base para poder entrar al panel.
 
+**Plan de Aiven:** la base está en el plan Developer (de pago, siempre encendido). El plan gratis de MySQL
+se retira el 21 de diciembre de 2026 y Aiven borra esas bases, así que no hay que volver a él.
+
+## Copia de seguridad mensual
+
+```
+npm run respaldo
+```
+
+Pide los datos de Aiven (host, puerto, usuario, base y la ruta del `ca.pem`) y la contraseña, que no se ve al
+escribirla ni se guarda. Los demás datos los recuerda para la próxima vez en `respaldos/.conexion.json`.
+Deja un archivo `respaldos/pixel-galletas-AAAA-MM-DD_HHMM.sql` con la estructura y todas las filas de cada
+tabla. Solo lee la base: usa una transacción de solo lectura y nunca modifica nada. No usa el `.env`, que
+apunta a la base local.
+
+La carpeta `respaldos/` no se sube a git ni a Vercel: trae nombres y teléfonos de clientes. Conviene
+guardar una copia fuera del computador (un disco o una nube privada).
+
+**Restaurar:** crear una base **nueva y vacía** y ejecutar el archivo completo en ella (MySQL Workbench:
+*File → Run SQL Script*). El archivo borra y vuelve a crear cada tabla, así que nunca se ejecuta sobre la
+base en uso. Después se apunta `DB_NAME` (y el resto de `DB_*`, si cambia el servidor) a la base restaurada.
+
 ## Seguridad aplicada y limitaciones conocidas
 - Contraseñas con hash bcrypt; consultas SQL parametrizadas; el texto del frontend se inserta con `textContent`.
 - El rol se verifica en la base de datos en cada petición protegida, no solo en el token.
