@@ -17,6 +17,9 @@ const CARPETA = process.env.RESPALDO_DIR || path.join(__dirname, "..", "respaldo
 const CONEXION = path.join(CARPETA, ".conexion.json");
 const CA_POR_DEFECTO = path.join(__dirname, "..", "..", "ca.pem");
 const FILAS_POR_INSERT = 200;
+// Solo variables RESPALDO_*: las DB_* de la terminal suelen ser las de la base
+// local (VS Code carga el .env en cada terminal) y llevarían a respaldar la base equivocada.
+const env = (n) => process.env[`RESPALDO_${n}`];
 
 const dos = (n) => String(n).padStart(2, "0");
 function marcaDeTiempo(d = new Date()) {
@@ -64,7 +67,7 @@ function preguntarOculto(rl, texto) {
     rl.question(`${texto}: `, (r) => {
       rl._writeToOutput = escribir;
       process.stdout.write("\n");
-      ok(r);
+      ok(r.trim()); // al copiar de la página de Aiven a veces se cuela un espacio
     });
   });
 }
@@ -75,36 +78,44 @@ async function pedirConexion() {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
   try {
     const datos = {
-      host: process.env.DB_HOST || await preguntar(rl, "Host de Aiven", previa.host),
-      port: Number(process.env.DB_PORT || await preguntar(rl, "Puerto", previa.port)),
-      user: process.env.DB_USER || await preguntar(rl, "Usuario", previa.user || "avnadmin"),
-      database: process.env.DB_NAME || await preguntar(rl, "Base de datos", previa.database || "defaultdb"),
-      ca: process.env.DB_SSL_CA || await preguntar(rl, "Archivo ca.pem", previa.ca || CA_POR_DEFECTO),
+      host: env("HOST") || await preguntar(rl, "Host de Aiven", previa.host),
+      port: Number(env("PORT") || await preguntar(rl, "Puerto", previa.port)),
+      user: env("USER") || await preguntar(rl, "Usuario", previa.user || "avnadmin"),
+      database: env("DB") || await preguntar(rl, "Base de datos", previa.database || "defaultdb"),
+      ca: env("CA") || await preguntar(rl, "Archivo ca.pem", previa.ca || CA_POR_DEFECTO),
     };
-    const password = process.env.DB_PASSWORD ?? await preguntarOculto(rl, "Contraseña de Aiven (no se ve al escribir)");
+    const password = env("PASSWORD") ?? await preguntarOculto(rl, "Contraseña de Aiven (no se ve al escribir)");
     return { datos, password };
   } finally {
     rl.close();
   }
 }
 
-async function main() {
+// Pide los datos de Aiven y abre la conexión. La usa también actualizar-base.js.
+async function conectar() {
   fs.mkdirSync(CARPETA, { recursive: true });
   const { datos, password } = await pedirConexion();
   if (!datos.host || !datos.port || !datos.user || !datos.database) throw new Error("Faltan datos de conexión.");
-  const ssl = process.env.DB_SSL === "false" ? undefined : { ca: fs.readFileSync(datos.ca), rejectUnauthorized: true };
+  const ssl = env("SSL") === "false" ? undefined : { ca: fs.readFileSync(datos.ca), rejectUnauthorized: true };
 
   const conexion = await mysql.createConnection({
     host: datos.host, port: datos.port, user: datos.user, password, database: datos.database,
     ssl, dateStrings: true, supportBigNumbers: true, bigNumberStrings: true, connectTimeout: 20000,
   });
-  // Los datos de conexión que no son secretos se recuerdan para el mes siguiente.
+  // Los datos de conexión que no son secretos se recuerdan para la próxima vez.
   fs.writeFileSync(CONEXION, JSON.stringify(datos, null, 2));
+  return { conexion, datos };
+}
 
+async function main() {
+  const { conexion, datos } = await conectar();
   const fecha = new Date();
   const archivo = path.join(CARPETA, `pixel-galletas-${marcaDeTiempo(fecha)}.sql`);
   const resumen = [];
   try {
+    // Aiven trae el modo ANSI: sin esto, SHOW CREATE TABLE escribe "comillas
+    // dobles" y omite ENGINE, y la copia no se podría restaurar en un MySQL normal.
+    await conexion.query("SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION'");
     await conexion.query("SET SESSION TRANSACTION READ ONLY");
     await conexion.query("START TRANSACTION WITH CONSISTENT SNAPSHOT");
     const [tablas] = await conexion.query("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'");
@@ -135,4 +146,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { sentenciasDeTabla, marcaDeTiempo };
+module.exports = { sentenciasDeTabla, marcaDeTiempo, conectar };

@@ -140,8 +140,10 @@ npm run respaldo
 Pide los datos de Aiven (host, puerto, usuario, base y la ruta del `ca.pem`) y la contraseña, que no se ve al
 escribirla ni se guarda. Los demás datos los recuerda para la próxima vez en `respaldos/.conexion.json`.
 Deja un archivo `respaldos/pixel-galletas-AAAA-MM-DD_HHMM.sql` con la estructura y todas las filas de cada
-tabla. Solo lee la base: usa una transacción de solo lectura y nunca modifica nada. No usa el `.env`, que
-apunta a la base local.
+tabla. Solo lee la base: usa una transacción de solo lectura y nunca modifica nada. No usa el `.env` ni las
+variables `DB_*` de la terminal (VS Code carga ahí el `.env`, que apunta a la base local); para automatizarla
+existen las variables `RESPALDO_HOST`, `RESPALDO_PORT`, `RESPALDO_USER`, `RESPALDO_DB`, `RESPALDO_CA` y
+`RESPALDO_PASSWORD`. La copia sale con la sintaxis normal de MySQL aunque Aiven use el modo ANSI.
 
 La carpeta `respaldos/` no se sube a git ni a Vercel: trae nombres y teléfonos de clientes. Conviene
 guardar una copia fuera del computador (un disco o una nube privada).
@@ -149,6 +151,16 @@ guardar una copia fuera del computador (un disco o una nube privada).
 **Restaurar:** crear una base **nueva y vacía** y ejecutar el archivo completo en ella (MySQL Workbench:
 *File → Run SQL Script*). El archivo borra y vuelve a crear cada tabla, así que nunca se ejecuta sobre la
 base en uso. Después se apunta `DB_NAME` (y el resto de `DB_*`, si cambia el servidor) a la base restaurada.
+
+## Crear las tablas que falten en Aiven
+
+```
+npm run actualizar-base
+```
+
+Pide los mismos datos que la copia de seguridad. Toma de `database/schema.sql` solo las sentencias
+`CREATE TABLE IF NOT EXISTS` y crea las tablas que la base todavía no tenga (por ejemplo `carrito_items`).
+Nunca borra, modifica ni rellena datos. Se puede ejecutar las veces que se quiera.
 
 ## Seguridad aplicada y limitaciones conocidas
 - Contraseñas con hash bcrypt; consultas SQL parametrizadas; el texto del frontend se inserta con `textContent`.
