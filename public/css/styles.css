@@ -2878,6 +2878,19 @@ main > .divisor:has(+ section[hidden]) { display: none; }
   #lista-productos .producto > b { font-size: var(--t-lg); }
   #lista-productos .producto > .btn-agregar { padding: var(--s-2) var(--s-2); font-size: var(--t-xs); min-height: 44px; }
   #lista-productos .sello-sabor { transform: scale(.75); transform-origin: top right; }
+  /* Con la letra del sistema agrandada (muy común en Samsung), los nombres se
+     salían de la tarjeta y el botón quedaba en "+ CARRI". Los textos de la
+     tarjeta se miden contra el ANCHO DE LA TARJETA (cqi), no contra la letra
+     del sistema: así caben siempre, con letra normal o grande. */
+  #lista-productos .producto { container-type: inline-size; }
+  #lista-productos .producto strong { font-size: min(var(--t-sm), 10.5cqi); overflow-wrap: anywhere; }
+  #lista-productos .producto > b { font-size: min(var(--t-lg), 14cqi); white-space: nowrap; }
+  #lista-productos .producto > .btn-agregar { font-size: min(var(--t-xs), 9.4cqi); padding-inline: var(--s-1); }
+  #lista-productos .producto > div small:not(.stock) { font-size: min(var(--t-xs), 9.5cqi); }
+  #lista-productos .ficha-sabor summary { font-size: min(var(--t-xs), 9cqi); white-space: nowrap; }
+  /* El emoji y el nombre de la clase van juntos: nunca "🛡️" arriba y "CABALLERO" abajo. */
+  #lista-productos .ficha-clase { font-size: min(var(--t-sm), 8cqi); white-space: nowrap; }
+  #lista-productos .ficha-nombre { font-size: min(var(--t-xs), 9.5cqi); }
   /* Ficha de stats en columna angosta: la etiqueta arriba y la barra debajo. */
   .ficha-sabor summary { font-size: var(--t-xs); }
   .ficha-clase { font-size: var(--t-sm); }
