@@ -2867,8 +2867,10 @@ main > .divisor:has(+ section[hidden]) { display: none; }
   /* --- Catálogo a dos columnas, como cualquier tienda de comida --- */
   #lista-productos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-6) var(--s-3); padding: var(--s-3) 3px var(--s-2); }
   #lista-productos .familia-cabecera { grid-column: 1 / -1; }
+  /* El relleno de arriba es la zona de la foto MÁS aire: con menos, el nombre
+     se montaba sobre el recuadro de color de la foto. */
   #lista-productos .producto { --sprite: 4.6rem; gap: var(--s-2);
-    padding: calc(var(--zona) - var(--s-2)) var(--s-3) var(--s-3); }
+    padding: calc(var(--zona) + var(--s-2)) var(--s-3) var(--s-3); }
   #lista-productos .producto[data-foto] { --sprite: 6.4rem; }
   #lista-productos .producto strong { font-size: var(--t-sm); line-height: 1.2; }
   /* La descripción completa sigue ahí: se recorta a tres líneas para no estirar la tarjeta. */

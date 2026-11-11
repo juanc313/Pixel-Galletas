@@ -250,6 +250,13 @@
 
 /* --- Invitación a instalar la app --- */
 :root[data-tema="claro"] .instalar-aviso { background: #FFFFFF; color: #2A1A4A; }
+/* Resumen flotante del carrito: su fondo era oscuro fijo y el texto tomaba la
+   tinta del tema claro (morado oscuro): "4 galletas · $ 28.000" no se leía. */
+:root[data-tema="claro"] .mini-carrito { background: #FFFFFF; color: #2A1A4A;
+  box-shadow: 0 0 0 3px #F5902F, 6px 8px 0 rgba(42, 26, 74, .2); }
+:root[data-tema="claro"] .mini-carrito:hover { background: #FFF4E0; }
+:root[data-tema="claro"] .mini-carrito-resumen { color: #2A1A4A; }
+:root[data-tema="claro"] .mini-carrito-cta { background: #F5902F; color: #2A1A4A; }
 :root[data-tema="claro"] .actualizar-aviso { background: #FFFFFF; color: #2A1A4A; box-shadow: 0 0 0 3px #0E8F7C, 6px 8px 0 rgba(42, 26, 74, .18); }
 :root[data-tema="claro"] .actualizar-aviso b { color: #0B6F60; }
 /* "Luego" y "Ahora no" son enlaces de texto, no botones naranjas. */
