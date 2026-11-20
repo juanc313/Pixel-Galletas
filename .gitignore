@@ -23,3 +23,6 @@ certs/
 
 # Copias de seguridad de la base: traen datos de clientes
 respaldos/
+
+# Script de un solo uso para cambiar la contraseña del admin: nunca se sube
+scripts/cambiar-contrasena-admin.js
