@@ -1133,6 +1133,65 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .estado-meta { margin: 0; font-size: var(--t-sm); color: var(--suave); }
 .estado-resultado ul { margin: var(--s-2) 0; padding-left: 1.2rem; color: var(--suave); font-size: var(--t-sm); }
 .estado-siguiente { margin: 0; font-size: var(--t-sm); color: var(--diamante); }
+
+/* ===== El pedido como misión (estado.js) =====
+   Cuatro etapas en fila unidas por un camino de píxeles: lo recorrido va en
+   masa, lo que falta en guiones apagados. La etapa actual late a pasos (como
+   un sprite), y al entregar el trofeo rebota en dorado. */
+.mision { margin: var(--s-4) 0; padding: var(--s-4) var(--s-3); background: var(--tinta); box-shadow: var(--px-3-suave); }
+.mision-cabeza { margin: 0 0 var(--s-4); font-family: var(--titulos); font-size: var(--t-md); color: var(--masa);
+  text-transform: uppercase; text-align: center; }
+.mision-cumplida .mision-cabeza { color: var(--moneda); }
+.mision-cancelada .mision-cabeza { color: var(--corazon); }
+.mision-ruta { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-2); }
+.mision-ruta .mision-paso { position: relative; display: grid; justify-items: center; align-content: start; gap: var(--s-2);
+  margin: 0; text-align: center; font-size: var(--t-xs); line-height: 1.3; color: var(--suave); }
+.mision-paso:not(:first-child)::before { content: ""; position: absolute; top: 1.4rem; right: 50%; width: calc(100% + var(--s-2)); height: 4px;
+  background-image: repeating-linear-gradient(90deg, var(--linea-suave) 0 .4rem, transparent .4rem .8rem); }
+.mision-paso.paso-hecha::before, .mision-paso.paso-actual::before { background: var(--masa); }
+.mision-icono { position: relative; z-index: 1; display: grid; place-items: center; width: 2.8rem; height: 2.8rem;
+  font-size: 1.4rem; background: var(--pantalla); box-shadow: var(--px-3-suave); }
+.paso-hecha .mision-icono { box-shadow: var(--px-3-diamante); }
+.paso-hecha .mision-icono::after { content: "✓"; position: absolute; top: -.55rem; right: -.55rem; display: grid; place-items: center;
+  width: 1.1rem; height: 1.1rem; font-family: var(--titulos); font-size: .7rem; color: var(--noche); background: var(--diamante); }
+.paso-actual .mision-icono { box-shadow: var(--px-3-masa); background: var(--masa-velo); }
+.paso-actual .mision-texto { color: var(--crema); font-weight: 700; }
+.mision-cumplida .paso-actual .mision-icono { box-shadow: 0 -3px 0 0 var(--moneda), 0 3px 0 0 var(--moneda), -3px 0 0 0 var(--moneda), 3px 0 0 0 var(--moneda); }
+.paso-pendiente .mision-icono, .paso-apagada .mision-icono { filter: grayscale(1); opacity: .45; }
+.paso-apagada .mision-texto { text-decoration: line-through; opacity: .6; }
+.mision-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.mision-compartir { margin-top: var(--s-4); }
+/* En la confirmación del pedido: ".confirmacion p" es flex (ícono + texto),
+   la cabeza de la misión no. Debajo, el enlace para seguirla. */
+.confirmacion .mision { position: relative; }
+.confirmacion .mision-cabeza { display: block; }
+.seguir-mision { display: block; margin-top: var(--s-4); text-align: center; font-size: var(--t-sm);
+  color: var(--diamante); text-underline-offset: .2em; }
+.seguir-mision:hover, .seguir-mision:focus-visible { color: var(--crema); }
+@media (prefers-reduced-motion: no-preference) {
+  .mision-paso { animation: mision-entra .35s var(--e-salida) backwards; }
+  .mision-paso:nth-child(2) { animation-delay: .08s; }
+  .mision-paso:nth-child(3) { animation-delay: .16s; }
+  .mision-paso:nth-child(4) { animation-delay: .24s; }
+  .paso-actual .mision-icono { animation: mision-latido 1.2s steps(2, jump-none) .4s infinite; }
+  .mision-cumplida .paso-actual .mision-icono { animation: mision-trofeo .8s var(--e-rebote) .3s both; }
+}
+@keyframes mision-entra { from { opacity: 0; transform: translateY(.4rem); } to { opacity: 1; transform: none; } }
+@keyframes mision-latido { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+@keyframes mision-trofeo { 0% { transform: scale(.6); } 60% { transform: scale(1.18) rotate(-6deg); } 100% { transform: none; } }
+/* En el celular cuatro etapas en fila no caben con letra pixel legible: la
+   ruta baja en vertical, ícono a la izquierda y el camino entre íconos. */
+@media (max-width: 34rem) {
+  .mision-cabeza { text-align: left; }
+  .mision-ruta { grid-template-columns: 1fr; gap: var(--s-3); }
+  .mision-ruta .mision-paso { grid-template-columns: auto 1fr; justify-items: start; align-items: center;
+    gap: var(--s-3); text-align: left; font-size: var(--t-xs); }
+  .mision-icono { width: 2.3rem; height: 2.3rem; font-size: 1.15rem; }
+  .mision-paso:not(:first-child)::before { top: auto; bottom: 100%; right: auto; left: calc(1.15rem - 2px);
+    width: 4px; height: var(--s-3); }
+  .mision-paso.paso-pendiente::before, .mision-paso.paso-apagada::before {
+    background-image: repeating-linear-gradient(180deg, var(--linea-suave) 0 .25rem, transparent .25rem .5rem); }
+}
 .pie-privacidad { margin-top: var(--s-2); color: var(--suave); font-size: var(--t-xs); opacity: .9; }
 
 /* Aviso de seguridad: fijo y sobrio, con el borde de píxeles de la marca. Sin parpadeos

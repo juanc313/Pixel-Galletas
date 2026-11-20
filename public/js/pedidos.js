@@ -3,6 +3,7 @@ import { CONTACTO, urlWhatsApp } from "./config.js";
 import { idVisita } from "./analitica.js";
 import { escucharGlobal } from "./registro-global.js";
 import { sonar, efectoDeNivel } from "./sonidos.js";
+import { misionDe, rutaMision } from "./mision.js";
 
 // Etiquetas legibles de los estados del pedido.
 export const ESTADOS = {
@@ -932,10 +933,34 @@ class PedidoVista {
       filaAhorro.hidden = ahorro <= 0;
       filaAhorro.parentElement?.classList.toggle("sin-ahorro", ahorro <= 0);
     }
+    this.#mision(pedido);
     this.#lluviaDePixeles();
     sonar("victoria");
     this.$("confirmacion").hidden = false;
     this.$("confirmacion").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // La misión arranca aquí, en la etapa 1, para que el cliente sepa desde ya
+  // que puede seguir su pedido. "Seguir mi misión" lleva a la consulta de
+  // estado con el número y el teléfono ya puestos (en la página, no en la URL:
+  // el teléfono no debe quedar en el historial ni en un enlace compartido).
+  #mision(pedido) {
+    const caja = this.$("completado-mision");
+    if (caja) {
+      const mision = misionDe({ estado: pedido.estado || "pendiente", entrega: pedido.entrega });
+      caja.replaceChildren(...(mision ? [rutaMision(mision)] : []));
+    }
+    const seguir = this.$("btn-seguir-mision");
+    if (seguir) {
+      seguir.onclick = () => {
+        const id = this.$("estado-id");
+        const telefono = this.$("estado-telefono");
+        if (id) id.value = String(pedido.id);
+        if (telefono) telefono.value = pedido.clienteTelefono || "";
+        // El salto a #estado lo hace el propio enlace; la consulta va justo después.
+        setTimeout(() => this.$("form-estado")?.requestSubmit(), 0);
+      };
+    }
   }
 
   // Píxeles de colores que caen sobre el marcador. Es decoración (aria-hidden) y

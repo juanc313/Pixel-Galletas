@@ -1,5 +1,9 @@
 import { ApiClient } from "./api.js";
 import { ENTREGAS, ESTADOS, pesos } from "./pedidos.js";
+import { sonar } from "./sonidos.js";
+import { misionDe, rutaMision, textoVictoria } from "./mision.js";
+// Se reexporta para quien ya lo tomaba de aquí (las pruebas).
+export { ETAPAS_MISION, misionDe, textoVictoria } from "./mision.js";
 
 // ============================================================================
 // Estado del pedido, público
@@ -17,10 +21,14 @@ export class EstadoVista {
     this.$("form-estado").addEventListener("submit", (e) => this.consultar(e));
     // El enlace puede llegar con el número ya puesto (#estado o ?pedido=12),
     // que es como se comparte desde la confirmación del pedido.
+    // Esa consulta automática no suena: los efectos solo responden a lo que
+    // hace el cliente (y el navegador no deja tocar audio sin un toque antes).
+    this.automatico = false;
     const param = new URLSearchParams(globalThis.location?.search ?? "").get("pedido");
     if (param) {
       const campo = this.$("estado-id");
       campo.value = String(param).replace(/\D/g, "");
+      this.automatico = true;
       this.$("form-estado").requestSubmit();
     }
   }
@@ -36,6 +44,8 @@ export class EstadoVista {
     const f = new FormData(e.target);
     const id = String(f.get("id") || "").trim();
     const telefono = String(f.get("telefono") || "").trim();
+    const conSonido = !this.automatico;
+    this.automatico = false;
     this.$("estado-resultado").hidden = true;
     if (!id || !telefono) return this.mensaje("Pon el número de pedido y el teléfono con el que pediste.");
     try {
@@ -44,7 +54,8 @@ export class EstadoVista {
       // servidor. Aquí solo viaja en la petición.
       const pedido = await this.servicio.post("/pedidos/estado", { id, telefono });
       this.mensaje("", false);
-      this.pintar(pedido);
+      const mision = this.pintar(pedido);
+      if (conSonido && mision?.cumplida) sonar("victoria");
     } catch (error) {
       this.mensaje(error.message);
     }
@@ -59,6 +70,9 @@ export class EstadoVista {
     const estado = ESTADOS[pedido.estado] || pedido.estado;
     titulo.textContent = `Pedido #${pedido.id} · ${estado}`;
     caja.append(titulo);
+
+    const mision = misionDe(pedido);
+    if (mision) caja.append(rutaMision(mision));
 
     const meta = document.createElement("p");
     meta.className = "estado-meta";
@@ -94,7 +108,27 @@ export class EstadoVista {
     nota.textContent = siguiente;
     caja.append(nota);
 
+    if (mision?.cumplida) caja.append(this.botonCompartir());
+
     caja.hidden = false;
+    return mision;
+  }
+
+  // Compartir la victoria: la hoja de compartir del celular, o WhatsApp si no hay.
+  botonCompartir() {
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "boton-grande mision-compartir";
+    boton.textContent = "Compartir mi victoria";
+    boton.addEventListener("click", async () => {
+      const texto = textoVictoria();
+      if (globalThis.navigator?.share) {
+        try { await navigator.share({ title: "Pixel Galletas", text: texto }); return; }
+        catch (error) { if (error?.name === "AbortError") return; }
+      }
+      globalThis.open?.(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank", "noopener");
+    });
+    return boton;
   }
 }
 

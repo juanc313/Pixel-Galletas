@@ -555,9 +555,10 @@ test("Estado: la tarjeta pinta el estado y lo siguiente, sin datos de nadie más
   const { EstadoVista } = await cargar();
   const nodos = {};
   const crear = () => ({
-    textContent: "", className: "", hidden: false, value: "", children: [],
+    textContent: "", className: "", hidden: false, value: "", children: [], attrs: {},
     classList: { toggle() {} },
     addEventListener() {},
+    setAttribute(k, v) { this.attrs[k] = v; },
     append(...hijos) { this.children.push(...hijos); },
     replaceChildren(...hijos) { this.children = hijos; },
   });
@@ -589,14 +590,76 @@ test("Estado: la tarjeta pinta el estado y lo siguiente, sin datos de nadie más
   const titulo = caja.children[0].textContent;
   assert.ok(titulo.includes("Pedido #12"));
   assert.ok(titulo.includes("Listo para entregar"), "el estado se traduce a palabras del cliente");
-  assert.ok(caja.children[1].textContent.includes("Domicilio en Cúcuta"), "se ve cómo llega el pedido");
-  assert.ok(caja.children[1].textContent.includes("5.000"), "y lo que costó el envío");
-  assert.ok(caja.children[2].children[0].textContent.includes("2 × Pixel Monster"));
-  assert.ok(caja.children[3].textContent.length > 10, "siempre dice qué viene ahora");
+  // Debajo del título va la misión: etapa 3 de 4, con las dos primeras hechas.
+  const mision = caja.children[1];
+  assert.ok(mision.className.includes("mision-etapa-3"));
+  assert.equal(mision.children[0].textContent, "Etapa 3 de 4 · Listo para salir", "a domicilio, lo listo sale");
+  const pasos = mision.children[1].children;
+  assert.deepEqual(pasos.map((li) => li.className.replace("mision-paso ", "")),
+    ["paso-hecha", "paso-hecha", "paso-actual", "paso-pendiente"]);
+  assert.equal(pasos[2].attrs["aria-current"], "step", "el lector de pantalla sabe en qué etapa va");
+  assert.ok(caja.children[2].textContent.includes("Domicilio en Cúcuta"), "se ve cómo llega el pedido");
+  assert.ok(caja.children[2].textContent.includes("5.000"), "y lo que costó el envío");
+  assert.ok(caja.children[3].children[0].textContent.includes("2 × Pixel Monster"));
+  assert.ok(caja.children[4].textContent.length > 10, "siempre dice qué viene ahora");
+  assert.equal(caja.children.length, 5, "sin entregar no hay botón de compartir");
   // El recorte no puede filtrar nada del cliente que pidió.
   const completo = JSON.stringify(caja.children);
   assert.ok(!completo.includes("Ceiba"));
   assert.ok(!completo.includes("Ana"));
+  delete globalThis.document;
+});
+
+test("Misión: cada estado es una etapa y lo cancelado apaga la ruta", async () => {
+  const { misionDe, ETAPAS_MISION } = await cargar();
+  assert.equal(ETAPAS_MISION.length, 4);
+
+  const recibido = misionDe({ estado: "pendiente", entrega: "recoger" });
+  assert.equal(recibido.cabeza, "Etapa 1 de 4 · Pedido recibido");
+  assert.deepEqual(recibido.etapas.map((e) => e.paso), ["actual", "pendiente", "pendiente", "pendiente"]);
+  assert.equal(recibido.etapas[2].titulo, "Listo para recoger", "si recoge, lo listo se recoge");
+
+  const cumplida = misionDe({ estado: "entregado", entrega: "cucuta" });
+  assert.equal(cumplida.cumplida, true);
+  assert.equal(cumplida.cabeza, "¡Misión cumplida!");
+  assert.deepEqual(cumplida.etapas.map((e) => e.paso), ["hecha", "hecha", "hecha", "actual"]);
+
+  const cancelada = misionDe({ estado: "cancelado" });
+  assert.equal(cancelada.cancelada, true);
+  assert.equal(cancelada.cumplida, false);
+  assert.equal(cancelada.cabeza, "Misión cancelada");
+  assert.ok(cancelada.etapas.every((e) => e.paso === "apagada"));
+
+  assert.equal(misionDe({ estado: "raro" }), null, "un estado desconocido no se dibuja como misión");
+});
+
+test("Misión: al entregar aparece compartir y el texto no lleva datos del pedido", async () => {
+  const { EstadoVista, textoVictoria } = await cargar();
+  const crear = () => ({
+    textContent: "", className: "", hidden: false, value: "", children: [], attrs: {},
+    classList: { toggle() {} },
+    addEventListener() {},
+    setAttribute(k, v) { this.attrs[k] = v; },
+    append(...hijos) { this.children.push(...hijos); },
+    replaceChildren(...hijos) { this.children = hijos; },
+  });
+  const nodos = {};
+  globalThis.document = { getElementById: (id) => (nodos[id] ||= crear()), createElement: crear };
+  const vista = new EstadoVista({ post: async () => ({}) });
+  const mision = vista.pintar({
+    id: 77, estado: "entregado", creado_en: "2026-10-12T15:00:00.000Z", total: 6000,
+    entrega: "recoger", envio: 0, detalles: [{ nombre_sabor: "Pixel Klim", cantidad: 1 }],
+  });
+  assert.equal(mision.cumplida, true);
+  const caja = nodos["estado-resultado"];
+  const ultimo = caja.children.at(-1);
+  assert.ok(ultimo.className.includes("mision-compartir"));
+  assert.equal(ultimo.textContent, "Compartir mi victoria");
+
+  const texto = textoVictoria("https://pixel.example");
+  assert.ok(texto.includes("Misión cumplida"));
+  assert.ok(texto.includes("https://pixel.example"));
+  assert.ok(!texto.includes("77") && !texto.includes("313"), "ni número de pedido ni teléfono");
   delete globalThis.document;
 });
 
