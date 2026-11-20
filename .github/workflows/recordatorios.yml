@@ -1,0 +1,28 @@
+name: Recordatorios de Pixelito
+
+# Cada 30 minutos le pide a la tienda que revise si hay pedidos quietos y, si
+# los hay, Pixelito escribe por Telegram. El horario (7:00 a 21:00 de Colombia)
+# y las horas de espera los decide el servidor, no este archivo.
+# Necesita dos secretos del repositorio (Settings → Secrets → Actions):
+#   SITIO_URL    la dirección pública, p. ej. https://pixel-galletas.vercel.app
+#   CRON_SECRET  el mismo valor que tiene Vercel
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  recordar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Pedir los recordatorios
+        env:
+          SITIO_URL: ${{ secrets.SITIO_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$SITIO_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "Faltan los secretos SITIO_URL o CRON_SECRET: no se revisa nada."
+            exit 0
+          fi
+          curl -fsS --max-time 60 -H "Authorization: Bearer $CRON_SECRET" "${SITIO_URL%/}/api/pedidos/cron/recordatorios"

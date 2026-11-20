@@ -7,9 +7,9 @@ const { tablasDelEsquema } = require("../scripts/actualizar-base");
 
 const esquema = fs.readFileSync(path.join(__dirname, "..", "database", "schema.sql"), "utf8");
 
-test("Actualizar base: encuentra las seis tablas del esquema, en orden", () => {
+test("Actualizar base: encuentra las siete tablas del esquema, en orden", () => {
   assert.deepEqual(tablasDelEsquema(esquema).map((t) => t.nombre),
-    ["usuarios", "productos", "pedidos", "pedido_detalles", "eventos", "carrito_items"]);
+    ["usuarios", "productos", "pedidos", "pedido_detalles", "pedido_seguimiento", "eventos", "carrito_items"]);
 });
 
 test("Actualizar base: cada sentencia es un CREATE TABLE IF NOT EXISTS completo y nada más", () => {

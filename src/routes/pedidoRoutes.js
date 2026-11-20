@@ -5,6 +5,7 @@ const verificarToken = require("../middlewares/verificarToken");
 const verificarTokenOpcional = require("../middlewares/verificarTokenOpcional");
 const verificarRol = require("../middlewares/verificarRol");
 const { limitePedidos, limiteEstado } = require("../middlewares/limites");
+const { TelegramController } = require("../controllers/telegramController");
 
 // Cualquier cliente puede hacer un pedido (no necesita cuenta);
 // si tiene sesión iniciada, se asocia el pedido a su usuario.
@@ -22,6 +23,10 @@ router.post("/estado", limiteEstado, PedidoController.consultarEstado);
 
 // Tabla de rangos de distancia del domicilio (pública, para el formulario).
 router.get("/tarifas-distancia", PedidoController.tarifasDistancia);
+
+// Recordatorios de Pixelito por Telegram: los pide un reloj externo con
+// CRON_SECRET (.github/workflows/recordatorios.yml). Sin esa clave, 404.
+router.get("/cron/recordatorios", TelegramController.recordatorios);
 
 // La gestión de pedidos es exclusiva del administrador.
 router.get("/", verificarToken, verificarRol("admin"), PedidoController.listar);

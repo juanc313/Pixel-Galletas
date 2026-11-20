@@ -6,6 +6,14 @@ const { ENTREGAS, envioDe } = require("../config/envio");
 const { notificarPedido } = require("../config/telegram");
 const { cargoDeRango, RANGOS_DISTANCIA } = require("../config/distancia");
 const { telefonoValido } = require("../util/telefono");
+const Seguimiento = require("../models/Seguimiento");
+
+// El reloj de los recordatorios de Pixelito. Es secundario: si falla (por
+// ejemplo, falta la tabla pedido_seguimiento), el pedido sigue su curso.
+async function seguir(pedidoId, estado) {
+  try { await Seguimiento.registrarCambio(pedidoId, estado); }
+  catch (error) { console.warn("[seguimiento] no se registró el cambio:", error.message); }
+}
 
 const ESTADOS_VALIDOS = ["pendiente", "en_preparacion", "listo", "entregado", "cancelado"];
 
@@ -182,6 +190,7 @@ class PedidoController {
       // El aviso al obrador va después de guardar el pedido y nunca puede
       // tumbarlo: notificarPedido no lanza (si Telegram falla, queda en los
       // registros del servidor y el cliente igual recibe su pedido).
+      await seguir(pedido.id, pedido.estado || "pendiente");
       await notificarPedido(pedido);
       return res.status(201).json({ ...pedido, descuento, descuento_porcentaje: porcentaje, envio });
     } catch (error) {
@@ -254,6 +263,7 @@ class PedidoController {
       }
       const actualizado = await Pedido.actualizarEstado(req.params.id, estado);
       if (!actualizado) return res.status(404).json({ error: "Pedido no encontrado" });
+      await seguir(Number(req.params.id), estado);
       return res.json(await Pedido.buscarPorId(req.params.id));
     } catch (error) {
       // Reactivar un pedido cancelado reserva otra vez sus galletas: si el

@@ -8,6 +8,7 @@ const productoRoutes = require("./routes/productoRoutes");
 const pedidoRoutes = require("./routes/pedidoRoutes");
 const eventoRoutes = require("./routes/eventoRoutes");
 const carritoRoutes = require("./routes/carritoRoutes");
+const { TelegramController } = require("./controllers/telegramController");
 const { limiteApi, limiteLogin, limiteRegistro } = require("./middlewares/limites");
 
 const app = express();
@@ -109,6 +110,8 @@ app.use("/api/productos", productoRoutes);
 app.use("/api/pedidos", pedidoRoutes);
 app.use("/api/eventos", eventoRoutes);
 app.use("/api/carrito", carritoRoutes);
+// Botones del aviso de Telegram (la clave del webhook la valida el controlador).
+app.post("/api/telegram/webhook", TelegramController.webhook);
 
 // Sitemap: el dominio final no vive en el código, así que sale de SITIO_URL.
 // Sin esa variable no hay sitemap (404), en vez de publicar una URL inventada.

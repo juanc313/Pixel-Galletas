@@ -87,6 +87,20 @@ CREATE TABLE IF NOT EXISTS pedido_detalles (
     REFERENCES productos (id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
+-- Seguimiento de la misión de cada pedido: cuándo cambió de etapa y cuántas
+-- veces Pixelito lo recordó por Telegram (src/models/Seguimiento.js). Solo
+-- sirve para los recordatorios; el estado de verdad sigue en pedidos.estado.
+CREATE TABLE IF NOT EXISTS pedido_seguimiento (
+  pedido_id      INT UNSIGNED NOT NULL,
+  estado         ENUM('pendiente', 'en_preparacion', 'listo', 'entregado', 'cancelado') NOT NULL,
+  cambiado_en    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  recordado_en   TIMESTAMP NULL,
+  recordatorios  TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (pedido_id),
+  CONSTRAINT fk_seguimiento_pedido FOREIGN KEY (pedido_id)
+    REFERENCES pedidos (id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- Los seis sabores de la marca con su precio de venta real
 -- ($7.000 por galleta; la Special Edition es de $9.500).
 INSERT IGNORE INTO productos (nombre_sabor, descripcion, precio_venta) VALUES
