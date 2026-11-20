@@ -1269,10 +1269,10 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
   gap: var(--s-1) var(--s-3); margin: 0 0 var(--s-2); font-size: var(--t-sm); color: var(--suave); }
 .barra-poder-cabeza b { font-family: var(--titulos); font-size: var(--t-md); color: var(--masa);
   text-transform: uppercase; letter-spacing: .04em; }
-/* Carril de Pixelito: corre sobre la barra al ritmo del relleno. */
+/* Carril de Pixelito: vuela sobre la barra al ritmo del relleno. */
 .barra-poder-carril { position: relative; z-index: 2; height: 2.9rem; margin-top: calc(var(--s-1) * -1); }
-/* bottom negativo: la sombra morada de la imagen se apoya sobre el borde de la barra. */
-.pixelito-corredor { position: absolute; bottom: -5px; left: 0; width: auto; height: 2.6rem;
+/* Pixelito volando: flota un poco por encima del borde de la barra. */
+.pixelito-corredor { position: absolute; bottom: 3px; left: 0; width: auto; height: 2.6rem;
   transition: left var(--d-reveal) var(--e-salida), translate var(--d-reveal) var(--e-salida); }
 .barra-poder-pista { position: relative; height: 1.1rem; margin-bottom: 2.4rem; background: var(--tinta);
   box-shadow: var(--px-3); }
@@ -1302,10 +1302,10 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
   .barra-poder.subio .barra-poder-pista::after { animation: subir-nivel 1.4s var(--e-salida); }
   .barra-poder.subio .barra-poder-pista { animation: pista-brilla .6s steps(3) 2; }
   .barra-poder.subio .pixelito-corredor { animation: pixelito-salto .9s var(--e-salida); }
-  /* Mientras el cliente suma galletas, Pixelito trota en su sitio. */
-  .pixelito-corredor { animation: pixelito-trote 1.2s steps(2) infinite; }
+  /* Mientras el cliente suma galletas, Pixelito flota en el aire. */
+  .pixelito-corredor { animation: pixelito-vuelo 1.6s ease-in-out infinite; }
 }
-@keyframes pixelito-trote { 50% { transform: translateY(-2px) rotate(-3deg); } }
+@keyframes pixelito-vuelo { 50% { transform: translateY(-4px) rotate(-2deg); } }
 @keyframes pixelito-salto {
   0%, 100% { transform: translateY(0) scale(1); }
   20% { transform: translateY(2px) scale(1.08, .9); }
@@ -2790,8 +2790,9 @@ main.contenedor > .musica-boton-barra { margin: var(--s-3) 0 0 var(--s-4); }
    el cliente escribe en un formulario se aparta (.apartado). */
 #pixelito-bot { --pixelito-abajo: calc(var(--s-5) + 2.9rem + var(--s-3)); }
 #pixelito-bot .pixelito-lanzador { position: fixed; right: var(--s-5); bottom: var(--pixelito-abajo); z-index: 40;
-  width: 3.4rem; height: 3.4rem; padding: .2rem; border: 0; cursor: pointer;
-  background: var(--pantalla-alta); box-shadow: var(--px-3-masa), 6px 8px 18px rgba(0, 0, 0, .4);
+  width: 3.4rem; height: 3.4rem; padding: 0; border: 0; cursor: pointer;
+  /* Sin cuadro detrás: solo Pixelito, con una sombra que sigue su silueta. */
+  background: none; box-shadow: none; filter: drop-shadow(3px 5px 6px rgba(0, 0, 0, .45));
   transition: transform var(--d-micro) ease, opacity var(--d-ui) ease, translate var(--d-ui) var(--e-salida); }
 #pixelito-bot .pixelito-lanzador img { display: block; width: 100%; height: 100%; object-fit: contain; }
 #pixelito-bot .pixelito-lanzador:hover { transform: translateY(-3px); }
