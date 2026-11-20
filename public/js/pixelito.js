@@ -176,10 +176,21 @@ export function nodo(id, datos = {}) {
   }
 }
 
+// La cara que pone Pixelito en cada momento (dibujos en /img/pixelito-<pose>.webp).
+export const POSES_MOMENTO = {
+  saludo: "saluda",
+  primera: "guino",
+  combo: "guino",
+  "casi-gratis": "explica",
+  quieto: "reloj",
+};
+export const imagenPose = (pose) => (pose ? `/img/pixelito-${pose}.webp` : "/img/pixelito.webp");
+
 // Lo que Pixelito dice por su cuenta según lo que pasa en la página. Devuelve
-// { momento, texto, opciones } o null. `ya` = momentos que ya usó en la visita.
+// { momento, texto, opciones, pose } o null. `ya` = momentos que ya usó en la visita.
 export function momentoProactivo(evento, { unidades = 0, items = [], ya = new Set() } = {}) {
-  const una = (momento, texto, opciones = []) => (ya.has(momento) ? null : { momento, texto, opciones });
+  const una = (momento, texto, opciones = []) =>
+    (ya.has(momento) ? null : { momento, texto, opciones, pose: POSES_MOMENTO[momento] });
   if (evento === "saludo") {
     return una("saludo", azar([
       "¡Hey, jugador! 👾 Soy Pixelito. ¿Te ayudo a escoger tu galleta?",
@@ -246,7 +257,7 @@ class PixelitoVista {
       n.append(...hijos);
       return n;
     };
-    const cara = () => el("img", { src: "/img/pixelito.webp", alt: "", width: "360", height: "397" });
+    const cara = (pose) => el("img", { src: imagenPose(pose), alt: "", width: "360", height: "397" });
     const raiz = el("div", { class: "pixelito-bot", id: "pixelito-bot" },
       el("div", { class: "pixelito-burbuja", id: "pixelito-burbuja", hidden: true },
         el("button", { type: "button", class: "pixelito-burbuja-cerrar", "aria-label": "Cerrar mensaje de Pixelito", texto: "×" }),
@@ -254,7 +265,7 @@ class PixelitoVista {
         el("div", { class: "pixelito-burbuja-opciones" })),
       el("section", { class: "pixelito-panel", id: "pixelito-panel", role: "dialog", "aria-label": "Chat con Pixelito", hidden: true },
         el("header", { class: "pixelito-panel-cabeza" },
-          cara(),
+          cara("explica"),
           el("p", {}, el("b", { texto: "Pixelito" }), el("span", { texto: "Guía gamer de Pixel Galletas" })),
           el("button", { type: "button", class: "pixelito-cerrar", "aria-label": "Cerrar el chat", texto: "×" })),
         el("div", { class: "pixelito-mensajes", "aria-live": "polite" }),
@@ -264,6 +275,13 @@ class PixelitoVista {
     document.body.append(raiz);
     this.$ = (sel) => raiz.querySelector(sel);
     this.raiz = raiz;
+  }
+
+  // Cambia la cara del botón flotante o de la cabeza del chat.
+  ponerCara(sel, pose) {
+    const img = this.$(sel);
+    const src = imagenPose(pose);
+    if (img && img.getAttribute("src") !== src) img.src = src;
   }
 
   escuchar() {
@@ -297,6 +315,10 @@ class PixelitoVista {
       this.programarQuieto();
     });
 
+    // Sus caras se cargan antes de que hable, para que al cambiar no parpadee.
+    setTimeout(() => {
+      for (const pose of new Set([...Object.values(POSES_MOMENTO), "explica", "pensando"])) new Image().src = imagenPose(pose);
+    }, 8000);
     // Saludo: unos segundos después de llegar, cuando la portada de entrada ya se fue.
     setTimeout(() => this.proactivo("saludo"), 14000);
     this.programarQuieto();
@@ -340,11 +362,12 @@ class PixelitoVista {
     if (!m) return;
     this.ya.add(m.momento);
     guardarSesion(CLAVE_YA, [...this.ya]);
-    this.mostrarBurbuja(m.texto, m.opciones);
+    this.mostrarBurbuja(m.texto, m.opciones, m.pose);
   }
 
-  mostrarBurbuja(texto, opciones) {
+  mostrarBurbuja(texto, opciones, pose) {
     const burbuja = this.$("#pixelito-burbuja");
+    this.ponerCara(".pixelito-lanzador img", pose);
     this.$(".pixelito-burbuja-texto").textContent = texto;
     this.pintarOpciones(this.$(".pixelito-burbuja-opciones"), opciones);
     burbuja.hidden = false;
@@ -357,6 +380,7 @@ class PixelitoVista {
   ocultarBurbuja() {
     this.$("#pixelito-burbuja").hidden = true;
     this.raiz.classList.remove("hablando");
+    this.ponerCara(".pixelito-lanzador img"); // vuelve a su cara de siempre
   }
 
   silenciar() {
@@ -392,7 +416,9 @@ class PixelitoVista {
     for (const parrafo of n.texto) {
       const escribiendo = this.burbujaChat("", "pixelito escribiendo");
       escribiendo.textContent = "• • •";
+      this.ponerCara(".pixelito-panel-cabeza img", "pensando"); // piensa mientras "escribe"
       await new Promise((r) => setTimeout(r, Math.min(900, 300 + parrafo.length * 6)));
+      this.ponerCara(".pixelito-panel-cabeza img", "explica");
       escribiendo.className = "pixelito-msg pixelito";
       escribiendo.textContent = parrafo;
       sonar("blip"); // Pixelito "habla" como personaje de RPG

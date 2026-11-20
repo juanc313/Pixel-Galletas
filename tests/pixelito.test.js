@@ -94,6 +94,19 @@ test("Pixelito: habla por su cuenta en el momento justo y una sola vez", async (
   assert.equal(momentoProactivo("saludo", { ya: new Set(["saludo"]) }), null);
 });
 
+test("Pixelito: cada momento y cada etapa de la misión tienen su dibujo en /img", async () => {
+  const { momentoProactivo, POSES_MOMENTO, imagenPose } = await cargar();
+  const { ETAPAS_MISION } = await import("../public/js/mision.js");
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const poses = [...Object.values(POSES_MOMENTO), ...ETAPAS_MISION.map((e) => e.pose), "explica", "pensando"];
+  for (const pose of poses) {
+    assert.ok(fs.existsSync(path.join(__dirname, "..", "public", imagenPose(pose))), `falta ${imagenPose(pose)}`);
+  }
+  assert.equal(momentoProactivo("saludo").pose, "saluda");
+  assert.equal(imagenPose(undefined), "/img/pixelito.webp", "sin pose vuelve a su cara de siempre");
+});
+
 test("Pixelito: nunca interrumpe al que escribe, ni al que lo cerró, ni más de tres veces", async () => {
   const { puedeHablarSolo } = await cargar();
   const base = { silenciado: false, escribiendo: false, abierto: false, hablados: 0, ocupado: false };

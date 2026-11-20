@@ -75,7 +75,7 @@ function cargarSw(red) {
     await Promise.all(esperas);
     return final;
   };
-  return { caches, instalar, pedir, extra: () => caches.almacen.get("pixel-galletas-extra-v4") };
+  return { caches, instalar, pedir, extra: () => caches.almacen.get("pixel-galletas-extra-v5") };
 }
 
 // Una respuesta con type "basic", que es lo que da la red para el propio sitio.

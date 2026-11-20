@@ -1140,7 +1140,14 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
    un sprite), y al entregar el trofeo rebota en dorado. */
 .mision { margin: var(--s-4) 0; padding: var(--s-4) var(--s-3); background: var(--tinta); box-shadow: var(--px-3-suave); }
 .mision-cabeza { margin: 0 0 var(--s-4); font-family: var(--titulos); font-size: var(--t-md); color: var(--masa);
-  text-transform: uppercase; text-align: center; }
+  text-transform: uppercase; text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--s-2); }
+/* Pixelito de la etapa en curso, encima del texto (en el HTML va después). */
+.mision-pixelito { order: -1; width: auto; height: 5.5rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .mision-pixelito { animation: mision-pixelito 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
+  .mision-cumplida .mision-pixelito { animation: mision-trofeo .8s var(--e-rebote) .3s both; }
+}
+@keyframes mision-pixelito { 50% { transform: translateY(-4px) rotate(-2deg); } }
 .mision-cumplida .mision-cabeza { color: var(--moneda); }
 .mision-cancelada .mision-cabeza { color: var(--corazon); }
 .mision-ruta { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-2); }
@@ -1164,7 +1171,7 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 /* En la confirmación del pedido: ".confirmacion p" es flex (ícono + texto),
    la cabeza de la misión no. Debajo, el enlace para seguirla. */
 .confirmacion .mision { position: relative; }
-.confirmacion .mision-cabeza { display: block; }
+.confirmacion .mision-cabeza { display: flex; align-items: center; gap: var(--s-2); }
 .seguir-mision { display: block; margin-top: var(--s-4); text-align: center; font-size: var(--t-sm);
   color: var(--diamante); text-underline-offset: .2em; }
 .seguir-mision:hover, .seguir-mision:focus-visible { color: var(--crema); }
@@ -1182,7 +1189,8 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 /* En el celular cuatro etapas en fila no caben con letra pixel legible: la
    ruta baja en vertical, ícono a la izquierda y el camino entre íconos. */
 @media (max-width: 34rem) {
-  .mision-cabeza { text-align: left; }
+  .mision-cabeza, .confirmacion .mision-cabeza { text-align: left; align-items: flex-start; }
+  .mision-pixelito { height: 4.5rem; }
   .mision-ruta { grid-template-columns: 1fr; gap: var(--s-3); }
   .mision-ruta .mision-paso { grid-template-columns: auto 1fr; justify-items: start; align-items: center;
     gap: var(--s-3); text-align: left; font-size: var(--t-xs); }
@@ -2680,6 +2688,11 @@ body:has(.menu.abierto) .actualizar-aviso { visibility: hidden; }
 
 /* ===== Página sin conexión ===== */
 .offline-logo { display: block; width: 7rem; height: auto; margin: 0 auto var(--s-4); }
+/* Pixelito en la página 404 (confundido) y sin conexión (dormido). */
+.pixelito-aviso { display: block; width: 8rem; height: auto; margin: 0 auto var(--s-4); }
+@media (prefers-reduced-motion: no-preference) {
+  .pixelito-aviso { animation: mision-pixelito 2.8s ease-in-out infinite; transform-origin: 50% 100%; }
+}
 
 /* ===== Pulido: nada tapa lo que se vende ===================================
    Las piezas flotantes ceden el sitio al catálogo y al pedido, y en el tema

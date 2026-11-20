@@ -2,8 +2,8 @@
 // sin conexión muestre una página clara en vez de una a medias.
 // No cachea la API ni las peticiones que no sean GET del propio sitio,
 // para que los pedidos y los datos de sesión nunca se sirvan desde caché.
-const CACHE_BASE = "pixel-galletas-v4";
-const CACHE_EXTRA = "pixel-galletas-extra-v4";
+const CACHE_BASE = "pixel-galletas-v5";
+const CACHE_EXTRA = "pixel-galletas-extra-v5";
 const MAX_EXTRA = 60; // la caché de recursos sueltos no crece sin límite
 const OFFLINE = "/offline.html";
 // Todo lo que necesita la página sin conexión para verse completa.
@@ -19,6 +19,7 @@ const BASICOS = [
   "/fonts/silkscreen-700-latin.woff2",
   "/fonts/jersey15-cifras.woff2",
   "/img/logo-256.webp",
+  "/img/pixelito-duerme.webp",
   "/img/favicon.png",
   "/manifest.json",
 ];

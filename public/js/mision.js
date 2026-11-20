@@ -8,10 +8,10 @@
 // (estado.js); por eso vive aparte y no importa nada.
 // ============================================================================
 export const ETAPAS_MISION = [
-  { estado: "pendiente", icono: "📜", titulo: "Pedido recibido" },
-  { estado: "en_preparacion", icono: "🔥", titulo: "En el horno" },
-  { estado: "listo", icono: "🎁", titulo: "Listo" },
-  { estado: "entregado", icono: "🏆", titulo: "Entregado" },
+  { estado: "pendiente", icono: "📜", titulo: "Pedido recibido", pose: "lista" },
+  { estado: "en_preparacion", icono: "🔥", titulo: "En el horno", pose: "chef" },
+  { estado: "listo", icono: "🎁", titulo: "Listo", pose: "regalo" },
+  { estado: "entregado", icono: "🏆", titulo: "Entregado", pose: "trofeo" },
 ];
 
 // Lo que la vista necesita para dibujar la misión, sin tocar el DOM (se prueba aparte).
@@ -55,6 +55,21 @@ export function rutaMision(mision) {
   cabeza.className = "mision-cabeza";
   cabeza.textContent = mision.cabeza;
   bloque.append(cabeza);
+
+  // Pixelito acompaña la etapa en curso con su dibujo (lista, chef, regalo,
+  // trofeo). Va dentro de la cabeza: es decorativo y no cambia su texto; el
+  // CSS lo sube encima del texto.
+  const pose = mision.cancelada ? null : ETAPAS_MISION[mision.etapa - 1]?.pose;
+  if (pose) {
+    const img = document.createElement("img");
+    img.className = "mision-pixelito";
+    img.src = `/img/pixelito-${pose}.webp`;
+    img.alt = "";
+    img.width = 120;
+    img.height = 120;
+    img.decoding = "async";
+    cabeza.append(img);
+  }
 
   const lista = document.createElement("ol");
   lista.className = "mision-ruta";
