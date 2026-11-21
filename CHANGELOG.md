@@ -6,6 +6,17 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.12 · Las reglas del juego
+*21 de noviembre de 2026*
+
+- Nueva página de **política de privacidad**: qué datos pide el sitio, para qué,
+  quién los guarda y cómo pedir que se corrijan o se borren (Ley 1581 de 2012).
+- Nueva página de **términos y condiciones**: pedidos, precios, pago, entregas,
+  pedidos grandes, cancelaciones, garantía y alérgenos.
+- Aviso de privacidad junto a «Hacer pedido» y «Crear cuenta», y enlaces a las
+  dos páginas en el pie.
+- El punto de recogida pasa a ser el Centro Comercial La Estrella.
+
 ## 1.11.1 · Parche
 *21 de noviembre de 2026*
 

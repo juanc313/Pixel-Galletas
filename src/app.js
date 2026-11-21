@@ -127,6 +127,8 @@ app.get(["/sitemap.xml", "/api/sitemap.xml"], (req, res) => {
       `  <url><loc>${base}/preguntas-gamer.html</loc></url>\n` +
       `  <url><loc>${base}/historia-marca.html</loc></url>\n` +
       `  <url><loc>${base}/memoria-8bit.html</loc></url>\n` +
+      `  <url><loc>${base}/privacidad.html</loc></url>\n` +
+      `  <url><loc>${base}/terminos.html</loc></url>\n` +
       `</urlset>\n`
   );
 });

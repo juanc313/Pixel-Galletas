@@ -20,7 +20,7 @@ export function misionDe(pedido) {
   const cancelada = pedido.estado === "cancelado";
   const indice = ETAPAS_MISION.findIndex((e) => e.estado === pedido.estado);
   if (indice < 0 && !cancelada) return null;
-  // "Listo" dice qué sigue según cómo llega: recoger en Ceiba 2 o domicilio.
+  // "Listo" dice qué sigue según cómo llega: recoger en el C.C. La Estrella o domicilio.
   const listo = pedido.entrega === "recoger" ? "Listo para recoger" : "Listo para salir";
   const etapas = ETAPAS_MISION.map((e, i) => ({
     ...e,

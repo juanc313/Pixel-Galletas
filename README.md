@@ -83,10 +83,10 @@ una acción sin permisos responde **403**.
 - **Aviso al obrador:** con las variables de Telegram configuradas, cada pedido nuevo llega al chat del obrador
   con cliente, teléfono, dirección, sabores y total. Si Telegram falla, el pedido igual queda guardado.
 - **Contacto:** la sección Contacto enlaza WhatsApp (313 783 9935), Instagram (@pixel_galletas) y la ubicación
-  (Ceiba 2, Cúcuta). Esos datos viven en `public/js/config.js`.
+  (Centro Comercial La Estrella, Cúcuta). Esos datos viven en `public/js/config.js`.
 - **Entrega:** Cúcuta, Villa del Rosario, Los Patios y El Zulia. Domicilio $5.000 en Cúcuta y $7.000 en los
   alrededores, más un cargo por distancia desde el Centro Comercial La Estrella ($2.000 de 0 a 3 km, $4.000 de 3 a
-  6 km y $6.000 a más de 6 km). Desde 12 galletas el domicilio es gratis, distancia incluida; recoger en Ceiba 2
+  6 km y $6.000 a más de 6 km). Desde 12 galletas el domicilio es gratis, distancia incluida; recoger en el C.C. La Estrella
   siempre gratis. El cobro sale de `src/config/envio.js` y `src/config/distancia.js`, con su copia en
   `public/js/pedidos.js`. Los textos están en cuatro sitios: en `public/index.html`, las preguntas frecuentes (la
   sección visible y los datos estructurados del `<head>`), «Cómo se entrega y se paga» y las opciones del formulario

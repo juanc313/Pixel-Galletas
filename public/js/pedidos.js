@@ -75,12 +75,12 @@ export function sugerirCombo(items) {
 // de pedir; el que se guarda siempre lo calcula el servidor. Hay una prueba que
 // compara las dos listas para que no se separen con el tiempo.
 //
-//   recoger    → recoger en Ceiba 2, gratis siempre
+//   recoger    → recoger en el C.C. La Estrella, gratis siempre
 //   cucuta     → domicilio en Cúcuta, $5.000
 //   municipios → Villa del Rosario, Los Patios o El Zulia, $7.000
 // Y desde 12 galletas el domicilio sale gratis, en cualquier zona.
 export const ENTREGAS = {
-  recoger: { nombre: "Recoger en Ceiba 2", corto: "Recoges en el obrador", costo: 0 },
+  recoger: { nombre: "Recoger en el C.C. La Estrella", corto: "Recoges en el C.C. La Estrella", costo: 0 },
   cucuta: { nombre: "Domicilio en Cúcuta", corto: "Domicilio en Cúcuta", costo: 5000 },
   municipios: {
     nombre: "Domicilio en Villa del Rosario, Los Patios o El Zulia",

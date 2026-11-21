@@ -7,12 +7,12 @@
 //
 // Anunciado en la página: "Cúcuta $5.000 · Villa del Rosario, Los Patios y El
 // Zulia $7.000, más distancia (src/config/distancia.js). Gratis desde 12
-// galletas, distancia incluida; recoger en Ceiba 2, gratis siempre."
+// galletas, distancia incluida; recoger en el C.C. La Estrella, gratis siempre."
 
 const ENTREGAS = {
   // `corto` es la etiqueta para el panel de estado del cliente: dice cómo
   // llega el pedido sin repetir datos del pedido ni del obrador.
-  recoger: { nombre: "Recoger en Ceiba 2", corto: "Recoges en el obrador", costo: 0 },
+  recoger: { nombre: "Recoger en el C.C. La Estrella", corto: "Recoges en el C.C. La Estrella", costo: 0 },
   cucuta: { nombre: "Domicilio en Cúcuta", corto: "Domicilio en Cúcuta", costo: 5000 },
   municipios: {
     nombre: "Domicilio en Villa del Rosario, Los Patios o El Zulia",

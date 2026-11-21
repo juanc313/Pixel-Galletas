@@ -27,7 +27,7 @@ Marque el resultado y adjunte captura como evidencia.
 | CP-17 | Pedido | Llenar nombre y teléfono y enviar | Confirmación "¡Pedido #N registrado!" con total; el carrito queda vacío | ☐ Pasó ☐ Falló |
 | CP-18 | Pedido | Hacer un pedido con teléfono `abc` | El formulario no lo acepta (validación en el navegador) | ☐ Pasó ☐ Falló |
 | CP-19 | WhatsApp | Tras confirmar, pulsar **Enviar por WhatsApp** | Se abre wa.me con el resumen: cliente, teléfono, productos, total y notas | ☐ Pasó ☐ Falló |
-| CP-20 | Contacto | Revisar la sección Contacto | WhatsApp 313 783 9935, Instagram @pixel_galletas y ubicación Ceiba 2 enlazan correctamente | ☐ Pasó ☐ Falló |
+| CP-20 | Contacto | Revisar la sección Contacto | WhatsApp 313 783 9935, Instagram @pixel_galletas y ubicación Centro Comercial La Estrella enlazan correctamente | ☐ Pasó ☐ Falló |
 | CP-21 | Pedidos admin | Entrar como admin | Aparece *Pedidos recibidos* con cada pedido, su detalle y un selector de estado | ☐ Pasó ☐ Falló |
 | CP-22 | Pedidos admin | Cambiar el estado de un pedido a **Listo** | "Estado actualizado."; el cambio persiste al recargar | ☐ Pasó ☐ Falló |
 

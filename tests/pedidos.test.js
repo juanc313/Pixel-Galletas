@@ -277,7 +277,7 @@ test("Contacto: enlaza WhatsApp, Instagram y ubicación del DYME", async () => {
   assert.equal(elementos["link-instagram"].href, CONTACTO.instagramUrl);
   assert.equal(elementos["link-instagram"].textContent, "@pixel_galletas");
   assert.ok(elementos["link-ubicacion"].href.includes("maps"));
-  assert.ok(elementos["link-ubicacion"].textContent.includes("Ceiba 2"));
+  assert.ok(elementos["link-ubicacion"].textContent.includes("La Estrella"));
 });
 
 // ---------- Descuentos por volumen ----------
@@ -436,7 +436,7 @@ test("textoPedido: enseña cómo se entrega y cuánto costó el envío", async (
   const recogiendo = textoPedido(new Pedido({
     ...base, total: "6000.00", entrega: "recoger", envio: "0.00",
   }));
-  assert.ok(recogiendo.includes("Recoger en Ceiba 2"));
+  assert.ok(recogiendo.includes("Recoger en el C.C. La Estrella"));
   assert.ok(recogiendo.includes("gratis"), "un envío de $0 se dice gratis, no se esconde");
 });
 

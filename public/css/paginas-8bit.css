@@ -43,6 +43,23 @@ body.pagina-8bit .estado-resultado { font-family: var(--titulos); }
 .retro-capitulo-numero { color: var(--diamante); font-size: var(--t-sm); margin: 0; }
 .retro-capitulo p, .retro-capitulo li { font-family: var(--texto); letter-spacing: .01em; text-transform: none; line-height: 1.6; }
 
+/* Páginas legales (privacidad y términos): títulos en letra pixel, pero el
+   texto largo en letra normal para que se lea cómodo, como en la historia. */
+.legal { max-width: 52rem; }
+.legal h2 { margin: var(--s-7) 0 var(--s-3); font-size: var(--t-lg); color: var(--masa); scroll-margin-top: var(--s-6); }
+.legal p, .legal li { font-family: var(--texto); letter-spacing: .01em; line-height: 1.65; color: var(--crema); }
+body.pagina-8bit .legal p, body.pagina-8bit .legal li { font-size: var(--t-md); }
+.legal ul, .legal ol { padding-left: 1.3rem; }
+.legal li { margin-bottom: var(--s-2); }
+.legal a { color: var(--diamante); text-underline-offset: .2em; overflow-wrap: anywhere; }
+.legal a:hover { color: var(--masa-clara); }
+.legal-vigencia { margin-top: calc(var(--s-3) * -1); }
+body.pagina-8bit .legal .legal-vigencia { font-family: var(--titulos); font-size: var(--t-sm); color: var(--suave); }
+.legal-indice { margin: var(--s-6) 0; padding: var(--s-4) var(--s-5); background: var(--pantalla); box-shadow: var(--sombra-caja); }
+.legal-indice ol { margin: 0; columns: 2 16rem; column-gap: var(--s-6); }
+.legal-indice li { break-inside: avoid; }
+.legal-pie { margin-top: var(--s-8); padding-top: var(--s-5); border-top: 3px dashed var(--linea-suave); }
+
 @media (max-width: 34rem) {
   .memoria-tablero { gap: var(--s-2); }
   .memoria-carta { font-size: var(--t-lg); }
