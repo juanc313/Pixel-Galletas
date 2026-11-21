@@ -236,6 +236,7 @@ export function nodo(id, datos = {}) {
           `Puedes recogerlas en ${ENTREGAS.recoger.nombre.replace("Recoger en ", "")} gratis, siempre. 🏠`,
           `Domicilio en Cúcuta: ${pesos(ENTREGAS.cucuta.costo)}. En Villa del Rosario, Los Patios o El Zulia: ${pesos(ENTREGAS.municipios.costo)}. Se suma de ${pesos(Math.min(...rangos))} a ${pesos(Math.max(...rangos))} según la distancia.`,
           `¡Pero pilas! Desde ${ENVIO_GRATIS_DESDE} galletas el domicilio es GRATIS. 🚚✨`,
+          "Y algo importante: horneamos por encargo. Puedes pedir a cualquier hora, de día o de noche, y te escribimos por WhatsApp para acordar el día de entrega. 🍪",
           "La forma de entrega la eliges al hacer tu pedido, y ahí mismo ves cuánto queda el total."],
         opciones: [{ texto: "🛒 Ir a mi pedido", ancla: "pedido" }, VOLVER],
       };

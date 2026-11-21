@@ -302,7 +302,7 @@ try {
       // menú quieto, que es lo que esa preferencia pide.
       const demoTexto = entrada.querySelector("#entrada-demo-texto");
       const LEYENDAS_DEMO = [
-        "Sabores del día · horneados hoy",
+        "Sabores de la casa · horneados por encargo",
         "Atrapa la galleta · 30 segundos",
         "Cajas Pixel · mensaje personalizado",
       ];

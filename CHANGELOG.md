@@ -6,6 +6,15 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.12.1 · Parche
+*21 de noviembre de 2026*
+
+- Pixel Galletas trabaja por encargo: el sitio recibe pedidos a cualquier hora,
+  todos los días, y el día de entrega se acuerda por WhatsApp.
+- Se quitan las frases que prometían entregas el mismo día.
+- Nueva pregunta frecuente: «¿Cuándo me entregan mi pedido?».
+- Pixelito explica el encargo cuando habla del domicilio.
+
 ## 1.12 · Las reglas del juego
 *21 de noviembre de 2026*
 

@@ -986,7 +986,7 @@ class PedidoVista {
   }
 
   #confirmar(pedido) {
-    this.mensaje(`¡Pedido #${pedido.id} registrado! Total ${pesos(pedido.total)}. Te esperamos.`, false);
+    this.mensaje(`¡Pedido #${pedido.id} registrado! Total ${pesos(pedido.total)}. Lo horneamos por encargo: acordamos contigo el día de entrega.`, false);
     const enlace = this.$("btn-whatsapp-pedido");
     enlace.href = urlWhatsApp(textoPedido(pedido));
     // Marcador de "¡Nivel completado!": lo que el cliente logró con su pedido.
