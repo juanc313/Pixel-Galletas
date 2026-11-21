@@ -192,6 +192,21 @@ export class Carrito {
   static CLAVE_UNION = "pixel_galletas_carrito_union";
   // Marca que hay cambios en el navegador que la cuenta todavía no confirmó.
   static CLAVE_PENDIENTE = "pixel_galletas_carrito_pendiente";
+  // Lo que llevó el último pedido hecho en este navegador (solo sabores y
+  // cantidades, sin nombre ni teléfono), para el botón "¿Lo de siempre?".
+  static CLAVE_ULTIMO = "pixel_galletas_ultimo_pedido";
+
+  static guardarUltimo(items) {
+    const lineas = items.map((i) => ({ producto_id: i.producto_id, nombre: i.nombre, cantidad: i.cantidad }));
+    try { localStorage.setItem(Carrito.CLAVE_ULTIMO, JSON.stringify(lineas)); } catch { /* modo privado */ }
+  }
+
+  static leerUltimo() {
+    try {
+      const datos = JSON.parse(localStorage.getItem(Carrito.CLAVE_ULTIMO));
+      return Array.isArray(datos) ? datos.filter((l) => l && l.producto_id && l.cantidad >= 1) : [];
+    } catch { return []; }
+  }
 
   #temporizador = null;
   #version = 0; // sube con cada cambio: una respuesta vieja no pisa uno nuevo
@@ -269,6 +284,7 @@ export class Carrito {
       if (localStorage.getItem(Carrito.CLAVE_UNION) !== null) {
         this.items = [];
         localStorage.removeItem(Carrito.CLAVE_UNION);
+        localStorage.removeItem(Carrito.CLAVE_ULTIMO); // su último pedido tampoco se hereda
         this.#olvidarPendiente();
         try { localStorage.setItem(Carrito.CLAVE, "[]"); } catch { /* modo privado */ }
         window.dispatchEvent(new Event("carrito-cambio"));
@@ -383,6 +399,29 @@ export class Carrito {
     const tope = disponible === null ? 100 : Math.min(100, disponible);
     const yaLleva = this.items.find((i) => i.producto_id === producto.id)?.cantidad ?? 0;
     return Math.max(0, tope - yaLleva);
+  }
+
+  // "¿Lo de siempre?": vuelve a poner las líneas de un pedido anterior con los
+  // precios y existencias de HOY (catálogo actual). Lo que se agotó o no
+  // alcanza entra hasta donde quepa y se devuelve en `faltaron` para decirlo.
+  repetir(lineas, catalogo) {
+    const porId = new Map((catalogo || []).map((p) => [p.id, p]));
+    const faltaron = [];
+    let agregadas = 0;
+    for (const linea of lineas) {
+      const p = porId.get(linea.producto_id);
+      const caben = p ? this.cuantasCaben(p) : 0;
+      const n = Math.min(linea.cantidad, caben);
+      if (n < linea.cantidad) faltaron.push(p?.nombre || linea.nombre);
+      if (n <= 0) continue;
+      const disponible = p.cantidadDisponible ?? null;
+      const existente = this.items.find((i) => i.producto_id === p.id);
+      if (existente) Object.assign(existente, { nombre: p.nombre, precio: p.precio, disponible, cantidad: existente.cantidad + n });
+      else this.items.push({ producto_id: p.id, nombre: p.nombre, precio: p.precio, disponible, cantidad: n });
+      agregadas += n;
+    }
+    if (agregadas) this.#guardar();
+    return { agregadas, faltaron };
   }
 
   // lineas: [{ producto, cantidad }]. Devuelve la primera que no cabe, o null.
@@ -625,6 +664,10 @@ class PedidoVista {
       this.pintarCarrito();
     });
     this.$("btn-vaciar-carrito").addEventListener("click", () => this.carrito.vaciar());
+    // Catálogo vigente (lo pone el módulo al cargarse): "¿Lo de siempre?" lo
+    // necesita para usar los precios y existencias de hoy.
+    this.catalogo = [];
+    this.$("btn-repetir")?.addEventListener("click", () => this.repetir());
     this.$("lista-carrito").addEventListener("click", (e) => this.accionesCarrito(e));
     // Dentro de la sección de pedido el chip sobra y taparía "Vaciar carrito".
     if ("IntersectionObserver" in window) {
@@ -783,6 +826,31 @@ class PedidoVista {
     // Sin galletas no hay nada que vaciar: el botón se apaga en vez de quedarse
     // ahí como una acción muerta al lado del aviso de carrito vacío.
     this.$("btn-vaciar-carrito").disabled = this.carrito.items.length === 0;
+    this.pintarRepetir();
+  }
+
+  // "¿Lo de siempre?": con el carrito vacío, ofrece repetir el último pedido de
+  // este navegador. Solo aparece si al menos uno de sus sabores se puede pedir hoy.
+  pintarRepetir() {
+    const caja = this.$("repetir-pedido");
+    if (!caja) return;
+    const ultimo = Carrito.leerUltimo();
+    const porId = new Map(this.catalogo.map((p) => [p.id, p]));
+    const algunoHay = ultimo.some((l) => porId.has(l.producto_id) && porId.get(l.producto_id).cantidadDisponible !== 0);
+    caja.hidden = !algunoHay || this.carrito.items.length > 0 || !this.$("confirmacion").hidden;
+    if (caja.hidden) return;
+    this.$("repetir-resumen").textContent = ultimo
+      .map((l) => `${l.cantidad} × ${porId.get(l.producto_id)?.nombre || l.nombre}`).join(", ");
+  }
+
+  repetir() {
+    const { agregadas, faltaron } = this.carrito.repetir(Carrito.leerUltimo(), this.catalogo);
+    if (!agregadas) return this.mensaje("Hoy no hay ninguno de esos sabores. Mira el menú, ¡hay más!");
+    sonar("galleta");
+    this.mensaje(faltaron.length
+      ? `¡Listo! Pusimos lo que había. De ${faltaron.join(", ")} no alcanzó: está agotado o quedan menos unidades.`
+      : "¡Listo! Tu pedido de siempre ya está en el carrito, con los precios de hoy.", false);
+    return undefined;
   }
 
   // Barra de poder: se oculta sin galletas y con combo (precio fijo, sin
@@ -901,6 +969,7 @@ class PedidoVista {
   async #crearPedido(datos, formulario) {
     try {
       const pedido = await this.servicio.crear(datos);
+      Carrito.guardarUltimo(this.carrito.items); // para "¿Lo de siempre?" la próxima vez
       // El formulario vuelve a "recoger": el carrito siguiente también, o
       // seguiría cobrando el domicilio de este pedido con el formulario en cero.
       this.carrito.entrega = "recoger";
@@ -936,7 +1005,10 @@ class PedidoVista {
     this.#mision(pedido);
     this.#lluviaDePixeles();
     sonar("victoria");
+    // Para los logros (logros.js): cuenta el pedido y los sabores que llevó.
+    window.dispatchEvent(new CustomEvent("pedido-hecho", { detail: { sabores: pedido.detalles.map((d) => d.nombre) } }));
     this.$("confirmacion").hidden = false;
+    this.pintarRepetir(); // con la confirmación a la vista, "¿Lo de siempre?" sobra
     this.$("confirmacion").scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
@@ -1449,6 +1521,7 @@ if (typeof document !== "undefined") {
   let catalogo = null;
   const ponerAlDia = (lista) => {
     if (lista) catalogo = lista;
+    if (vista && catalogo) { vista.catalogo = catalogo; vista.pintarRepetir(); }
     return unida.then(() => avisar(carrito.reconciliar(catalogo)));
   };
   escucharGlobal("carrito:unir-sesion", "sesion-cambio", () => {

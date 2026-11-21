@@ -202,6 +202,7 @@ function iniciarJuego(doc = document) {
     panel.classList.remove("en-marcha");
     boton.textContent = "Otra ronda";
     const rango = rangoPara(puntos);
+    doc.defaultView?.dispatchEvent(new CustomEvent("logro", { detail: "arcade" })); // logros.js
     const nuevoRecord = !reducido && puntos > record;
     if (nuevoRecord) { record = puntos; guardarRecord(record); if (marcador.record) marcador.record.textContent = String(record); }
     if (marcador.rango) {

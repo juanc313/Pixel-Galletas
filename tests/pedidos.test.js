@@ -81,6 +81,34 @@ test("Carrito: agrupa por producto, calcula total y persiste en el navegador", a
   assert.equal(new Carrito().cantidadTotal, 0);
 });
 
+test("¿Lo de siempre?: repite el último pedido con precios y existencias de hoy", async () => {
+  const { Carrito } = await cargar();
+  delete memoria[Carrito.CLAVE_ULTIMO];
+  assert.deepEqual(Carrito.leerUltimo(), [], "sin pedido anterior no hay nada que repetir");
+
+  Carrito.guardarUltimo([
+    { producto_id: 1, nombre: "Pixel Monster", precio: 7000, disponible: null, cantidad: 2 },
+    { producto_id: 2, nombre: "Pixel Red Velvet", precio: 7000, disponible: 5, cantidad: 3 },
+    { producto_id: 3, nombre: "Pixel AreKlim", precio: 7000, disponible: 4, cantidad: 1 },
+  ]);
+  const guardado = JSON.parse(memoria[Carrito.CLAVE_ULTIMO]);
+  assert.deepEqual(Object.keys(guardado[0]).sort(), ["cantidad", "nombre", "producto_id"], "solo sabores y cantidades");
+
+  const catalogo = [
+    { id: 1, nombre: "Pixel Monster", precio: 8000, cantidadDisponible: null }, // subió de precio
+    { id: 2, nombre: "Pixel Red Velvet", precio: 7000, cantidadDisponible: 2 }, // quedan menos
+    { id: 3, nombre: "Pixel AreKlim", precio: 7000, cantidadDisponible: 0 }, // agotada
+  ];
+  const c = new Carrito();
+  const r = c.repetir(Carrito.leerUltimo(), catalogo);
+  assert.equal(r.agregadas, 4);
+  assert.deepEqual(r.faltaron, ["Pixel Red Velvet", "Pixel AreKlim"]);
+  assert.deepEqual(c.items.map((i) => [i.producto_id, i.cantidad, i.precio]), [[1, 2, 8000], [2, 2, 7000]]);
+
+  assert.deepEqual(new Carrito().repetir(Carrito.leerUltimo(), []).agregadas, 0, "sin catálogo no inventa precios");
+  delete memoria[Carrito.CLAVE_ULTIMO];
+});
+
 test("CarritoServicio: convierte las filas de la API a la forma del carrito", async () => {
   const { CarritoServicio } = await cargar();
   const rutas = [];

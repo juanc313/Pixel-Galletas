@@ -34,6 +34,9 @@ export const EFECTOS = {
   nivel3:   { prioridad: 3, notas: [["D5", 0.06, "square"], ["F#5", 0.06, "square"], ["A5", 0.06, "square"], ["D6", 0.06, "square"], ["F#6", 0.06, "square"], ["A6", 0.22, "square"]] },
   max:      { prioridad: 4, notas: [["C5", 0.08, "square"], ["E5", 0.08, "square"], ["G5", 0.08, "square"], ["C6", 0.16, "square"], [null, 0.05],
     ["A5", 0.08, "square"], ["B5", 0.08, "square"], ["C6", 0.08, "square"], ["E6", 0.36, "square"]] },
+  // Logro desbloqueado: dos saltos ascendentes y un brillo largo, en Sol mayor.
+  logro:    { prioridad: 4, notas: [["D5", 0.06, "triangle"], ["G5", 0.06, "triangle"], [null, 0.03],
+    ["B5", 0.06, "triangle"], ["D6", 0.06, "triangle"], ["G6", 0.28, "triangle"]] },
   // Pedido confirmado: jingle propio de la marca, en Fa mayor.
   victoria: { prioridad: 5, notas: [["F4", 0.1, "square"], ["A4", 0.1, "square"], ["C5", 0.1, "square"], [null, 0.04],
     ["A#4", 0.1, "square"], ["C5", 0.1, "square"], ["D5", 0.1, "square"], ["F5", 0.42, "square"]] },

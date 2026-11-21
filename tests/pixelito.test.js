@@ -29,11 +29,11 @@ test("Pixelito: cada botón del guion lleva a una respuesta real, sin textos rot
     assert.ok(n.opciones.length > 0, `${id} ofrece cómo seguir`);
     for (const t of n.texto) assert.doesNotMatch(t, /undefined|NaN|null|\[object/, `${id}: "${t}"`);
     for (const o of n.opciones) {
-      assert.ok(o.ir || o.ancla || o.agregar || o.whatsapp || o.cerrar, `${id}: la opción "${o.texto}" hace algo`);
+      assert.ok(o.ir || o.ancla || o.agregar || o.whatsapp || o.cerrar || o.logros, `${id}: la opción "${o.texto}" hace algo`);
       if (o.ir) pendientes.push(o.ir);
     }
   }
-  for (const clave of ["recomendar", "precios", "combos", "domicilio", "pago", "grandes", "estado", "humano"]) {
+  for (const clave of ["recomendar", "fichas", "precios", "combos", "domicilio", "pago", "grandes", "estado", "logros", "humano"]) {
     assert.ok(visitados.has(clave), `se llega a ${clave} desde el menú`);
   }
 });
@@ -53,7 +53,9 @@ test("Pixelito: los precios vienen del catálogo, no de un número escrito a man
   const caros = CATALOGO.map((p) => ({ ...p, precio: p.precio + 1000 }));
   const texto = nodo("precios", { catalogo: caros }).texto.join(" ");
   assert.ok(texto.includes("8.000") && texto.includes("10.500"), texto);
-  assert.ok(nodo("precios", { catalogo: [] }).texto[0].includes("menú"), "sin catálogo no inventa precios");
+  const sinCatalogo = nodo("precios", { catalogo: [] }).texto;
+  assert.ok(sinCatalogo.some((t) => t.includes("menú de galletas")), "sin catálogo manda al menú");
+  assert.ok(!sinCatalogo.some((t) => t.includes("Galleta clásica:")), "sin catálogo no inventa precios");
 });
 
 test("Pixelito: recomienda solo lo que se puede comprar", async () => {
@@ -105,6 +107,55 @@ test("Pixelito: cada momento y cada etapa de la misión tienen su dibujo en /img
   }
   assert.equal(momentoProactivo("saludo").pose, "saluda");
   assert.equal(imagenPose(undefined), "/img/pixelito.webp", "sin pose vuelve a su cara de siempre");
+});
+
+test("Pixelito: recuerda la charla y al volver al menú no se presenta otra vez", async () => {
+  const { nodo, recordar } = await cargar();
+  const primera = nodo("inicio", { memoria: {} }).texto.join(" ");
+  assert.match(primera, /Soy Pixelito|Pixelito/, "la primera vez se presenta");
+
+  let memoria = recordar({}, "inicio");
+  memoria = recordar(memoria, "precios");
+  memoria = recordar(memoria, "combos");
+  const vuelta = nodo("inicio", { memoria });
+  assert.doesNotMatch(vuelta.texto.join(" "), /Soy Pixelito/, "no se presenta de nuevo");
+  assert.match(vuelta.texto[0], /combo/i, "retoma lo de los combos");
+  assert.equal(vuelta.opciones[0].ir, "recomendar", "sugiere el paso que sigue");
+  assert.ok(!vuelta.opciones.some((o) => o.ir === "precios"), "no ofrece otra vez lo que acaba de ver");
+
+  // Recomendó un sabor y el cliente volvió sin agregarlo: se lo ofrece primero.
+  memoria = recordar(memoria, "antojo:chocolate");
+  const tras = nodo("inicio", { memoria, catalogo: CATALOGO });
+  assert.match(tras.texto[0], /Pixel Chocolate/);
+  assert.equal(tras.opciones[0].agregar, "Pixel Chocolate");
+
+  // Si ya se saludaron en la burbujita, el chat no repite la presentación.
+  assert.doesNotMatch(nodo("inicio", { memoria: recordar({}, "inicio") }).texto.join(" "), /Soy Pixelito/);
+
+  // Un sabor agotado no queda como "el que te recomendé".
+  const agotado = nodo("antojo:cremoso", { catalogo: CATALOGO, memoria });
+  assert.equal(agotado.recuerda, "agotado");
+});
+
+test("Pixelito: explica cada tema la primera vez y luego va directo a los detalles", async () => {
+  const { nodo, recordar, INTRO } = await cargar();
+  for (const tema of Object.keys(INTRO)) {
+    const primera = nodo(tema, { catalogo: CATALOGO, memoria: {} });
+    assert.equal(primera.texto[0], INTRO[tema], `${tema}: primero dice de qué se trata`);
+    assert.ok(primera.texto.length > 1, `${tema}: después da los detalles`);
+    const otraVez = nodo(tema, { catalogo: CATALOGO, memoria: recordar({}, tema) });
+    assert.ok(!otraVez.texto.includes(INTRO[tema]), `${tema}: no repite la explicación`);
+    assert.ok(otraVez.texto.length > 0, `${tema}: igual da los detalles`);
+  }
+  assert.match(INTRO.estado, /pedido recibido, en el horno, listo y entregado/, "las etapas salen de la misión");
+
+  // Las fichas: las clases salen de la misma tabla que el catálogo, todas las del menú.
+  const { STATS } = await import("../public/js/stats-sabores.js");
+  const fichas = nodo("fichas", { memoria: {} }).texto.join(" ");
+  for (const s of Object.values(STATS)) assert.ok(fichas.includes(s.clase), `menciona ${s.clase}`);
+  assert.ok(fichas.includes("Ver stats"), "dice dónde encontrarlas");
+  const reco = nodo("antojo:chocolate", { catalogo: CATALOGO, memoria: {} });
+  assert.ok(reco.opciones.some((o) => o.ir === "fichas"), "desde una recomendación se puede preguntar qué es la ficha");
 });
 
 test("Pixelito: nunca interrumpe al que escribe, ni al que lo cerró, ni más de tres veces", async () => {

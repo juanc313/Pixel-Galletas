@@ -6,6 +6,21 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.11 · Pixelito ya te conoce
+*21 de noviembre de 2026*
+
+- **¿Lo de siempre?** Si ya pediste antes, con el carrito vacío aparece tu último
+  pedido y lo repites con un toque, con los precios y existencias de hoy.
+- **Logros:** 9 medallas para ganar comprando y jugando, como tu primera galleta,
+  armar un combo, llegar al descuento máximo o jugar en la sala de juegos.
+  Pixelito te avisa cuando ganas una, y las ves todas en «Mis logros».
+- Pixelito recuerda la conversación: ya no se presenta dos veces, retoma lo que
+  estaban hablando y te sugiere el siguiente paso.
+- La primera vez que tocas un tema del chat, Pixelito te explica de qué se trata
+  antes de darte los detalles, y te dice qué hace cada botón.
+- Nuevo tema en el chat: las fichas de personaje de los sabores, qué significa
+  cada barra y quién es quién.
+
 ## 1.10 · Pixelito se pone expresivo
 *20 de noviembre de 2026*
 

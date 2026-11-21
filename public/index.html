@@ -864,6 +864,11 @@
             <img class="pixelito pixelito-saluda" src="/img/pixelito-saluda.webp" alt="" width="385" height="400" loading="lazy" decoding="async">
             <p><b>¡Tu carrito está vacío!</b> Soy Pixelito: ve al <a href="#catalogo">menú de galletas</a> y elige tus sabores.</p>
           </div>
+          <!-- "¿Lo de siempre?": repite el último pedido de este navegador (lo pinta pedidos.js). -->
+          <div id="repetir-pedido" class="repetir-pedido" hidden>
+            <p><b>¿Lo de siempre?</b> <span id="repetir-resumen"></span></p>
+            <button type="button" id="btn-repetir" class="secundario">🔁 Pedir lo mismo</button>
+          </div>
           <!-- Desglose del descuento por volumen (lo rellena pedidos.js): solo
                se ve cuando la cantidad alcanza el primer tramo, así el carrito
                de una galleta no enseña cuentas que no hacen falta. -->
@@ -1058,6 +1063,7 @@
         <a href="/memoria-8bit.html">Memoria 8 bits</a>
         <a href="/seguimiento-pedido.html">Seguimiento de pedido</a>
         <a href="#contacto">Contacto</a>
+        <button type="button" class="pie-logros" data-logros>🏆 Mis logros</button>
       </nav>
       <div class="pie-social">
         <a id="link-whatsapp-pie" href="#" target="_blank" rel="noopener">WhatsApp · 313 783 9935</a>
@@ -1175,6 +1181,7 @@
   <script type="module" src="/js/recordatorio.js"></script>
   <script type="module" src="/js/pedidos-grandes.js"></script>
   <script type="module" src="/js/pixelito.js"></script>
+  <script type="module" src="/js/logros.js"></script>
   <script type="module" src="/js/desplegables.js"></script>
   <script src="/js/musica.js" defer></script>
 </body>

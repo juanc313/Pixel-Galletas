@@ -1351,6 +1351,13 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .carrito-vacio { display: flex; align-items: center; gap: var(--s-4); margin: var(--s-3) 0; color: var(--suave); }
 .carrito-vacio[hidden] { display: none; }
 .carrito-vacio p { margin: 0; }
+/* "¿Lo de siempre?": repetir el último pedido con un toque. */
+.repetir-pedido { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3);
+  margin: var(--s-3) 0; padding: var(--s-3) var(--s-4); background: var(--tinta); box-shadow: var(--px-3-masa); }
+.repetir-pedido[hidden] { display: none; }
+.repetir-pedido p { margin: 0; flex: 1 1 14rem; font-size: var(--t-sm); color: var(--suave); }
+.repetir-pedido p b { display: block; font-family: var(--titulos); font-size: var(--t-md); color: var(--masa); }
+.repetir-pedido button { flex: none; }
 .carrito-vacio b { color: var(--crema); }
 .pixelito-saluda { flex: none; width: 5.5rem; height: auto; transform-origin: 50% 90%; }
 @media (prefers-reduced-motion: no-preference) {
@@ -1446,7 +1453,16 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
   transition: color var(--d-micro) ease, border-color var(--d-micro) ease, transform var(--d-micro) ease; }
 .pie-links a:hover, .pie-social a:hover { color: var(--masa); border-bottom-color: var(--masa); transform: translateX(3px); }
 .pie-social a { font-size: var(--t-sm); color: var(--suave); }
-@media (min-width: 52rem) { .pie-links { grid-template-columns: repeat(2, max-content); grid-template-rows: repeat(6, auto); grid-auto-flow: column; column-gap: var(--s-9); } }
+@media (min-width: 52rem) { .pie-links { grid-template-columns: repeat(2, max-content); grid-template-rows: repeat(7, auto); grid-auto-flow: column; column-gap: var(--s-9); } }
+/* "Mis logros" es un botón (abre una ventana, no lleva a otra página), pero
+   en el pie se ve igual que los enlaces de al lado. */
+.pie-links .pie-logros { padding: 0; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none;
+  box-shadow: none; filter: none; width: fit-content; cursor: pointer; text-align: left;
+  font: 500 var(--t-md)/inherit var(--texto); color: var(--crema);
+  transition: color var(--d-micro) ease, border-color var(--d-micro) ease, transform var(--d-micro) ease; }
+.pie-links .pie-logros::after { display: none; }
+.pie-links .pie-logros:hover { color: var(--masa); border-bottom-color: var(--masa); transform: translateX(3px); filter: none; }
+.pie-links .pie-logros:active { box-shadow: none; transform: none; }
 .pie-legal { max-width: var(--ancho); margin: 0 auto; padding-top: var(--s-5); text-align: center;
   border-top: 3px dashed rgba(255, 243, 220, .18); font-size: var(--t-xs); color: var(--suave); }
 
@@ -2879,6 +2895,53 @@ body:has(.nivel-hud.nivel-hud-fuera) #pixelito-bot:not(.abierto) .pixelito-burbu
 @keyframes pixelito-llama { 50% { transform: translateY(-5px) rotate(-6deg); } }
 @keyframes pixelito-burbuja-entra { from { opacity: 0; transform: translateY(.6rem) scale(.92); } }
 @keyframes pixelito-msg-entra { from { opacity: 0; transform: translateY(.4rem); } }
+
+/* ===== Logros (los crea logros.js) =====
+   Aviso arriba al centro, lejos de Pixelito y de WhatsApp (abajo a la
+   derecha). Es un botón: tocarlo abre la lista de logros. */
+.logro-aviso { position: fixed; top: var(--s-4); left: 50%; z-index: 60; translate: -50% 0;
+  display: flex; align-items: center; gap: var(--s-3); width: min(24rem, calc(100vw - 2 * var(--s-4)));
+  padding: var(--s-2) var(--s-4) var(--s-2) var(--s-2); border: 0; border-radius: 0; cursor: pointer; text-align: left;
+  font: inherit; color: var(--crema); background: var(--tinta);
+  box-shadow: var(--px-3-masa), 8px 10px 22px rgba(0, 0, 0, .45); filter: none;
+  transition: opacity var(--d-ui) ease, translate var(--d-ui) var(--e-salida); }
+.logro-aviso::after { display: none; }
+.logro-aviso:hover { filter: none; transform: none; }
+.logro-aviso.saliendo { opacity: 0; translate: -50% -1rem; }
+.logro-aviso-pixelito { flex: none; width: 3.6rem; height: auto; }
+.logro-aviso-texto { display: grid; gap: .1rem; line-height: 1.3; }
+.logro-aviso-texto small { font-family: var(--titulos); font-size: var(--t-xs); color: var(--moneda); text-transform: uppercase; letter-spacing: .04em; }
+.logro-aviso-texto b { font-family: var(--titulos); font-size: var(--t-md); color: var(--masa); }
+.logro-aviso-texto span { font-size: var(--t-xs); color: var(--suave); }
+.logro-voz { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (prefers-reduced-motion: no-preference) {
+  .logro-aviso { animation: logro-entra .45s var(--e-rebote); }
+  .logro-aviso-pixelito { animation: pixelito-fiesta .8s var(--e-salida) 2 both; }
+}
+@keyframes logro-entra { from { opacity: 0; translate: -50% -1.5rem; } }
+
+/* Lista de logros: <dialog> nativo (el navegador se encarga del foco y del Esc). */
+.logros-dialogo { width: min(30rem, calc(100vw - 2 * var(--s-4))); max-height: 86dvh; padding: var(--s-5); border: 0;
+  color: var(--crema); background: var(--pantalla); box-shadow: var(--px-4-masa), 0 30px 70px rgba(0, 0, 0, .5); }
+.logros-dialogo::backdrop { background: rgba(6, 2, 24, .8); }
+.logros-cabeza { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.logros-cabeza h2 { margin: 0; font-size: var(--t-lg); color: var(--masa); }
+.logros-dialogo .logros-cerrar { width: 2.4rem; height: 2.4rem; padding: 0; border: 0; background: none; box-shadow: none; filter: none;
+  font: 400 1.6rem/1 var(--texto); color: var(--crema); cursor: pointer; }
+.logros-dialogo .logros-cerrar::after { display: none; }
+.logros-dialogo .logros-cerrar:hover { color: var(--masa); transform: none; }
+.logros-cuenta { margin: var(--s-1) 0 var(--s-4); font-size: var(--t-sm); color: var(--suave); }
+.logros-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+.logro { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-3); background: var(--tinta); }
+.logro-icono { flex: none; display: grid; place-items: center; width: 2.4rem; height: 2.4rem; font-size: 1.3rem; background: var(--pantalla-alta); }
+.logro-si .logro-icono { box-shadow: var(--px-3-masa); }
+.logro-texto { display: grid; line-height: 1.3; }
+.logro-texto b { font-family: var(--titulos); font-size: var(--t-sm); color: var(--crema); }
+.logro-texto span { font-size: var(--t-xs); color: var(--suave); }
+.logro-no { opacity: .55; }
+.logro-no .logro-texto b { color: var(--suave); }
+.logro-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.logros-nota { margin: var(--s-4) 0 0; font-size: var(--t-xs); color: var(--suave); text-align: center; }
 
 /* =====================================================================
    PORTADA COMPACTA

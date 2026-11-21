@@ -20,8 +20,9 @@ import { MINIMO_GALLETAS, diasDeAviso } from "./pedidos-grandes.js";
 import { CONTACTO, urlWhatsApp } from "./config.js";
 import { Sesion } from "./api.js";
 import { sonar } from "./sonidos.js";
-import { resumenStats } from "./stats-sabores.js";
+import { resumenStats, statsDe, idSabor, BARRAS_STATS, STATS_MAX } from "./stats-sabores.js";
 import { abrirDesplegable } from "./desplegables.js";
+import { ETAPAS_MISION } from "./mision.js";
 
 // ---------- Lo que dice (lógica pura, con pruebas) ----------
 
@@ -45,11 +46,13 @@ export const ANTOJOS = [
 
 const OPCIONES_MENU = [
   { texto: "🍪 Recomiéndame una", ir: "recomendar" },
+  { texto: "🎮 Fichas de personaje", ir: "fichas" },
   { texto: "💰 Precios y combos", ir: "precios" },
   { texto: "🚚 Domicilio", ir: "domicilio" },
   { texto: "💳 ¿Cómo pago?", ir: "pago" },
   { texto: "🎉 Pedido grande", ir: "grandes" },
   { texto: "📦 ¿Cómo va mi pedido?", ir: "estado" },
+  { texto: "🏆 Mis logros", ir: "logros" },
   { texto: "🙋 Hablar con una persona", ir: "humano" },
 ];
 const VOLVER = { texto: "↩ Menú principal", ir: "inicio" };
@@ -60,13 +63,118 @@ export function saborDelCatalogo(catalogo, nombre) {
   return p && p.disponible !== false ? p : null;
 }
 
+// Qué es cada tema, en palabras simples. Pixelito lo explica la PRIMERA vez que
+// el cliente toca ese botón en la visita, antes de dar los detalles: así nadie
+// llega a "Mis logros" o "Pedido grande" sin saber de qué se trata. Si vuelve
+// al mismo tema, va directo a los detalles.
+export const INTRO = {
+  recomendar: "Te ayudo a escoger: tú me cuentas qué se te antoja y yo te digo cuál de nuestros sabores va contigo. Es como un test de personalidad, pero de galletas. 🍪",
+  fichas: "Cada sabor tiene una ficha de personaje, como cuando eliges a tu luchador en un videojuego: una clase y unas barras del 1 al 5 que te dicen cómo sabe, para que escojas sin tener que probarlas todas. 🎮",
+  precios: "Aquí te cuento cuánto cuesta cada galleta y cómo pagar menos cuando llevas varias. 💰",
+  combos: "Un combo es un paquete que junta la Special Edition, nuestra galleta más épica, con galletas clásicas a un precio fijo, más barato que comprarlas por separado. 🎁",
+  domicilio: "Aquí te cuento cómo te llegan tus galletas: puedes pasar a recogerlas o pedir que te las llevemos, y cuánto cuesta cada opción. 🚚",
+  pago: "Te cuento cómo se paga tu pedido y cómo cuidarte de estafas. 💳",
+  grandes: `Un pedido grande es cuando necesitas muchas galletas de una vez, desde ${MINIMO_GALLETAS}: para un cumpleaños, la oficina o un evento. Como hay que hornear más, se pide con tiempo y te hacemos una cotización aparte. 🎉`,
+  estado: `Cuando haces un pedido te damos un número. Con ese número y tu teléfono puedes ver en qué etapa va, como si siguieras una misión: ${ETAPAS_MISION.map((e) => e.titulo.toLowerCase()).join(", ").replace(/, ([^,]*)$/, " y $1")}. 📦`,
+  logros: "Los logros son medallas que ganas mientras usas la página, como en los videojuegos. 🏆 No son descuentos ni premios en dinero: son para divertirte y presumir.",
+  humano: "Si necesitas algo que yo no sé responder, como un pedido especial, un cambio en tu pedido o una duda puntual, te paso con una persona del equipo de Pixel Galletas por WhatsApp. 🙋",
+};
+
+// ---------- Memoria de la conversación ----------
+// Pixelito recuerda, durante la visita, si ya se presentó, de qué hablaron por
+// última vez y qué sabor recomendó. Así, al volver al menú no se presenta otra
+// vez: retoma la charla y sugiere el paso que sigue.
+//   memoria = { saludado: bool, ultimo: id del último tema, sabor: nombre | null,
+//               vistos: [temas que ya explicó] }
+
+// Tema al que pertenece cada respuesta (para no ofrecer otra vez lo mismo).
+export const temaDe = (id) => {
+  if (!id) return null;
+  if (id.startsWith("antojo:") || id === "agregado" || id === "agotado") return "recomendar";
+  if (id === "combos") return "precios";
+  return id;
+};
+
+// Lo que conviene después de cada tema: el siguiente paso natural hacia el pedido.
+const SIGUIENTE = {
+  fichas: { texto: "🍪 Recomiéndame una", ir: "recomendar" },
+  precios: { texto: "🍪 Recomiéndame sabores", ir: "recomendar" },
+  recomendar: { texto: "🚚 ¿Cómo me llegan?", ir: "domicilio" },
+  domicilio: { texto: "💳 ¿Cómo pago?", ir: "pago" },
+  pago: { texto: "🛒 Ir a hacer mi pedido", ancla: "pedido" },
+  grandes: { texto: "📝 Cotizar mi pedido grande", ancla: "pedidos-grandes" },
+};
+
+// Cómo retoma la charla según lo último que hablaron.
+function retomar({ ultimo, sabor }, unidades) {
+  const carrito = unidades ? ` Ya llevas ${unidades} ${unidades === 1 ? "galleta" : "galletas"} en el carrito.` : "";
+  switch (ultimo) {
+    case "combos":
+      return `¿Te cuadró algún combo? 🎁 Si quieres te recomiendo sabores para armarlo, o miramos otra cosa.${carrito}`;
+    case "fichas":
+      return "¿Ya sabes qué personaje va contigo? 🎮 Si quieres te recomiendo uno según tu antojo.";
+    case "precios":
+      return `Ya tienes los precios a la mano. 💰 ¿Te recomiendo sabores o vemos otra cosa?${carrito}`;
+    case "agregado":
+      return `¡Buena elección con la ${sabor || "galleta"}! 😋${carrito} ¿Seguimos con el domicilio o el pago?`;
+    case "agotado":
+      return "Qué pena lo de esa galleta. 😢 ¿Buscamos otra o te ayudo con algo más?";
+    case "recomendar":
+      return "¿Todavía no te decides? Tranqui, que yo te ayudo. 🍪 ¿Qué más quieres saber?";
+    case "domicilio":
+      return `Ya sabes cómo te llegan las galletas. 🚚 ¿Vemos cómo pagar?${carrito}`;
+    case "pago":
+      return `Con eso ya estás listo para pedir. 💪${carrito} ¿Algo más?`;
+    case "grandes":
+      return "¿Te animas con el pedido grande? 🎉 Cuéntame qué más necesitas saber.";
+    case "estado":
+      return "¿Pudiste ver en qué va tu pedido? 📦 ¿Te ayudo con otra cosa?";
+    case "logros":
+      return "¡A ganar medallas! 🏆 ¿Qué más hacemos?";
+    case "humano":
+      return "Yo sigo aquí si me necesitas. 👾 ¿Qué más te cuento?";
+    default:
+      if (ultimo?.startsWith("antojo:")) {
+        return `¿Qué tal te pareció la ${sabor || "galleta"} que te recomendé? 😋 ¿La agregamos, buscamos otra o vemos otra cosa?`;
+      }
+      // Ya se saludaron (por ejemplo, en la burbujita) pero aún no hablan de nada.
+      if (!ultimo) return azar([`¡Hola otra vez! 👾 ¿En qué te ayudo?${carrito}`, `¡Aquí estoy! 🍪 ¿Qué necesitas?${carrito}`]);
+      return azar([`¡Aquí sigo! 👾 ¿Qué más quieres saber?${carrito}`, `¿Qué más te cuento? 🍪${carrito}`]);
+  }
+}
+
+// Menú al volver: primero el paso que sigue y luego los temas que faltan, sin
+// repetir el que acaban de ver.
+function menuDespues({ ultimo, sabor }) {
+  const tema = temaDe(ultimo);
+  let sugerida = SIGUIENTE[tema] || null;
+  // Si le recomendó un sabor y no lo agregó, se lo vuelve a ofrecer primero.
+  if (ultimo?.startsWith("antojo:") && sabor) sugerida = { texto: `➕ Agregar la ${sabor}`, agregar: sabor };
+  const resto = OPCIONES_MENU.filter((o) => o.ir !== tema && o.ir !== sugerida?.ir);
+  return sugerida ? [sugerida, ...resto] : resto;
+}
+
+// Actualiza la memoria después de decir `id`. Devuelve una memoria nueva.
+export function recordar(memoria, id) {
+  const m = { saludado: false, ultimo: null, sabor: null, vistos: [], ...memoria };
+  if (id === "inicio") return { ...m, saludado: true };
+  const antojo = id.startsWith("antojo:") ? ANTOJOS.find((a) => `antojo:${a.id}` === id) : null;
+  const vistos = INTRO[id] && !m.vistos.includes(id) ? [...m.vistos, id] : m.vistos;
+  return { ...m, saludado: true, ultimo: id, sabor: antojo ? antojo.sabor : m.sabor, vistos };
+}
+
 // Un nodo de la conversación: { texto: [párrafos], opciones: [...] }.
-// `datos` = { catalogo, unidades } (unidades = galletas en el carrito).
+// `datos` = { catalogo, unidades, memoria } (unidades = galletas en el carrito).
 export function nodo(id, datos = {}) {
   const catalogo = datos.catalogo || [];
   const unidades = datos.unidades || 0;
+  const memoria = datos.memoria || {};
+  // La explicación del tema va primero, solo si aún no la dio en esta visita.
+  const intro = INTRO[id] && !(memoria.vistos || []).includes(id) ? [INTRO[id]] : [];
   switch (id) {
     case "inicio":
+      // Ya se conocen: retoma lo que estaban hablando en vez de presentarse otra vez.
+      if (memoria.saludado) return { texto: [retomar(memoria, unidades)], opciones: menuDespues(memoria) };
       return {
         texto: [unidades
           ? azar([`¡Hey, jugador! 👾 Ya llevas ${unidades} ${unidades === 1 ? "galleta" : "galletas"} en el carrito. ¿Te ayudo con algo más?`,
@@ -79,20 +187,33 @@ export function nodo(id, datos = {}) {
 
     case "recomendar":
       return {
-        texto: ["¡Misión aceptada! 🗺️ Encontremos tu galleta ideal. ¿Qué antojo traes hoy?"],
+        texto: [...intro, "¡Misión aceptada! 🗺️ Encontremos tu galleta ideal. ¿Qué antojo traes hoy?"],
         opciones: ANTOJOS.map((a) => ({ texto: a.boton, ir: `antojo:${a.id}` })).concat(VOLVER),
       };
 
+    case "fichas": {
+      // Las clases salen de la misma tabla que pinta las fichas del catálogo.
+      const clases = ANTOJOS.map((a) => ({ sabor: a.sabor, s: statsDe(idSabor(a.sabor)) })).filter((x) => x.s);
+      return {
+        texto: [...intro,
+          `Las barras son tres: ${BARRAS_STATS.map((b) => `${b.icono} ${b.nombre}`).join(", ")}. Dulce es qué tan dulce es, Chocolate es cuánto chocolate lleva, y Mezcla dice si es un solo sabor, la fusión de dos o todos combinados. Entre más cerca de ${STATS_MAX}, más fuerte.`,
+          `Los personajes: ${clases.map((x) => `${x.s.clase} es la ${x.sabor}`).join("; ")}.`,
+          "Todas son crujientes por fuera y suaves por dentro, por eso la textura no tiene barra.",
+          "Las encuentras en el menú de galletas: en cada tarjeta toca «Ver stats». Si tocas «Ver el menú», te llevo allá."],
+        opciones: [{ texto: "👀 Ver el menú", ancla: "catalogo" }, { texto: "🍪 Recomiéndame una", ir: "recomendar" }, VOLVER],
+      };
+    }
+
     case "precios": {
-      const normal = catalogo.find((p) => p.nombre !== NOMBRE_SPECIAL && p.disponible !== false);
+      const normal =catalogo.find((p) => p.nombre !== NOMBRE_SPECIAL && p.disponible !== false);
       const special = catalogo.find((p) => p.nombre === NOMBRE_SPECIAL);
-      const lineas = [];
+      const lineas = [...intro];
       if (normal || special) {
         lineas.push(`Galleta clásica: ${normal ? pesos(normal.precio) : "—"} · Special Edition: ${special ? pesos(special.precio) : "—"}. 💰`);
       } else {
         lineas.push("Los precios de cada sabor los ves en el menú de galletas. 💰");
       }
-      lineas.push(`Y el bonus: ${DESCUENTOS.map((t) => `${t.porcentaje}% desde ${t.desde}`).join(", ")} galletas. ¡Entre más galletas, más poder!`);
+      lineas.push(`Y el bonus, el descuento por cantidad: entre más galletas lleves en un mismo pedido, menos pagas. ${DESCUENTOS.map((t) => `${t.porcentaje}% desde ${t.desde}`).join(", ")} galletas. ¡Entre más galletas, más poder!`);
       return {
         texto: lineas,
         opciones: [{ texto: "🎁 Ver los combos", ir: "combos" }, { texto: "🍪 Recomiéndame una", ir: "recomendar" }, VOLVER],
@@ -101,51 +222,68 @@ export function nodo(id, datos = {}) {
 
     case "combos":
       return {
-        texto: ["¡Combos con Special Edition a precio fijo! 🎁",
+        texto: [...intro,
           ...COMBOS.map((c) => `${c.nombre}: ${c.especiales} Special + ${c.normales} clásicas a ${pesos(c.precio)}.`),
-          "Se arman solos: pon esas galletas en el carrito y el combo se aplica. ¡Magia de píxeles!"],
+          "Se arman solos: pon esas galletas en el carrito y el combo se aplica. ¡Magia de píxeles!",
+          "Si tocas «Ir a los combos», te llevo a la sección donde los ves con más detalle."],
         opciones: [{ texto: "👀 Ir a los combos", ancla: "combos" }, VOLVER],
       };
 
     case "domicilio": {
       const rangos = Object.values(RANGOS_DISTANCIA);
       return {
-        texto: [`Puedes recogerlas en ${ENTREGAS.recoger.nombre.replace("Recoger en ", "")} gratis, siempre. 🏠`,
+        texto: [...intro,
+          `Puedes recogerlas en ${ENTREGAS.recoger.nombre.replace("Recoger en ", "")} gratis, siempre. 🏠`,
           `Domicilio en Cúcuta: ${pesos(ENTREGAS.cucuta.costo)}. En Villa del Rosario, Los Patios o El Zulia: ${pesos(ENTREGAS.municipios.costo)}. Se suma de ${pesos(Math.min(...rangos))} a ${pesos(Math.max(...rangos))} según la distancia.`,
-          `¡Pero pilas! Desde ${ENVIO_GRATIS_DESDE} galletas el domicilio es GRATIS. 🚚✨`],
+          `¡Pero pilas! Desde ${ENVIO_GRATIS_DESDE} galletas el domicilio es GRATIS. 🚚✨`,
+          "La forma de entrega la eliges al hacer tu pedido, y ahí mismo ves cuánto queda el total."],
         opciones: [{ texto: "🛒 Ir a mi pedido", ancla: "pedido" }, VOLVER],
       };
     }
 
     case "pago":
       return {
-        texto: ["Pagas en efectivo o por Nequi cuando coordinamos la entrega por WhatsApp. 💳",
+        texto: [...intro,
+          "No pagas en la página: haces tu pedido y, cuando coordinamos la entrega por WhatsApp, pagas en efectivo o por Nequi. 💳",
           "Y ojo: nunca te pediremos un código, una descarga ni un captcha para pagar. Si alguien lo hace, no es Pixel Galletas. 🛡️"],
         opciones: [{ texto: "🛒 Ir a mi pedido", ancla: "pedido" }, VOLVER],
       };
 
     case "grandes":
       return {
-        texto: [`¿Cumpleaños, oficina o evento épico? 🎉 Desde ${MINIMO_GALLETAS} galletas es un pedido grande.`,
-          `Pedimos un anticipo del 50% y unos días para hornear: ${diasDeAviso(50)} días hasta 50 galletas y ${diasDeAviso(100)} días hasta 100.`],
+        texto: [...intro,
+          `Pedimos un anticipo del 50% y unos días para hornear: ${diasDeAviso(50)} días hasta 50 galletas y ${diasDeAviso(100)} días hasta 100.`,
+          "Si tocas «Cotizar mi pedido grande», te llevo a un formulario corto: eliges la ocasión y cuántas galletas, y se abre WhatsApp con tu solicitud lista para enviarnos. Por ahí te respondemos con el precio."],
         opciones: [{ texto: "📝 Cotizar mi pedido grande", ancla: "pedidos-grandes" }, VOLVER],
       };
 
     case "estado":
       return {
-        texto: ["¿Ya pediste? ¡Bien jugado! 📦 Con tu número de pedido y tu teléfono puedes ver en qué va. No necesitas cuenta."],
-        opciones: [{ texto: "🔎 Ver el estado", ancla: "estado" }, VOLVER],
+        texto: [...intro,
+          "¿Ya pediste? ¡Bien jugado! No necesitas cuenta: solo el número que te salió al terminar el pedido y el teléfono con el que pediste.",
+          "Si tocas «Consultar mi pedido», te llevo a donde los escribes."],
+        opciones: [{ texto: "🔎 Consultar mi pedido", ancla: "estado" }, VOLVER],
+      };
+
+    case "logros":
+      return {
+        texto: [...intro,
+          "Hay medallas por agregar tu primera galleta, por armar un combo, por llegar al descuento máximo, por jugar en la sala de juegos y más.",
+          "Cada vez que ganas una te aviso arriba en la pantalla. Se guardan en este dispositivo, sin cuenta, y también las ves en «Mis logros», al final de la página.",
+          "¿Vemos cuáles llevas y cuáles te faltan?"],
+        opciones: [{ texto: "🏆 Ver mis logros", logros: true }, VOLVER],
       };
 
     case "humano":
       return {
-        texto: ["¡Claro que sí! Te paso con el equipo de Pixel Galletas por WhatsApp. Ellos sí tienen manos para hornear. 😄"],
+        texto: [...intro,
+          "¡Claro que sí! Si tocas «Abrir WhatsApp», se abre un chat con el equipo con un saludo ya escrito. Ellos sí tienen manos para hornear. 😄"],
         opciones: [{ texto: "💬 Abrir WhatsApp", whatsapp: "¡Hola, Pixel Galletas! Vengo de parte de Pixelito 👾" }, VOLVER],
       };
 
     case "agregado":
       return {
-        texto: [azar(["¡Al carrito! +1 de antojo 🍪", "¡Logro desbloqueado: buen gusto! 🏆 Ya está en tu carrito.", "¡Uy, qué nota! Esa ya va para tu carrito. 🍪"])],
+        texto: [azar(["¡Al carrito! +1 de antojo 🍪", "¡Buen gusto, jugador! 😎 Ya está en tu carrito.", "¡Uy, qué nota! Esa ya va para tu carrito. 🍪"])],
         opciones: [{ texto: "🛒 Ir a mi pedido", ancla: "pedido" }, { texto: "🍪 Ver otra", ir: "recomendar" }, VOLVER],
       };
 
@@ -160,7 +298,8 @@ export function nodo(id, datos = {}) {
         const antojo = ANTOJOS.find((a) => a.id === id.slice(7));
         if (!antojo) return nodo("inicio", datos);
         const producto = saborDelCatalogo(catalogo, antojo.sabor);
-        if (!producto && catalogo.length) return nodo("agotado", datos);
+        // `recuerda`: lo que debe quedar en la memoria (no recomendó nada, se acabó).
+        if (!producto && catalogo.length) return { ...nodo("agotado", datos), recuerda: "agotado" };
         const ficha = resumenStats(antojo.sabor);
         return {
           texto: [`Te recomiendo la ${antojo.sabor}${producto ? ` (${pesos(producto.precio)})` : ""}: ${antojo.frase}`,
@@ -168,6 +307,7 @@ export function nodo(id, datos = {}) {
           opciones: [
             producto ? { texto: "➕ Agregar al carrito", agregar: antojo.sabor } : { texto: "👀 Ver el menú", ancla: "catalogo" },
             { texto: "🔄 Otra opción", ir: "recomendar" },
+            ...(ficha ? [{ texto: "❓ ¿Qué es la ficha?", ir: "fichas" }] : []),
             VOLVER,
           ],
         };
@@ -226,6 +366,7 @@ export function puedeHablarSolo({ silenciado, escribiendo, abierto, hablados, oc
 
 const CLAVE_SILENCIO = "pixelito_silenciado";
 const CLAVE_YA = "pixelito_momentos";
+const CLAVE_MEMORIA = "pixelito_memoria"; // de qué hablaron en esta visita
 const leerSesion = (k, def) => { try { return JSON.parse(sessionStorage.getItem(k)) ?? def; } catch { return def; } };
 const guardarSesion = (k, v) => { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch { /* modo privado */ } };
 
@@ -235,6 +376,7 @@ class PixelitoVista {
     this.abierto = false;
     this.ya = new Set(leerSesion(CLAVE_YA, []));
     this.silenciado = leerSesion(CLAVE_SILENCIO, false);
+    this.memoria = leerSesion(CLAVE_MEMORIA, {});
     this.quietoTimer = null;
     this.crear();
     this.escuchar();
@@ -362,6 +504,8 @@ class PixelitoVista {
     if (!m) return;
     this.ya.add(m.momento);
     guardarSesion(CLAVE_YA, [...this.ya]);
+    // Si ya se presentó en la burbujita, en el chat no se vuelve a presentar.
+    if (m.momento === "saludo") this.recordar("inicio");
     this.mostrarBurbuja(m.texto, m.opciones, m.pose);
   }
 
@@ -395,6 +539,7 @@ class PixelitoVista {
     this.$("#pixelito-panel").hidden = false;
     this.$(".pixelito-lanzador").setAttribute("aria-expanded", "true");
     this.raiz.classList.add("abierto");
+    window.dispatchEvent(new CustomEvent("logro", { detail: "charla" })); // logros.js
     if (id === null) return; // lo abrió una respuesta de la burbuja: habla esa respuesta
     if (!this.$(".pixelito-mensajes").children.length || id !== "inicio") this.decir(id);
     else this.$(".pixelito-opciones button")?.focus();
@@ -409,8 +554,14 @@ class PixelitoVista {
   }
 
   // Pixelito "escribe" un instante antes de cada mensaje: le da ritmo de charla.
+  recordar(id) {
+    this.memoria = recordar(this.memoria, id);
+    guardarSesion(CLAVE_MEMORIA, this.memoria);
+  }
+
   async decir(id) {
-    const n = nodo(id, { catalogo: this.catalogo, unidades: this.unidades });
+    const n = nodo(id, { catalogo: this.catalogo, unidades: this.unidades, memoria: this.memoria });
+    this.recordar(n.recuerda || id);
     const opciones = this.$(".pixelito-opciones");
     opciones.replaceChildren();
     for (const parrafo of n.texto) {
@@ -477,6 +628,11 @@ class PixelitoVista {
       abrirDesplegable(opcion.ancla); // si la sección está plegada, se abre antes de llegar
       if (destino) destino.scrollIntoView({ behavior: "smooth", block: "start" });
       else location.href = `/#${opcion.ancla}`;
+      return undefined;
+    }
+    if (opcion.logros) {
+      this.cerrar();
+      window.dispatchEvent(new Event("abrir-logros")); // lo abre logros.js
       return undefined;
     }
     if (opcion.whatsapp) {
