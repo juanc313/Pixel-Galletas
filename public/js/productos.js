@@ -149,15 +149,47 @@ class ProductosVista {
     p.classList.toggle("ok", !esError);
   }
 
+  // Mientras llega el menú: tarjetas de "cargando" en vez de un hueco vacío,
+  // que con internet lento parecía que no hubiera galletas. pintar() las
+  // reemplaza al llegar el catálogo; si falla, se quitan y queda el mensaje.
+  #pintarCargando() {
+    const lista = this.$("lista-productos");
+    if (lista.children.length) return;
+    lista.setAttribute("aria-busy", "true");
+    const tarjetas = Array.from({ length: 3 }, (_, i) => {
+      const li = document.createElement("li");
+      li.className = "producto-cargando";
+      li.setAttribute("aria-hidden", "true");
+      li.style.setProperty("--retraso", `${i * 0.15}s`);
+      for (const clase of ["cargando-galleta", "cargando-linea", "cargando-linea corta"]) {
+        const parte = document.createElement("span");
+        parte.className = clase;
+        li.append(parte);
+      }
+      return li;
+    });
+    const aviso = document.createElement("li");
+    aviso.className = "cargando-texto";
+    aviso.textContent = "Sacando las galletas del horno…";
+    lista.replaceChildren(aviso, ...tarjetas);
+  }
+
   async cargar() {
     window.__catalogoPixel = null; // el de la página anterior ya no vale
+    this.#pintarCargando();
     try {
       this.productos = await this.servicio.listar();
+      this.$("lista-productos").removeAttribute("aria-busy");
       this.pintar();
       // El carrito guardado se pone al día con esto (ver pedidos.js).
       window.__catalogoPixel = this.productos;
       window.dispatchEvent(new CustomEvent("catalogo-cargado", { detail: this.productos }));
-    } catch (error) { this.mensaje(error.message); }
+    } catch (error) {
+      const lista = this.$("lista-productos");
+      lista.removeAttribute("aria-busy");
+      lista.replaceChildren(); // sin tarjetas de "cargando" eternas
+      this.mensaje(error.message);
+    }
   }
 
   // Sello de familia de una tarjeta: una placa con el sigilo de su familia.
@@ -316,7 +348,8 @@ class ProductosVista {
     cab.id = `familia-${clave}`;
     const etiqueta = document.createElement("p");
     etiqueta.className = "etiqueta";
-    etiqueta.textContent = `${cantidad} ${cantidad === 1 ? "galleta" : "galletas"}`;
+    // "sabores" y no "galletas": son opciones del menú, no unidades del pedido.
+    etiqueta.textContent = `${cantidad} ${cantidad === 1 ? "sabor" : "sabores"}`;
     const titulo = document.createElement("h3");
     titulo.textContent = info.titulo;
     const desc = document.createElement("p");
@@ -364,11 +397,13 @@ class ProductosVista {
         visibles++;
       });
     }
-    // Contador visible: el cliente sabe cuántas opciones le quedan.
+    // Contador para el lector de pantalla: al filtrar, anuncia cuántos sabores
+    // quedan. En pantalla no se ve (suelto a la derecha parecía un error, y
+    // cada familia ya dice cuántos sabores tiene).
     this.$("catalogo-contador").textContent =
       visibles === this.productos.length
-        ? `${visibles} ${visibles === 1 ? "galleta" : "galletas"}`
-        : `Mostrando ${visibles} de ${this.productos.length}`;
+        ? `${visibles} ${visibles === 1 ? "sabor" : "sabores"} en el menú`
+        : `Mostrando ${visibles} de ${this.productos.length} sabores`;
   }
 
   // Ejecuta una operación; si la API responde que la sesión venció, avisa a la vista de acceso.

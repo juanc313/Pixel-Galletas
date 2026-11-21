@@ -6,6 +6,17 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.11.1 · Parche
+*21 de noviembre de 2026*
+
+- Al compartir el enlace del sitio por WhatsApp o redes, ahora sale la vista
+  previa con foto en todas las páginas públicas.
+- Mientras carga el menú de galletas aparecen tarjetas de "cargando" en vez de
+  un espacio vacío.
+- El catálogo cuenta "sabores" y no "galletas", y se quita el contador suelto
+  que parecía un error.
+- Se agrega el aviso de licencia de las letras del sitio.
+
 ## 1.11 · Pixelito ya te conoce
 *21 de noviembre de 2026*
 

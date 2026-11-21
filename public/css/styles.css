@@ -782,8 +782,10 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
   transition: background-color var(--d-micro) ease, color var(--d-micro) ease, transform var(--d-micro) ease; }
 .filtro:hover { background: rgba(255, 243, 220, .1); transform: translateY(-2px); }
 .filtro.activo { background: var(--masa); color: var(--noche); box-shadow: var(--px-3-tinta); }
-.filtros-contador { margin-left: auto; font-size: var(--t-sm); color: var(--suave); }
-.filtros-contador:empty { display: none; }
+/* Solo para lectores de pantalla (ver productos.js): oculto a la vista, pero
+   sigue anunciando cuántos sabores quedan al filtrar. */
+.filtros .filtros-contador { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; }
 
 /* ===== Secciones de familia dentro del catálogo =====
    El catálogo se divide en bloques (Clásicas, Fusiones, Edición especial) para
@@ -960,6 +962,23 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 /* ===== Inventario: agotado y quedan pocas ===== */
 /* Un sabor agotado se apaga, pero sigue en el catálogo: el cliente ve que
    existe y por qué hoy no puede pedirlo (y el obrador lo reactiva en un clic). */
+/* Menú cargando (productos.js): tarjetas fantasma que parpadean a pasos, como
+   un sprite, mientras llega el catálogo. */
+#lista-productos .cargando-texto { grid-column: 1 / -1; margin: 0; text-align: center;
+  font-family: var(--titulos); font-size: var(--t-sm); color: var(--suave); text-transform: uppercase; letter-spacing: .06em; }
+#lista-productos .producto-cargando { display: grid; justify-items: center; gap: var(--s-3); min-height: 16rem;
+  padding: var(--s-6) var(--s-5); background: var(--tinta); box-shadow: var(--sombra-tarjeta); }
+.producto-cargando span { display: block; background: var(--pantalla-alta); }
+.producto-cargando .cargando-galleta { width: 7rem; height: 7rem; margin-bottom: var(--s-3);
+  clip-path: polygon(25% 0, 75% 0, 75% 8%, 92% 8%, 92% 25%, 100% 25%, 100% 75%, 92% 75%, 92% 92%, 75% 92%, 75% 100%,
+    25% 100%, 25% 92%, 8% 92%, 8% 75%, 0 75%, 0 25%, 8% 25%, 8% 8%, 25% 8%); }
+.producto-cargando .cargando-linea { width: 70%; height: 1rem; }
+.producto-cargando .cargando-linea.corta { width: 40%; }
+@media (prefers-reduced-motion: no-preference) {
+  .producto-cargando span { animation: cargando-pulso 1.2s steps(3, jump-none) var(--retraso, 0s) infinite alternate; }
+  #lista-productos .cargando-texto { animation: cargando-pulso 1s steps(2, jump-none) infinite alternate; }
+}
+@keyframes cargando-pulso { from { opacity: 1; } to { opacity: .35; } }
 #lista-productos .producto.agotado { filter: grayscale(.55) brightness(.85); }
 #lista-productos .producto.agotado:hover, #lista-productos .producto.agotado:focus-within {
   --lift: 0px;
@@ -1683,7 +1702,6 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 15; pointer-event
   .contenido { gap: var(--s-8); }
   .hero-pegatina { left: auto; right: var(--s-3); bottom: -1rem; }
   .paso:not(:last-child)::after { display: none; }
-  .filtros-contador { margin-left: 0; width: 100%; }
   .barra-whatsapp span { display: none; }
   .barra-whatsapp { padding: var(--s-3); }
 }
@@ -3085,7 +3103,6 @@ main > .divisor:has(+ section[hidden]) { display: none; }
     scrollbar-width: none; }
   .filtros::-webkit-scrollbar { display: none; }
   .filtros .filtro { flex: none; padding: var(--s-2) var(--s-3); font-size: var(--t-xs); }
-  .filtros-contador { display: none; }
   .familia-desc { display: none; }
   .familia-cabecera { padding-top: var(--s-4); }
 
