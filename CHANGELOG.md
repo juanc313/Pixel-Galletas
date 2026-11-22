@@ -6,6 +6,13 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.12.2 · Parche
+*22 de noviembre de 2026*
+
+- Si la sesión de admin vence (dura 2 horas), los paneles «Pedidos recibidos» y
+  «Usuarios» ya no se quedan mostrando «Token inválido o expirado»: la página
+  avisa que la sesión venció y abre el cuadro para entrar de nuevo.
+
 ## 1.12.1 · Parche
 *21 de noviembre de 2026*
 

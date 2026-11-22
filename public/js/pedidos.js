@@ -1083,10 +1083,16 @@ class PedidosAdminVista {
   }
 
   async cargar() {
+    const habiaSesion = !!Sesion.obtener();
     try {
       this.pedidos = (await this.servicio.listar()).map((p) => new Pedido(p));
       this.pintar();
-    } catch (error) { this.mensaje(error.message); }
+    } catch (error) {
+      this.mensaje(error.message);
+      // Token vencido (dura 2 h): api.js ya borró la sesión; se avisa para que
+      // la cabecera pida entrar de nuevo en vez de dejar el panel con el error.
+      if (habiaSesion && !Sesion.obtener()) window.dispatchEvent(new Event("sesion-vencida"));
+    }
   }
 
   pintar() {
