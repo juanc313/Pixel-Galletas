@@ -921,8 +921,9 @@
         <div>
           <h3 id="titulo-entrega">Datos de entrega</h3>
           <form id="form-pedido" aria-labelledby="titulo-entrega">
-            <label>Nombre <input type="text" id="pedido-nombre" name="nombre" required maxlength="100" autocomplete="name"></label>
-            <label>Teléfono / WhatsApp <input type="tel" id="pedido-telefono" name="telefono" required maxlength="20" pattern="[\s+\-]*([0-9][\s+\-]*){7,15}" title="De 7 a 15 dígitos; puede llevar +, espacios o guiones" autocomplete="tel" inputmode="tel"></label>
+            <p class="ayuda-formulario">Escribe <strong>tus</strong> datos: con ellos te escribimos para acordar el pago y el día de entrega. Pixelito revisa la ortografía y los espacios antes de enviar.</p>
+            <label>Tu nombre y apellido <input type="text" id="pedido-nombre" name="nombre" required maxlength="100" autocomplete="name" autocapitalize="words" spellcheck="true" lang="es" placeholder="Ej: Laura Gómez" data-ordenar="nombre"></label>
+            <label>Tu WhatsApp (te escribimos a este número) <input type="tel" id="pedido-telefono" name="telefono" required maxlength="20" pattern="[\s+\-]*([0-9][\s+\-]*){7,15}" title="De 7 a 15 dígitos; puede llevar +, espacios o guiones" autocomplete="tel" inputmode="tel" placeholder="Ej: 300 123 4567" data-ordenar="telefono"></label>
             <label>Entrega
               <select id="pedido-entrega" name="entrega" required>
                 <option value="recoger">Recoger en el C.C. La Estrella — gratis</option>
@@ -930,7 +931,7 @@
                 <option value="municipios">Domicilio en Villa del Rosario, Los Patios o El Zulia — $7.000 + distancia (gratis desde 12 galletas)</option>
               </select>
             </label>
-            <label>Dirección (obligatoria para domicilio) <input type="text" name="direccion" maxlength="255" autocomplete="street-address"></label>
+            <label>Dirección con barrio y un punto de referencia (obligatoria para domicilio) <input type="text" name="direccion" maxlength="255" autocomplete="street-address" spellcheck="true" lang="es" placeholder="Ej: Calle 10 # 5-20, barrio La Riviera, frente al parque" data-ordenar="direccion"></label>
             <label>Distancia del domicilio desde La Estrella (para domicilio)
               <select id="pedido-distancia" name="distancia">
                 <option value="">Elige la distancia…</option>
@@ -939,7 +940,8 @@
                 <option value="6+">Más de 6 km — $6.000</option>
               </select>
             </label>
-            <label>Notas (opcional) <textarea name="notas" rows="2" maxlength="500" placeholder="Ej: sin nueces, empacar para regalo…"></textarea></label>
+            <label>Notas para tu pedido (opcional) <textarea name="notas" rows="2" maxlength="500" spellcheck="true" lang="es" autocapitalize="sentences" placeholder="Ej: sin nueces, empacar para regalo…" data-ordenar="notas"></textarea></label>
+            <p id="nota-pixelito" class="nota-pixelito" aria-live="polite" hidden></p>
             <p class="aviso-datos">Al hacer tu pedido aceptas los <a href="/terminos.html">términos y condiciones</a> y el tratamiento de tus datos según la <a href="/privacidad.html">política de privacidad</a>.</p>
             <button type="submit" id="btn-pedir" disabled>Hacer pedido</button>
           </form>
@@ -961,7 +963,13 @@
             <!-- La misión del pedido: aquí arranca en la etapa 1 (pedidos.js la dibuja). -->
             <div id="completado-mision"></div>
             <p><svg class="icono" viewBox="0 0 9 7" aria-hidden="true"  shape-rendering="crispEdges"><path fill="currentColor" d="M8 0h1v1h-1zM7 1h2v1h-2zM6 2h2v1h-2zM0 3h1v1h-1zM5 3h2v1h-2zM0 4h2v1h-2zM4 4h2v1h-2zM1 5h4v1h-4zM2 6h2v1h-2z"/></svg> <span><b>Último paso:</b> envíanos el pedido por WhatsApp para coordinar el pago y el día de entrega.</span></p>
+            <!-- Foto del pedido (foto-pedido.js): en el celular se comparte con la
+                 imagen; en el computador se guarda para adjuntarla en WhatsApp Web. -->
+            <img id="foto-pedido-vista" class="foto-pedido-vista" alt="" hidden>
+            <button type="button" id="btn-whatsapp-foto" class="boton-whatsapp" hidden>Enviar por WhatsApp con la foto</button>
+            <p id="ayuda-whatsapp-foto" class="ayuda-whatsapp-foto" hidden>Se abre «Compartir»: elige WhatsApp y el chat de Pixel Galletas (313 783 9935).</p>
             <a id="btn-whatsapp-pedido" class="boton-whatsapp" target="_blank" rel="noopener" href="#">Enviar por WhatsApp</a>
+            <a id="btn-descargar-foto" class="descargar-foto" href="#" hidden>Guardar la foto del pedido (para adjuntarla en WhatsApp)</a>
             <a id="btn-seguir-mision" class="seguir-mision" href="#estado">Seguir mi misión: ver cómo va mi pedido</a>
           </div>
         </div>

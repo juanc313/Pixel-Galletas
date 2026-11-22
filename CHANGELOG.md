@@ -6,6 +6,22 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.13 · Pedido con foto
+*22 de noviembre de 2026*
+
+- **Foto del pedido para WhatsApp:** al confirmar, el sitio arma una imagen con
+  las galletas elegidas (foto real de cada sabor, cantidades y total). En el
+  celular, «Enviar por WhatsApp con la foto» abre Compartir con la imagen y el
+  mensaje; en el computador se puede guardar para adjuntarla en WhatsApp Web.
+- **Formulario de pedido más claro:** cada campo dice qué dato va y trae un
+  ejemplo («Tu nombre y apellido», «Tu WhatsApp», dirección con barrio y punto
+  de referencia).
+- **Pixelito revisa lo que escribes:** al salir de cada campo ordena espacios y
+  mayúsculas del nombre y corrige errores comunes («porfavor» → «por favor»), y
+  avisa qué cambió. El navegador subraya el resto de errores de ortografía.
+- **El botón «Acceso» ahora lleva al cuadro:** si estabas más abajo en la
+  página, sube hasta iniciar sesión / crear cuenta y deja el cursor listo.
+
 ## 1.12.2 · Parche
 *22 de noviembre de 2026*
 

@@ -4,6 +4,8 @@ import { idVisita } from "./analitica.js";
 import { escucharGlobal } from "./registro-global.js";
 import { sonar, efectoDeNivel } from "./sonidos.js";
 import { misionDe, rutaMision } from "./mision.js";
+import { ordenarCampo, resumenCambios } from "./datos-cliente.js";
+import { dibujarFotoPedido, puedeCompartirArchivos, compartirFoto, nombreArchivo, comoDataUrl } from "./foto-pedido.js";
 
 // Etiquetas legibles de los estados del pedido.
 export const ESTADOS = {
@@ -691,8 +693,22 @@ class PedidoVista {
       );
     });
     escucharGlobal("pedidos:prefill-sesion", "sesion-cambio", () => this.prefill());
+    // Pixelito ordena cada dato al salir del campo (espacios, mayúsculas y
+    // errores comunes) y cuenta qué arregló, para que el cliente lo vea.
+    this.$("form-pedido")?.addEventListener("change", (e) => {
+      if (e.target?.dataset?.ordenar) this.ordenarCampoDelFormulario(e.target);
+    });
     this.prefill();
     this.pintarCarrito();
+  }
+
+  ordenarCampoDelFormulario(campo) {
+    const { texto, cambios } = ordenarCampo(campo.dataset.ordenar, campo.value);
+    if (texto !== campo.value) campo.value = texto;
+    const nota = this.$("nota-pixelito");
+    if (!nota) return;
+    nota.textContent = cambios.length ? `Pixelito arregló: ${resumenCambios(cambios)}. Si no era así, puedes cambiarlo.` : "";
+    nota.hidden = !cambios.length;
   }
 
   // 100 es el tope por sabor del carrito: más que un error, es un pedido grande.
@@ -948,13 +964,15 @@ class PedidoVista {
       return this.mensaje("Elige la distancia del domicilio desde La Estrella.");
     }
 
+    // Por si el navegador autocompletó sin pasar por "change": se ordena todo aquí también.
+    const ordenado = (tipo, nombre) => ordenarCampo(tipo, f.get(nombre)).texto;
     const datos = {
-      cliente_nombre: String(f.get("nombre") || "").trim(),
-      cliente_telefono: String(f.get("telefono") || "").trim(),
+      cliente_nombre: ordenado("nombre", "nombre"),
+      cliente_telefono: ordenado("telefono", "telefono"),
       entrega: String(f.get("entrega") || "recoger"),
-      direccion: String(f.get("direccion") || "").trim() || undefined,
+      direccion: ordenado("direccion", "direccion") || undefined,
       distancia: String(f.get("distancia") || "") || undefined,
-      notas: String(f.get("notas") || "").trim() || undefined,
+      notas: ordenado("notas", "notas") || undefined,
       items: this.carrito.paraApi(),
     };
     // La visita anónima cierra el embudo de la medición: permite saber cuánta
@@ -989,6 +1007,7 @@ class PedidoVista {
     this.mensaje(`¡Pedido #${pedido.id} registrado! Total ${pesos(pedido.total)}. Lo horneamos por encargo: acordamos contigo el día de entrega.`, false);
     const enlace = this.$("btn-whatsapp-pedido");
     enlace.href = urlWhatsApp(textoPedido(pedido));
+    this.#prepararFotoPedido(pedido);
     // Marcador de "¡Nivel completado!": lo que el cliente logró con su pedido.
     const galletas = pedido.detalles.reduce((s, d) => s + d.cantidad, 0);
     const ahorro = ahorroDe(pedido);
@@ -1010,6 +1029,49 @@ class PedidoVista {
     this.$("confirmacion").hidden = false;
     this.pintarRepetir(); // con la confirmación a la vista, "¿Lo de siempre?" sobra
     this.$("confirmacion").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // Foto del pedido para WhatsApp (ver foto-pedido.js). Se dibuja al confirmar
+  // para que el toque en "Enviar con la foto" comparta al instante: el
+  // navegador solo deja abrir "Compartir" justo después de un toque.
+  async #prepararFotoPedido(pedido) {
+    const boton = this.$("btn-whatsapp-foto");
+    const ayuda = this.$("ayuda-whatsapp-foto");
+    const descargar = this.$("btn-descargar-foto");
+    const vista = this.$("foto-pedido-vista");
+    const enlaceTexto = this.$("btn-whatsapp-pedido");
+    if (!boton || !descargar || !vista) return;
+    [boton, ayuda, descargar, vista].forEach((n) => { if (n) n.hidden = true; });
+    enlaceTexto.textContent = "Enviar por WhatsApp";
+
+    let blob, url;
+    try {
+      blob = await dibujarFotoPedido(pedido);
+      // data: (no blob:) porque la política de seguridad del sitio ya permite
+      // imágenes data: y así no hay que abrirla a nada más.
+      url = blob ? await comoDataUrl(blob) : null;
+    } catch { blob = null; }
+    if (!blob || !url) return; // sin foto, queda el mensaje de texto de siempre
+
+    this.urlFotoPedido = url;
+    vista.src = this.urlFotoPedido;
+    vista.alt = `Foto del pedido #${pedido.id} con las galletas elegidas`;
+    vista.hidden = false;
+
+    if (puedeCompartirArchivos()) {
+      boton.hidden = false;
+      if (ayuda) ayuda.hidden = false;
+      enlaceTexto.textContent = "Enviar solo el texto por WhatsApp";
+      boton.onclick = async () => {
+        const resultado = await compartirFoto(blob, pedido, textoPedido(pedido));
+        // Si el celular no pudo compartir, abre el chat con el texto de siempre.
+        if (resultado === "no-soportado" || resultado === "error") window.open(enlaceTexto.href, "_blank", "noopener");
+      };
+    } else {
+      descargar.href = this.urlFotoPedido;
+      descargar.download = nombreArchivo(pedido);
+      descargar.hidden = false;
+    }
   }
 
   // La misión arranca aquí, en la etapa 1, para que el cliente sepa desde ya

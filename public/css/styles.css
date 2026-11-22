@@ -1194,6 +1194,19 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .seguir-mision { display: block; margin-top: var(--s-4); text-align: center; font-size: var(--t-sm);
   color: var(--diamante); text-underline-offset: .2em; }
 .seguir-mision:hover, .seguir-mision:focus-visible { color: var(--crema); }
+/* Foto del pedido para WhatsApp (foto-pedido.js) */
+.foto-pedido-vista { display: block; width: min(100%, 18rem); height: auto; margin: var(--s-3) auto;
+  border: 3px solid currentColor; box-shadow: var(--sombra-dura); }
+#btn-whatsapp-foto { display: block; width: 100%; margin-bottom: var(--s-2); }
+.ayuda-whatsapp-foto { display: block !important; margin: 0 0 var(--s-3); font-size: var(--t-xs); text-align: center; color: var(--suave); }
+.ayuda-whatsapp-foto[hidden] { display: none !important; }
+.descargar-foto { display: block; margin-top: var(--s-3); text-align: center; font-size: var(--t-sm);
+  color: var(--diamante); text-underline-offset: .2em; }
+.descargar-foto[hidden] { display: none; }
+/* Formulario de pedido: ayuda arriba y lo que Pixelito arregló */
+.ayuda-formulario { margin: 0 0 var(--s-3); font-size: var(--t-sm); line-height: 1.5; color: var(--suave); }
+.nota-pixelito { margin: 0 0 var(--s-2); font-size: var(--t-xs); color: var(--diamante); }
+.nota-pixelito[hidden] { display: none; }
 @media (prefers-reduced-motion: no-preference) {
   .mision-paso { animation: mision-entra .35s var(--e-salida) backwards; }
   .mision-paso:nth-child(2) { animation-delay: .08s; }

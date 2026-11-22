@@ -1,6 +1,6 @@
 {
   "name": "pixel-galletas-api",
-  "version": "1.12.2",
+  "version": "1.13.0",
   "description": "Aplicación web de Pixel Galletas: API REST (Node.js + Express + MySQL) y frontend en HTML, CSS y JavaScript.",
   "main": "server.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "actualizar-base": "node scripts/actualizar-base.js",
     "inventario-bd": "node scripts/inventario-bd.js",
     "telegram-webhook": "node scripts/telegram-webhook.js",
-    "test": "node --test tests/api.test.js tests/frontend.test.js tests/acceso.test.js tests/pedidos.test.js tests/juego.test.js tests/telegram.test.js tests/telegram-botones.test.js tests/seguridad.test.js tests/seguridad-api.test.js tests/carrito-api.test.js tests/distancia.test.js tests/regresion-pedidos.test.js tests/limites.test.js tests/pwa.test.js tests/mensajes.test.js tests/arranque.test.js tests/respaldo.test.js tests/actualizar-base.test.js tests/pixelito.test.js tests/logros.test.js tests/sonidos.test.js tests/version.test.js tests/stats-sabores.test.js tests/sesion-vencida.test.js"
+    "test": "node --test tests/api.test.js tests/frontend.test.js tests/acceso.test.js tests/pedidos.test.js tests/juego.test.js tests/telegram.test.js tests/telegram-botones.test.js tests/seguridad.test.js tests/seguridad-api.test.js tests/carrito-api.test.js tests/distancia.test.js tests/regresion-pedidos.test.js tests/limites.test.js tests/pwa.test.js tests/mensajes.test.js tests/arranque.test.js tests/respaldo.test.js tests/actualizar-base.test.js tests/pixelito.test.js tests/logros.test.js tests/sonidos.test.js tests/version.test.js tests/stats-sabores.test.js tests/sesion-vencida.test.js tests/datos-y-foto-pedido.test.js"
   },
   "keywords": [],
   "author": "",

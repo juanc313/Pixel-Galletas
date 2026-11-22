@@ -8,6 +8,7 @@ class AuthVista {
     this.$ = (id) => document.getElementById(id);
     this.enlazarEventos();
     this.mostrarSegunSesion();
+    this.abrirSiLoPiden();
   }
 
   enlazarEventos() {
@@ -18,7 +19,7 @@ class AuthVista {
     this.$("btn-salir").addEventListener("click", () => this.cerrarSesion());
     // El botón vive en la cabecera, que sobrevive a la navegación sin recargar:
     // con addEventListener cada regreso a la portada le sumaba otro clic.
-    escucharGlobal("auth:btn-acceso", "click", () => this.alternarAcceso(), this.$("btn-acceso"));
+    escucharGlobal("auth:btn-acceso", "click", () => this.alPulsarAcceso(), this.$("btn-acceso"));
     escucharGlobal("auth:sesion-vencida", "sesion-vencida", () => {
       this.mostrarSegunSesion();
       this.alternarAcceso(true);
@@ -28,10 +29,42 @@ class AuthVista {
 
   // Muestra u oculta el cuadro de acceso (por defecto, lo contrario de como está).
   alternarAcceso(abrir = this.$("acceso")?.hidden) {
-    // El cuadro de acceso solo está en la portada: desde otra página se va allá.
-    if (!this.$("acceso")) { location.href = "/"; return; }
+    // El cuadro de acceso solo está en la portada: desde otra página se va
+    // allá con #acceso, y al llegar se abre solo (ver abrirSiLoPiden).
+    if (!this.$("acceso")) { location.href = "/#acceso"; return; }
     this.$("acceso").hidden = !abrir;
     this.$("btn-acceso").setAttribute("aria-expanded", String(abrir));
+    if (abrir) this.llevarAlAcceso();
+  }
+
+  // El cuadro está arriba de la página: si el cliente estaba más abajo (en el
+  // carrito, por ejemplo), al abrirlo solo veía la página moverse. Ahora la
+  // pantalla sube hasta el cuadro y el cursor queda listo en el primer campo.
+  llevarAlAcceso() {
+    const caja = this.$("acceso");
+    const suave = !globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    caja.scrollIntoView?.({ behavior: suave ? "smooth" : "auto", block: "start" });
+    const campo = caja.querySelector?.("form:not([hidden]) input, #vista-panel:not([hidden]) button");
+    campo?.focus?.({ preventScroll: true });
+  }
+
+  // Botón "Acceso": si el cuadro ya está abierto pero quedó fuera de la vista
+  // (el cliente bajó), lo trae a la vista en vez de cerrarlo sin que lo note.
+  alPulsarAcceso() {
+    const caja = this.$("acceso");
+    if (caja && !caja.hidden && !this.estaALaVista(caja)) { this.llevarAlAcceso(); return; }
+    this.alternarAcceso();
+  }
+
+  estaALaVista(elemento) {
+    const r = elemento.getBoundingClientRect?.();
+    if (!r) return true;
+    return r.bottom > 0 && r.top < (globalThis.innerHeight || 0);
+  }
+
+  // Llegó desde otra página con /#acceso: abre el cuadro.
+  abrirSiLoPiden() {
+    if (globalThis.location?.hash === "#acceso" && this.$("acceso")) this.alternarAcceso(true);
   }
 
   cambiarPestana(cual) {

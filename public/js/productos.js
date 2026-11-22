@@ -1,6 +1,7 @@
 import { ApiClient, Sesion } from "./api.js";
 import { escucharGlobal } from "./registro-global.js";
 import { STATS_MAX, BARRAS_STATS, statsDe } from "./stats-sabores.js";
+import { idSabor, FOTOS } from "./sabores.js";
 
 // Modelo: un producto del catálogo. Convierte el precio (la API lo envía como texto "4500.00").
 export class Producto {
@@ -35,15 +36,7 @@ export class ProductoServicio {
   eliminar(id) { return this.api.eliminar(`/productos/${id}`); }
 }
 
-// Identificador del sabor para colorear su galleta en la hoja de estilos ("Pixel Red Velvet" pasa a "red-velvet").
-const idSabor = (nombre) => nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
-  .replace(/^pixel\s+/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-
-// Fotos reales de cada sabor (scripts/prepararFotos.py). Los sabores que no
-// estén aquí (galletas creadas por el admin) usan el sprite pixelado del CSS.
-const FOTOS = new Set([
-  "monster", "red-velvet", "chocolate", "areklim", "red-monster", "special-edition",
-]);
+// idSabor y FOTOS viven en sabores.js (también los usa la foto del pedido).
 
 // Familia de cada sabor, para los filtros del catálogo.
 //   clasica = sabor individual de la marca
