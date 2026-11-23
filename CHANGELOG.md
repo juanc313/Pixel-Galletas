@@ -6,6 +6,16 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.13.1 · Parche
+*23 de noviembre de 2026*
+
+- «Enviar por WhatsApp» abre **directo el chat de Pixel Galletas**. En el
+  celular, el botón con la foto abría «Compartir» del sistema (varias apps) y
+  en WhatsApp había que buscar el chat entre todos los contactos.
+- La foto llega igual: el mensaje lleva el enlace a la página del sabor
+  (`/s/monster.html`…), y WhatsApp muestra la foto de la galleta en el chat.
+- La imagen del pedido se sigue mostrando y se puede guardar para adjuntarla.
+
 ## 1.13 · Pedido con foto
 *22 de noviembre de 2026*
 

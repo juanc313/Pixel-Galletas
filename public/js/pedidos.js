@@ -5,7 +5,8 @@ import { escucharGlobal } from "./registro-global.js";
 import { sonar, efectoDeNivel } from "./sonidos.js";
 import { misionDe, rutaMision } from "./mision.js";
 import { ordenarCampo, resumenCambios } from "./datos-cliente.js";
-import { dibujarFotoPedido, puedeCompartirArchivos, compartirFoto, nombreArchivo, comoDataUrl } from "./foto-pedido.js";
+import { dibujarFotoPedido, nombreArchivo, comoDataUrl } from "./foto-pedido.js";
+import { idSabor, fotoDeSabor } from "./sabores.js";
 
 // Etiquetas legibles de los estados del pedido.
 export const ESTADOS = {
@@ -571,8 +572,16 @@ export class PedidoServicio {
   cambiarEstado(id, estado) { return this.api.put(`/pedidos/${id}/estado`, { estado }); }
 }
 
+// Página del primer sabor del pedido que tenga foto real (public/s/<sabor>.html,
+// con su foto en las etiquetas og:). null si ninguno tiene foto o no hay origen.
+export function urlFotoDePedido(pedido, origen) {
+  if (!origen || !/^https?:\/\//.test(origen)) return null;
+  const conFoto = (pedido?.detalles || []).find((d) => fotoDeSabor(d.nombre));
+  return conFoto ? `${origen.replace(/\/$/, "")}/s/${idSabor(conFoto.nombre)}.html` : null;
+}
+
 // Texto del pedido para enviarlo por WhatsApp.
-export function textoPedido(pedido) {
+export function textoPedido(pedido, urlFoto) {
   const lineas = [
     `*¡Nuevo pedido Pixel Galletas!* #${pedido.id}`,
     "",
@@ -600,6 +609,8 @@ export function textoPedido(pedido) {
   }
   lineas.push("", `*Total:* ${pesos(pedido.total)}`);
   if (pedido.notas) lineas.push(`*Notas:* ${pedido.notas}`);
+  // Enlace a la página del sabor: WhatsApp muestra su foto en el chat.
+  if (urlFoto) lineas.push("", `Foto: ${urlFoto}`);
   lineas.push("", "_Enviado desde la web de Pixel Galletas_");
   return lineas.join("\n");
 }
@@ -1006,7 +1017,7 @@ class PedidoVista {
   #confirmar(pedido) {
     this.mensaje(`¡Pedido #${pedido.id} registrado! Total ${pesos(pedido.total)}. Lo horneamos por encargo: acordamos contigo el día de entrega.`, false);
     const enlace = this.$("btn-whatsapp-pedido");
-    enlace.href = urlWhatsApp(textoPedido(pedido));
+    enlace.href = urlWhatsApp(textoPedido(pedido, urlFotoDePedido(pedido, globalThis.location?.origin)));
     this.#prepararFotoPedido(pedido);
     // Marcador de "¡Nivel completado!": lo que el cliente logró con su pedido.
     const galletas = pedido.detalles.reduce((s, d) => s + d.cantidad, 0);
@@ -1031,18 +1042,18 @@ class PedidoVista {
     this.$("confirmacion").scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  // Foto del pedido para WhatsApp (ver foto-pedido.js). Se dibuja al confirmar
-  // para que el toque en "Enviar con la foto" comparta al instante: el
-  // navegador solo deja abrir "Compartir" justo después de un toque.
+  // Foto del pedido (ver foto-pedido.js): se muestra en la confirmación y se
+  // puede GUARDAR para adjuntarla. El envío es siempre el botón "Enviar por
+  // WhatsApp", que abre el chat de Pixel Galletas directo (wa.me con el
+  // número). Antes, en el celular, un botón abría "Compartir" del sistema:
+  // salían varias apps y en WhatsApp había que buscar el chat (lo reportó un
+  // cliente). El mensaje lleva el enlace a la página del sabor (/s/...), y así
+  // WhatsApp muestra la foto de la galleta en el chat.
   async #prepararFotoPedido(pedido) {
-    const boton = this.$("btn-whatsapp-foto");
-    const ayuda = this.$("ayuda-whatsapp-foto");
     const descargar = this.$("btn-descargar-foto");
     const vista = this.$("foto-pedido-vista");
-    const enlaceTexto = this.$("btn-whatsapp-pedido");
-    if (!boton || !descargar || !vista) return;
-    [boton, ayuda, descargar, vista].forEach((n) => { if (n) n.hidden = true; });
-    enlaceTexto.textContent = "Enviar por WhatsApp";
+    if (!descargar || !vista) return;
+    [descargar, vista, this.$("btn-whatsapp-foto"), this.$("ayuda-whatsapp-foto")].forEach((n) => { if (n) n.hidden = true; });
 
     let blob, url;
     try {
@@ -1057,21 +1068,9 @@ class PedidoVista {
     vista.src = this.urlFotoPedido;
     vista.alt = `Foto del pedido #${pedido.id} con las galletas elegidas`;
     vista.hidden = false;
-
-    if (puedeCompartirArchivos()) {
-      boton.hidden = false;
-      if (ayuda) ayuda.hidden = false;
-      enlaceTexto.textContent = "Enviar solo el texto por WhatsApp";
-      boton.onclick = async () => {
-        const resultado = await compartirFoto(blob, pedido, textoPedido(pedido));
-        // Si el celular no pudo compartir, abre el chat con el texto de siempre.
-        if (resultado === "no-soportado" || resultado === "error") window.open(enlaceTexto.href, "_blank", "noopener");
-      };
-    } else {
-      descargar.href = this.urlFotoPedido;
-      descargar.download = nombreArchivo(pedido);
-      descargar.hidden = false;
-    }
+    descargar.href = this.urlFotoPedido;
+    descargar.download = nombreArchivo(pedido);
+    descargar.hidden = false;
   }
 
   // La misión arranca aquí, en la etapa 1, para que el cliente sepa desde ya

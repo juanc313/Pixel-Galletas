@@ -115,6 +115,52 @@ test("index.html: campos de pedido con corrector del navegador y ayuda clara", (
     assert.match(campo[0], /lang="es"/);
   }
   assert.match(html, /id="nota-pixelito"/);
-  assert.match(html, /id="btn-whatsapp-foto"/);
   assert.match(html, /id="btn-descargar-foto"/);
+});
+
+/* ---------- WhatsApp directo al número, con la foto del sabor ----------
+   Reportado: el botón con la foto abría «Compartir» del celular (varias apps)
+   y en WhatsApp había que buscar el chat. Ahora el envío es SIEMPRE wa.me con
+   el número, y la foto llega como vista previa de la página del sabor. */
+
+test("index.html: ya no hay botón que abra «Compartir» del sistema", () => {
+  const html = leer("public/index.html");
+  assert.doesNotMatch(html, /id="btn-whatsapp-foto"/);
+  assert.match(html, /id="btn-whatsapp-pedido"/);
+});
+
+test("El envío del pedido no usa la hoja de compartir del sistema", () => {
+  // (El botón «compartir combo» con amigos sí la usa a propósito: es otra cosa.)
+  const js = leer("public/js/pedidos.js").replace(/\r\n/g, "\n");
+  assert.doesNotMatch(js, /compartirFoto|puedeCompartirArchivos/);
+  const inicio = js.indexOf("async #prepararFotoPedido(pedido) {");
+  const fin = js.indexOf("\n  }\n", inicio);
+  assert.ok(inicio !== -1 && fin !== -1, "no se encontró #prepararFotoPedido");
+  assert.doesNotMatch(js.slice(inicio, fin), /navigator\.share|onclick/);
+});
+
+test("urlFotoDePedido: página del primer sabor con foto; nada si no hay foto u origen", async () => {
+  const { urlFotoDePedido } = await import("../public/js/pedidos.js");
+  const pedido = { detalles: [{ nombre: "Sabor Nuevo del Admin" }, { nombre: "Pixel Red Velvet" }, { nombre: "Pixel Monster" }] };
+  assert.equal(urlFotoDePedido(pedido, "https://pixel-galletas.vercel.app/"), "https://pixel-galletas.vercel.app/s/red-velvet.html");
+  assert.equal(urlFotoDePedido({ detalles: [{ nombre: "Sabor Nuevo" }] }, "https://x.app"), null);
+  assert.equal(urlFotoDePedido(pedido, undefined), null);
+  assert.equal(urlFotoDePedido(pedido, "file://C:/x"), null);
+});
+
+test("textoPedido: con urlFoto agrega la línea «Foto:» (sin ella, igual que antes)", async () => {
+  const { textoPedido, Pedido } = await import("../public/js/pedidos.js");
+  const p = new Pedido({ id: 7, cliente_nombre: "Laura", cliente_telefono: "3001234567", entrega: "recoger", envio: 0, total: "8000", descuento: "0", detalles: [{ nombre_sabor: "Pixel Monster", precio_unitario: "8000", cantidad: 1 }] });
+  assert.match(textoPedido(p, "https://pixel-galletas.vercel.app/s/monster.html"), /\nFoto: https:\/\/pixel-galletas\.vercel\.app\/s\/monster\.html\n/);
+  assert.doesNotMatch(textoPedido(p), /Foto:/);
+});
+
+test("Cada sabor con foto tiene su página (public/s) y su foto JPG para WhatsApp", async () => {
+  const { FOTOS } = await import("../public/js/sabores.js");
+  for (const id of FOTOS) {
+    const pagina = path.join(__dirname, "..", "public", "s", id + ".html");
+    assert.ok(fs.existsSync(pagina), `falta public/s/${id}.html: corre  py scripts/paginas-sabores.py`);
+    assert.ok(fs.existsSync(path.join(__dirname, "..", "public", "img", "sabores", "og", id + ".jpg")), `falta la foto JPG de ${id}`);
+    assert.match(fs.readFileSync(pagina, "utf8"), new RegExp(`og:image" content="[^"]*/img/sabores/og/${id}\\.jpg"`));
+  }
 });
