@@ -653,6 +653,9 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 /* Motivos de confianza bajo las acciones */
 .confianza { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-6); margin: var(--s-6) 0 0; padding: 0; }
 .confianza li { display: flex; align-items: center; gap: var(--s-2); font-size: var(--t-sm); color: var(--suave); }
+/* En el celular, la lista queda a la altura del botón flotante de WhatsApp al
+   abrir la página y le tapaba el final del texto: se deja libre ese costado. */
+@media (max-width: 40rem) { .confianza { padding-right: 4.25rem; } }
 .confianza li::before { content: "✓"; flex: none; display: grid; place-items: center;
   width: 1.4rem; height: 1.4rem; font-family: var(--titulos); font-weight: 700; font-size: var(--t-sm);
   background: var(--diamante); color: var(--noche); box-shadow: 2px 2px 0 rgba(0, 0, 0, .35); }

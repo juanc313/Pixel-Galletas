@@ -57,7 +57,9 @@ export function iniciarVisor(doc = document) {
   const pintar = () => {
     const img = lista[indice];
     if (!img) return;
-    foto.src = img.currentSrc || img.src;
+    // data-grande: la foto grande, si la tarjeta muestra una versión chica
+    // (srcset); al ampliar se ve nítida. Sin data-grande, la que ya se ve.
+    foto.src = img.dataset.grande || img.currentSrc || img.src;
     foto.alt = img.alt || "";
     pie.textContent = `${pieDeFoto(img)} · ${indice + 1} de ${lista.length}`;
     const varias = lista.length > 1;

@@ -326,6 +326,9 @@ export const POSES_MOMENTO = {
   quieto: "reloj",
 };
 export const imagenPose = (pose) => (pose ? `/img/pixelito-${pose}.webp` : "/img/pixelito.webp");
+// Versión chica (120x132, scripts/fotos-livianas.py) para el botón flotante y
+// la cabeza del chat, que se ven de ~48 px: antes bajaban la de 360 px (40 KB).
+export const imagenPoseChica = (pose) => `/img/pixelito-chico/${pose || "pixelito"}.webp`;
 
 // Lo que Pixelito dice por su cuenta según lo que pasa en la página. Devuelve
 // { momento, texto, opciones, pose } o null. `ya` = momentos que ya usó en la visita.
@@ -400,7 +403,7 @@ class PixelitoVista {
       n.append(...hijos);
       return n;
     };
-    const cara = (pose) => el("img", { src: imagenPose(pose), alt: "", width: "360", height: "397" });
+    const cara = (pose) => el("img", { src: imagenPoseChica(pose), alt: "", width: "120", height: "132" });
     const raiz = el("div", { class: "pixelito-bot", id: "pixelito-bot" },
       el("div", { class: "pixelito-burbuja", id: "pixelito-burbuja", hidden: true },
         el("button", { type: "button", class: "pixelito-burbuja-cerrar", "aria-label": "Cerrar mensaje de Pixelito", texto: "×" }),
@@ -423,7 +426,7 @@ class PixelitoVista {
   // Cambia la cara del botón flotante o de la cabeza del chat.
   ponerCara(sel, pose) {
     const img = this.$(sel);
-    const src = imagenPose(pose);
+    const src = imagenPoseChica(pose);
     if (img && img.getAttribute("src") !== src) img.src = src;
   }
 
@@ -460,7 +463,7 @@ class PixelitoVista {
 
     // Sus caras se cargan antes de que hable, para que al cambiar no parpadee.
     setTimeout(() => {
-      for (const pose of new Set([...Object.values(POSES_MOMENTO), "explica", "pensando"])) new Image().src = imagenPose(pose);
+      for (const pose of new Set([...Object.values(POSES_MOMENTO), "explica", "pensando"])) new Image().src = imagenPoseChica(pose);
     }, 8000);
     // Saludo: unos segundos después de llegar, cuando la portada de entrada ya se fue.
     setTimeout(() => this.proactivo("saludo"), 14000);

@@ -34,7 +34,7 @@
   <link rel="icon" type="image/png" sizes="64x64" href="/img/favicon.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.json">
-  <link rel="preload" as="image" href="/img/hero.webp" type="image/webp" imagesrcset="/img/hero.webp">
+  <link rel="preload" as="image" href="/img/hero.webp" type="image/webp" imagesrcset="/img/hero-700.webp 700w, /img/hero.webp 1200w" imagesizes="(max-width: 62rem) 86vw, 560px">
   <!-- Fuentes autoalojadas (public/css/fuentes.css): antes se pedían a
        fonts.googleapis.com en cada visita, dos peticiones a Google que
        registraban al visitante mientras la página prometía "sin servicios de
@@ -452,8 +452,8 @@
       </div>
       <figure class="hero-pantalla">
         <picture>
-          <source srcset="/img/hero.webp" type="image/webp">
-          <img class="hero-img" data-zoom="1" src="/img/hero.jpg" alt="Amantes de los videojuegos disfrutando Pixel Galletas" width="1200" height="801" fetchpriority="high">
+          <source srcset="/img/hero-700.webp 700w, /img/hero.webp 1200w" sizes="(max-width: 62rem) 86vw, 560px" type="image/webp">
+          <img class="hero-img" data-zoom="1" data-grande="/img/hero.webp" src="/img/hero.jpg" alt="Amantes de los videojuegos disfrutando Pixel Galletas" width="1200" height="801" fetchpriority="high">
         </picture>
         <figcaption class="hero-pegatina">Hecho en Cúcuta</figcaption>
         <!-- Sello de artesanía: anillo de texto que gira lentamente sobre el
@@ -520,9 +520,8 @@
       <ul class="bento">
         <li class="bento-foto">
           <figure>
-            <!-- Nota: cuando scripts/prepararFotos.py corra en un entorno con
-                 Python, se generará clientes.webp y aquí se añadirá el <source>. -->
-            <img src="/img/clientes.jpg" data-zoom="1" alt="Clientes disfrutando galletas Pixel Galletas" width="1080" height="1080" loading="lazy" decoding="async">
+            <!-- clientes-700.webp: versión liviana para el celular (scripts/fotos-livianas.py). -->
+            <img src="/img/clientes.jpg" srcset="/img/clientes-700.webp 700w, /img/clientes.jpg 900w" sizes="(max-width: 62rem) 90vw, 440px" data-zoom="1" data-grande="/img/clientes.jpg" alt="Clientes disfrutando galletas Pixel Galletas" width="900" height="675" loading="lazy" decoding="async">
             <figcaption>Nuestros clientes, en su elemento</figcaption>
           </figure>
         </li>

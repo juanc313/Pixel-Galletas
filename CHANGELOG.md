@@ -6,6 +6,18 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.13.2 · Parche
+*23 de noviembre de 2026*
+
+- **Fotos más livianas en el celular:** Pixelito del botón y del chat (de
+  40 KB a ~8 KB), la portada, la foto de clientes y las fotos de las tarjetas
+  de sabores tienen versión chica; al ampliar una foto se ve la grande.
+- El menú de **tema** se cierra al elegir claro u oscuro (y al bajar).
+- El botón flotante de **WhatsApp** ya no tapa el texto de la portada.
+- Pixelito del chat ya no se ve estirado.
+- **Teléfono mal escrito:** el mensaje ahora explica qué falta (7 a 15 dígitos).
+- Seguridad: HSTS de 2 años con *preload*.
+
 ## 1.13.1 · Parche
 *23 de noviembre de 2026*
 

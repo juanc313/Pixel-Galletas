@@ -49,6 +49,8 @@ app.use(
       },
     },
     crossOriginEmbedderPolicy: false, // no se cargan recursos de otros orígenes
+    // HSTS de 2 años con preload (lo pide PageSpeed); igual que vercel.json.
+    strictTransportSecurity: { maxAge: 63072000, includeSubDomains: true, preload: true },
   })
 );
 

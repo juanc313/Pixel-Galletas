@@ -113,8 +113,14 @@ document.addEventListener("DOMContentLoaded", function () {
       try { localStorage.setItem("pixel_galletas_tema", claro ? "claro" : "oscuro"); } catch (e) { /* sin almacenamiento */ }
       pintarColorDeBarra();
       pintar();
+      // Elegido el tema, el menú se cierra (antes quedaba abierto encima de
+      // la página, incluso al bajar) y el foco vuelve al botón ◐.
+      abrir(false);
+      boton.focus();
     });
   });
+  // Al bajar por la página, el menú abierto no debe quedarse flotando encima.
+  window.addEventListener("scroll", function () { if (!panel.hidden) abrir(false); }, { passive: true });
   document.addEventListener("click", function (e) {
     if (!panel.hidden && !e.target.closest(".tema-selector")) abrir(false);
   });
@@ -123,6 +129,23 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   pintar();
 });
+
+// Mensaje claro cuando un teléfono está mal escrito. Sin esto, el navegador
+// decía solo "Haz coincidir el formato solicitado". Vale para todos los campos
+// de teléfono del sitio (pedido y consulta de estado). El evento "invalid" no
+// burbujea, por eso se escucha en captura.
+var MENSAJE_TELEFONO = "Escribe tu número de WhatsApp: de 7 a 15 dígitos (ej. 300 123 4567).";
+document.addEventListener("invalid", function (e) {
+  var campo = e.target;
+  if (!campo || campo.type !== "tel") return;
+  campo.setCustomValidity("");
+  if (campo.validity.valueMissing) campo.setCustomValidity("Escribe tu número de WhatsApp.");
+  else if (!campo.validity.valid) campo.setCustomValidity(MENSAJE_TELEFONO);
+}, true);
+document.addEventListener("input", function (e) {
+  // Al corregir, se borra el mensaje para que el navegador vuelva a revisar.
+  if (e.target && e.target.type === "tel") e.target.setCustomValidity("");
+}, true);
 
 // Sustituye el antiguo onerror inline de efectos.js (la CSP lo bloquearía): si
 // el módulo no carga, se muestra la página sin animaciones.

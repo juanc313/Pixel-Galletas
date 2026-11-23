@@ -257,7 +257,13 @@ class ProductosVista {
       li.dataset.foto = "si";
       const foto = document.createElement("img");
       foto.className = "foto-sabor";
-      foto.src = `/img/sabores/${li.dataset.sabor}.webp`;
+      // En la tarjeta basta la de 320 px (el navegador elige con srcset);
+      // al ampliarla, visor.js usa la grande (data-grande).
+      const grande = `/img/sabores/${li.dataset.sabor}.webp`;
+      foto.sizes = "(max-width: 40rem) 38vw, 200px";
+      foto.srcset = `/img/sabores/chico/${li.dataset.sabor}.webp 320w, ${grande} 480w`;
+      foto.src = grande;
+      foto.dataset.grande = grande;
       foto.alt = `Galleta real ${p.nombre}`;
       foto.width = 480;
       foto.height = 480;
