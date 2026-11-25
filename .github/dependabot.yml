@@ -1,0 +1,13 @@
+# Dependabot revisa cada semana las librerías del proyecto y abre un pull
+# request cuando sale un arreglo de seguridad o una versión nueva.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"

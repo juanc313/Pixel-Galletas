@@ -6,6 +6,19 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.13.3 · Parche «Candado nuevo»
+*24 de noviembre de 2026*
+
+- **Librerías al día:** se arreglaron dos fallas conocidas en librerías del
+  servidor (body-parser y qs) que permitían tumbar el sitio con peticiones
+  especiales.
+- **Registro claro:** el formulario decía "mínimo 6" en la contraseña, pero el
+  servidor pide 8. Ahora el formulario también pide 8 y avisa antes de enviar.
+- **Vigilancia automática:** Dependabot revisa cada semana las librerías del
+  proyecto y avisa con un pull request cuando sale un arreglo.
+
+---
+
 ## 1.13.2 · Parche
 *23 de noviembre de 2026*
 
