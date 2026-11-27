@@ -693,6 +693,35 @@ try {
     pintarNivel();
   }
 
+  // ===== Botones flotantes de la derecha (Tema, Música, Pixelito, WhatsApp) =====
+  // Se apartan solo cuando de verdad tapan la tarjeta de «Tu pedido» (ahí están
+  // el formulario y el botón de confirmar): la tarjeta tiene que pasar por su
+  // franja de abajo Y llegar hasta ellos a lo ancho. Antes se apartaban en todo
+  // el nivel "Tu pedido": desaparecían con «¿Dónde va mi pedido?» ya en
+  // pantalla y en computador, donde la tarjeta termina antes que ellos.
+  const tarjetaPedido = document.getElementById("pedido");
+  if (tarjetaPedido) {
+    const apartarFlotantes = () => {
+      const caja = tarjetaPedido.getBoundingClientRect();
+      // Están fijos: su borde de arriba y el más a la izquierda marcan la zona.
+      const zonas = [...document.querySelectorAll(".ajustes-flotantes, #pixelito-bot .pixelito-lanzador, .barra-whatsapp")]
+        .map((el) => el.getBoundingClientRect()).filter((r) => r.width > 0);
+      if (!zonas.length) return;
+      const arriba = Math.min(...zonas.map((r) => r.top));
+      const izquierda = Math.min(...zonas.map((r) => r.left));
+      const tapa = caja.top < innerHeight && caja.bottom > arriba && caja.right > izquierda;
+      document.body.classList.toggle("pedido-bajo-flotantes", tapa);
+    };
+    let pendienteFlotantes = false;
+    addEventListener("scroll", () => {
+      if (pendienteFlotantes) return;
+      pendienteFlotantes = true;
+      requestAnimationFrame(() => { pendienteFlotantes = false; apartarFlotantes(); });
+    }, { passive: true });
+    addEventListener("resize", apartarFlotantes, { passive: true });
+    apartarFlotantes();
+  }
+
   // ===== Botones que se sienten atraídos por el puntero =====
   // Acabado de dos píxeles: la llamada a la acción se acerca un poco al cursor.
   // Va en translate —propiedad aparte— para no pisar el salto del hover, que

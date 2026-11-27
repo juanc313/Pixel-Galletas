@@ -402,10 +402,11 @@ h3 { font-size: var(--t-lg); }
 @media (hover: hover) { .ajuste-flotante:hover .ajuste-etiqueta { opacity: 1; } }
 .ajuste-flotante:has(> button:focus-visible) .ajuste-etiqueta { opacity: 1; }
 .tema-selector:has(.tema-panel:not([hidden])) .ajuste-etiqueta { opacity: 0; }
-/* Se apartan cuando estorban: en «Tu pedido» (igual que WhatsApp y Pixelito),
+/* Se apartan cuando estorban: mientras la tarjeta de «Tu pedido» pasa por
+   debajo (igual que WhatsApp y Pixelito; la clase la pone efectos.js),
    mientras Pixelito habla o tiene el chat abierto (su burbuja sale justo
    aquí) y con el menú del celular abierto. */
-body:has(.nivel-hud.nivel-hud-fuera) .ajustes-flotantes,
+body.pedido-bajo-flotantes .ajustes-flotantes,
 body:has(#pixelito-bot.hablando) .ajustes-flotantes,
 body:has(#pixelito-bot.abierto) .ajustes-flotantes,
 body:has(.menu.abierto) .ajustes-flotantes { opacity: 0; pointer-events: none; }
@@ -2821,13 +2822,14 @@ body:has(.menu.abierto) .actualizar-aviso { visibility: hidden; }
 }
 
 /* --- WhatsApp fijo: solo el icono mientras el texto no quepa en el margen, y
-   fuera de la vista en «Tu pedido», donde se ponía sobre el formulario. --- */
+   fuera de la vista mientras la tarjeta de «Tu pedido» pasa por debajo, donde
+   se ponía sobre el formulario. --- */
 @media (max-width: 110rem) {
   .barra-whatsapp span { display: none; }
   .barra-whatsapp { padding: var(--s-3); }
 }
 .barra-whatsapp { transition: transform var(--d-micro) ease, filter var(--d-micro) ease, opacity var(--d-ui) ease; }
-body:has(.nivel-hud.nivel-hud-fuera) .barra-whatsapp { opacity: 0; pointer-events: none; }
+body.pedido-bajo-flotantes .barra-whatsapp { opacity: 0; pointer-events: none; }
 
 /* --- Tema oscuro: el catálogo sube por encima de las líneas de pantalla (z 16)
    y sigue bajo la barra (z 20). La galleta tiene que verse nítida y apetitosa. --- */
@@ -2923,9 +2925,9 @@ main.contenedor > .musica-boton-barra { margin: var(--s-3) 0 0 var(--s-4); }
 #pixelito-bot .pixelito-lanzador:focus-visible { outline: 3px solid var(--diamante); outline-offset: 4px; }
 #pixelito-bot.apartado .pixelito-lanzador,
 #pixelito-bot.apartado .pixelito-burbuja { opacity: 0; pointer-events: none; translate: 0 1rem; }
-/* En «Tu pedido» se retira igual que el botón de WhatsApp: ahí está el formulario. */
-body:has(.nivel-hud.nivel-hud-fuera) #pixelito-bot:not(.abierto) .pixelito-lanzador,
-body:has(.nivel-hud.nivel-hud-fuera) #pixelito-bot:not(.abierto) .pixelito-burbuja { opacity: 0; pointer-events: none; }
+/* Mientras «Tu pedido» pasa por debajo se retira igual que WhatsApp: ahí está el formulario. */
+body.pedido-bajo-flotantes #pixelito-bot:not(.abierto) .pixelito-lanzador,
+body.pedido-bajo-flotantes #pixelito-bot:not(.abierto) .pixelito-burbuja { opacity: 0; pointer-events: none; }
 
 /* Burbujita: lo que dice por su cuenta. */
 .pixelito-burbuja { position: fixed; right: var(--s-5); bottom: calc(var(--pixelito-abajo) + 4.3rem); z-index: 40;
