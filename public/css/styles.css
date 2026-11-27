@@ -330,6 +330,8 @@ h3 { font-size: var(--t-lg); }
   background: var(--barra);
   border-bottom: 4px solid var(--pantalla-alta);
   transition: box-shadow var(--d-ui) ease, background-color var(--d-ui) ease, border-color var(--d-ui) ease;
+  /* Misma letra en todas las páginas: las 8-bit ponen letra pixel al body. */
+  font-family: var(--texto); letter-spacing: normal;
 }
 /* El estado desplazado NO toca métricas de layout (tamaño de fuente, padding
    de la marca): solo color, sombra y borde. Así el logo y el nombre nunca
@@ -370,22 +372,48 @@ h3 { font-size: var(--t-lg); }
 .tema-titulo { margin: 0; font-family: var(--titulos); font-size: var(--t-xs); }
 .tema-op { padding: var(--s-2) var(--s-3); font: inherit; text-align: left; color: var(--crema); background: var(--tinta); border: 0; cursor: pointer; }
 .tema-op[aria-pressed="true"] { color: var(--diamante); box-shadow: inset 0 0 0 2px var(--diamante); }
-/* Botones de la derecha (acceso, música, tema y hamburguesa) en un solo grupo,
-   siempre en la fila del logo. Antes eran piezas sueltas de la barra flexible:
-   cuando no cabían, cada una caía a una fila propia y empujaba la página. */
-.barra-utiles { display: flex; align-items: center; gap: var(--s-3); margin-left: auto; min-width: 0; }
-.barra-util { display: flex; align-items: center; gap: var(--s-2); }
-.barra-utiles .musica-boton-barra { order: 0; margin-left: 0; }
-#btn-acceso { flex: 0 1 auto; min-width: 0; max-width: 9rem; }
-/* Etiqueta visible junto a ◐ y ♫: nombre en letra pixel y una descripción
-   corta. Es solo visual (aria-hidden): el aria-label dice lo mismo. Solo se
-   muestra donde cabe sin chocar con el indicador de nivel. */
-.barra-util-etiqueta { display: none; line-height: 1.2; white-space: nowrap; }
-.barra-util-etiqueta b { font-family: var(--titulos); font-size: .75rem; font-weight: 700; color: var(--masa); }
-/* Letra fija: las páginas 8-bit ponen letra pixel a todo el body, y heredada
-   la descripción se ensanchaba hasta chocar con el indicador de nivel. */
-.barra-util-etiqueta small { font-family: var(--texto); font-size: .75rem; letter-spacing: normal; color: var(--crema); opacity: .8; }
-@media (min-width: 75rem) { .barra-util-etiqueta { display: grid; } }
+/* El botón del menú del celular va a la derecha de la fila del logo. */
+.barra-utiles { display: flex; align-items: center; margin-left: auto; }
+/* En computador el menú se reparte a todo el ancho de la barra. */
+@media (min-width: 62.01rem) { .menu { justify-content: space-between; } }
+
+/* ===== Tema y Música flotantes =====
+   Viven a la derecha, encima de Pixelito y WhatsApp, y acompañan al cliente
+   al bajar (position: fixed). Las cuentas de "bottom" siguen a las de esos
+   dos: WhatsApp (24 px del borde, 2.9rem de alto) + Pixelito (3.4rem). */
+.ajustes-flotantes { position: fixed; z-index: 40; display: flex; flex-direction: column; gap: var(--s-3);
+  right: calc(var(--s-5) + .325rem); /* centrados con Pixelito, que es más ancho */
+  bottom: calc(var(--s-5) + 2.9rem + var(--s-3) + 3.4rem + var(--s-3));
+  transition: opacity var(--d-ui) ease; }
+.ajustes-flotantes .tema-boton, .ajustes-flotantes .musica-boton {
+  box-shadow: var(--px-3-suave), 4px 6px 14px rgba(0, 0, 0, .45); }
+.ajuste-flotante { position: relative; display: flex; }
+/* El panel de tema se abre hacia la izquierda: abajo no hay sitio. */
+.ajustes-flotantes .tema-panel { top: auto; bottom: 0; right: calc(100% + var(--s-3)); }
+/* Etiqueta: aparece a la izquierda al pasar el mouse o con el teclado. Es solo
+   visual (aria-hidden): el aria-label dice lo mismo. Letra fija porque las
+   páginas 8-bit ponen letra pixel a todo el body. */
+.ajuste-etiqueta { position: absolute; right: calc(100% + var(--s-3)); top: 50%; translate: 0 -50%;
+  display: grid; padding: var(--s-2) var(--s-3); line-height: 1.2; white-space: nowrap;
+  background: var(--tinta); box-shadow: var(--px-3-suave); pointer-events: none;
+  opacity: 0; transition: opacity var(--d-micro) ease; }
+.ajuste-etiqueta b { font-family: var(--titulos); font-size: .75rem; font-weight: 700; color: var(--masa); }
+.ajuste-etiqueta small { font-family: var(--texto); font-size: .75rem; letter-spacing: normal; color: var(--crema); }
+@media (hover: hover) { .ajuste-flotante:hover .ajuste-etiqueta { opacity: 1; } }
+.ajuste-flotante:has(> button:focus-visible) .ajuste-etiqueta { opacity: 1; }
+.tema-selector:has(.tema-panel:not([hidden])) .ajuste-etiqueta { opacity: 0; }
+/* Se apartan cuando estorban: en «Tu pedido» (igual que WhatsApp y Pixelito),
+   mientras Pixelito habla o tiene el chat abierto (su burbuja sale justo
+   aquí) y con el menú del celular abierto. */
+body:has(.nivel-hud.nivel-hud-fuera) .ajustes-flotantes,
+body:has(#pixelito-bot.hablando) .ajustes-flotantes,
+body:has(#pixelito-bot.abierto) .ajustes-flotantes,
+body:has(.menu.abierto) .ajustes-flotantes { opacity: 0; pointer-events: none; }
+@media (max-width: 40rem) {
+  /* En celular Pixelito mide 3rem y va 8 px más cerca de WhatsApp. */
+  .ajustes-flotantes { gap: var(--s-2); right: calc(var(--s-5) + .125rem);
+    bottom: calc(var(--s-5) + 2.9rem + var(--s-2) + 3rem + var(--s-3)); }
+}
 /* En las páginas 8-bit el menú hereda letra pixel con espacio extra entre
    letras, y entre 62 y 75rem el «Carrito» caía a una tercera fila. */
 .barra .menu { letter-spacing: normal; }
@@ -1725,6 +1753,8 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 15; pointer-event
   .menu a, .menu button { padding: var(--s-3) var(--s-3); border-bottom: 1px solid rgba(255, 243, 220, .12);
     text-align: left; font-size: var(--t-md); }
   .menu a.carrito-icono { margin: var(--s-2) 0 0; justify-content: center; border-bottom: 0; }
+  /* En el panel del celular, Acceso ocupa el mismo ancho que Carrito. */
+  .menu #btn-acceso { margin-top: var(--s-2); text-align: center; max-width: none; }
 }
 /* En celular la fila del logo lleva cuatro botones: la hamburguesa se queda
    solo con su ícono. La palabra "Menú" sigue ahí para lectores de pantalla. */
@@ -1733,9 +1763,6 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 15; pointer-event
   .btn-menu { padding: var(--s-2) var(--s-3); min-height: 2.75rem; }
   .btn-menu-texto { position: absolute; width: 1px; height: 1px; overflow: hidden;
     clip: rect(0 0 0 0); white-space: nowrap; }
-  /* Un nombre largo se corta con "…" para que todo quepa en 375 px. En
-     pantallas aún más angostas el grupo baja entero a una segunda fila. */
-  #btn-acceso { max-width: 7.5rem; padding-inline: var(--s-3); }
 }
 
 @media (max-width: 40rem) {
@@ -2792,9 +2819,6 @@ body:has(.menu.abierto) .actualizar-aviso { visibility: hidden; }
   .nivel-hud.nivel-hud-fuera { translate: -50% -1rem; }
   .nivel-mapa { top: calc(100% + var(--s-3)); bottom: auto; }
 }
-/* Desde 75rem los botones ◐ y ♫ llevan etiqueta y el grupo de la derecha
-   crece: el HUD se centra en el hueco entre el logo y esos botones. */
-@media (min-width: 75rem) { .nivel-hud { left: calc(50% - 4.5rem); } }
 
 /* --- WhatsApp fijo: solo el icono mientras el texto no quepa en el margen, y
    fuera de la vista en «Tu pedido», donde se ponía sobre el formulario. --- */

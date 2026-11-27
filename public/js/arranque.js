@@ -65,6 +65,9 @@ document.documentElement.classList.add("js-menu");
 // js-anim y saca la entrada del DOM, para que la página nunca quede tapada.
 (function () {
   try {
+    // La entrada solo existe en la portada. Las páginas sueltas también cargan
+    // este archivo (por el menú y el tema): ahí el velo las taparía 4 s.
+    if (location.pathname !== "/" && location.pathname !== "/index.html") return;
     var reducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
     // Enlace directo (?directo=1): sin velo ni escena, se entra de una.
     var directo = /^1$/.test(new URLSearchParams(location.search).get("directo") || "");

@@ -67,3 +67,49 @@ test("HSTS de 2 años con preload en Vercel y en la API", () => {
   assert.match(leer("vercel.json"), /"Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload"/);
   assert.match(leer("src/app.js"), /strictTransportSecurity: \{ maxAge: 63072000, includeSubDomains: true, preload: true \}/);
 });
+
+// La barra de la portada también va en las páginas sueltas: abiertas
+// directamente (desde Google o un enlace) antes no traían menú ni botones.
+const PAGINAS_CON_BARRA = ["404.html", "combo-personalizado.html", "historia-marca.html", "memoria-8bit.html",
+  "preguntas-gamer.html", "privacidad.html", "seguimiento-pedido.html", "terminos.html"];
+
+test("Barra: cada página suelta trae la barra completa de la portada", () => {
+  const secciones = ["catalogo", "cajas", "como-funciona", "marca", "faq", "pedido", "estado", "contacto"];
+  for (const pagina of PAGINAS_CON_BARRA) {
+    const html = leer(`public/${pagina}`);
+    const barra = html.slice(html.indexOf('<header class="barra">'), html.indexOf("</header>"));
+    assert.ok(barra.length > 0, `${pagina} no tiene la barra`);
+    for (const id of secciones) assert.match(barra, new RegExp(`href="/#${id}"`), `${pagina}: falta el enlace a ${id}`);
+    for (const pieza of ['id="btn-acceso"', 'id="btn-menu"', 'id="carrito-contador"']) {
+      assert.ok(barra.includes(pieza), `${pagina}: falta ${pieza} en la barra`);
+    }
+    // Tema y Música flotan aparte, a la derecha (como Pixelito y WhatsApp).
+    const flotantes = html.slice(html.indexOf('<div class="ajustes-flotantes">'));
+    assert.ok(html.includes('<div class="ajustes-flotantes">'), `${pagina}: faltan los botones flotantes`);
+    for (const pieza of ['id="tema-boton"', 'class="musica-boton musica-flotante"', 'aria-label="Tema: claro u oscuro', 'aria-label="Música: sonido de fondo']) {
+      assert.ok(flotantes.includes(pieza), `${pagina}: falta ${pieza} en los botones flotantes`);
+    }
+    // Lo que hace funcionar la barra: menú y tema (arranque), nombre y carrito
+    // (cabecera) y el reproductor que abre el botón ♫.
+    assert.match(html, /<script src="\/js\/arranque\.js"><\/script>/, `${pagina}: falta arranque.js`);
+    assert.match(html, /<script type="module" src="\/js\/cabecera\.js"><\/script>/, `${pagina}: falta cabecera.js`);
+    assert.match(html, /id="musica-panel"/, `${pagina}: falta el reproductor`);
+    assert.match(html, /<script src="\/js\/musica\.js" defer><\/script>/, `${pagina}: falta musica.js`);
+    // Debajo de Tema y Música, Pixelito y WhatsApp, igual que en la portada.
+    assert.ok(html.includes('id="link-whatsapp-fijo-barra" class="barra-whatsapp"'), `${pagina}: falta WhatsApp`);
+    assert.match(html, /<script type="module" src="\/js\/contacto\.js"><\/script>/, `${pagina}: falta contacto.js (número de WhatsApp)`);
+    assert.match(html, /<script type="module" src="\/js\/pixelito\.js"><\/script>/, `${pagina}: falta Pixelito`);
+  }
+});
+
+test("Barra: la pantalla de título solo tapa la portada, no las páginas sueltas", () => {
+  assert.match(leer("public/js/arranque.js"), /if \(location\.pathname !== "\/" && location\.pathname !== "\/index\.html"\) return;/);
+});
+
+test("Barra: el contador de las páginas sueltas suma las galletas guardadas", async () => {
+  const { contarCarrito } = await import("../public/js/cabecera.js");
+  assert.equal(contarCarrito('[{"id":1,"cantidad":2},{"id":2,"cantidad":3}]'), 5);
+  assert.equal(contarCarrito('[{"id":1,"cantidad":0}]'), 0, "una línea en 0 no cuenta");
+  assert.equal(contarCarrito(null), 0);
+  assert.equal(contarCarrito("no es json"), 0);
+});
