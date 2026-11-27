@@ -247,6 +247,24 @@
   border-top: 4px solid #2A1A4A;
   color: #2A1A4A;
 }
+/* Los adornos del pie estaban pensados para fondo oscuro y sobre papel casi
+   desaparecían. El letrero gigante tenía contorno crema (invisible aquí) y un
+   relleno que se desvanecía hasta transparente: se veía borroso. Ahora lleva
+   contorno de tinta nítido y un naranja que no se apaga del todo. */
+:root[data-tema="claro"] .pie-wordmark {
+  -webkit-text-stroke: 2px #2A1A4A;
+  background: linear-gradient(180deg, #F5902F, rgba(245, 144, 47, .25) 85%);
+  -webkit-background-clip: text; background-clip: text;
+}
+/* «Inserte moneda»: naranja oscuro (el claro no contrasta con el papel) y un
+   parpadeo que no baja tanto, para que se lea también en su mitad apagada. */
+:root[data-tema="claro"] .pie-maquina { color: #B4470A; }
+/* La estrella es crema y sobre papel no se veía: contorno fino de tinta. */
+:root[data-tema="claro"] .pie-maquina-sprite { opacity: 1; filter: drop-shadow(0 0 1px #2A1A4A); }
+:root[data-tema="claro"] .pie-maquina-texto { animation-name: maquina-parpadeo-claro; }
+@keyframes maquina-parpadeo-claro { 50% { opacity: .55; } }
+/* Código Konami: sigue siendo un secreto discreto, pero legible. */
+:root[data-tema="claro"] .pie-secreto { color: rgba(42, 26, 74, .75); }
 
 /* --- Invitación a instalar la app --- */
 :root[data-tema="claro"] .instalar-aviso { background: #FFFFFF; color: #2A1A4A; }
