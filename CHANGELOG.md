@@ -6,6 +6,28 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.14.5 · Parche «Voz propia»
+*27 de noviembre de 2026*
+
+- **Política de privacidad reescrita para personas:** dice lo mismo que antes
+  (los mismos datos, derechos, plazos, proveedores y leyes), pero ahora se lee
+  como un texto que argumenta, en un tono serio y neutral, con párrafos que
+  explican el porqué de cada regla en lugar de listas cortadas.
+- **Términos y condiciones con el mismo criterio:** las reglas no cambian.
+  Ahora explican sus razones (por qué se pide anticipo, por qué la garantía se
+  reclama el mismo día, por qué no aplica el retracto a las galletas).
+- **Lectura más fluida:** las viñetas pasan de 48 a 6 (solo quedan los
+  derechos que enumera la ley), las frases ya no se cortan cada pocas palabras
+  y los dos puntos desaparecen del texto.
+- **Textos largos más humanos:** la banda «Power up», la caja mensual, la nota
+  de privacidad del pie y las preguntas sobre entregas y tiempos (en la
+  portada y en «Preguntas gamer»).
+- **La historia de la marca suena a quien la vivió:** los capítulos se cuentan
+  con palabras más naturales. La misión, la visión, el cliente ideal y lo que
+  nos diferencia quedan tal cual.
+- Ambos documentos legales avisan que su redacción se aclaró, y que sus reglas
+  siguen vigentes desde el 21 de noviembre.
+
 ## 1.14.4 · Parche «Letrero LED»
 *27 de noviembre de 2026*
 
