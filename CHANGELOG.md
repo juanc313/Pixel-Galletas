@@ -6,6 +6,72 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.14.4 · Parche «Letrero LED»
+*27 de noviembre de 2026*
+
+- **La cinta de «Power up» corre sola:** el texto gigante («Pide cuando
+  quieras ★ Horneado por encargo…») ahora pasa de derecha a izquierda sin
+  parar, como un letrero de anuncios. Antes solo se movía al bajar por la
+  página.
+- **Bucle sin saltos:** la frase da la vuelta y vuelve a empezar sin que se
+  note el corte.
+- **Ya no se corta a mitad de pantalla:** «HORNEADO» quedaba partido en la
+  «O» antes del borde derecho. Ahora las letras solo se cortan en los bordes,
+  como en cualquier letrero.
+- Con «reducir movimiento» activado en el equipo, la cinta se queda quieta.
+
+## 1.14.3 · Parche «Papel nítido»
+*27 de noviembre de 2026*
+
+- **Tema claro, pie de página legible:** el letrero gigante «PIXEL GALLETAS»
+  se veía borroso y ahora tiene contorno nítido y relleno naranja.
+- **«Inserte moneda»** pasa a naranja oscuro y parpadea más suave, para que
+  se lea siempre.
+- La **estrellita** junto a «Inserte moneda» ya se ve sobre el fondo crema.
+- El **código Konami** (↑ ↑ ↓ ↓ ← → ← → B A) sigue discreto, pero ya se lee.
+
+## 1.14.2 · Parche «Pie en su sitio»
+*27 de noviembre de 2026*
+
+- **Sin hueco al final de la página:** el pie dejaba 152 px vacíos bajo el
+  código Konami. Ahora deja lo justo (48 px en pantallas anchas, 80 px en las
+  angostas).
+- Cuando el carrito flotante tiene galletas, el pie vuelve a dejar más
+  espacio para que nada tape las últimas líneas.
+
+## 1.14.1 · Parche «Sin escondidas»
+*27 de noviembre de 2026*
+
+- **Los botones flotantes ya no desaparecen sin motivo:** Tema, Música,
+  Pixelito y WhatsApp se ocultaban al pasar por «¿Dónde va mi pedido?» y en
+  todo «Tu pedido», aunque no taparan nada.
+- **En computador** ya no se ocultan nunca: la tarjeta del pedido termina
+  antes que ellos.
+- **En celular y tableta** se apartan solo mientras la tarjeta del pedido pasa
+  por debajo (para no tapar el formulario) y vuelven al seguir bajando.
+
+## 1.14 · Torre de poderes
+*27 de noviembre de 2026*
+
+- **La barra en todas las páginas:** historia, preguntas, memoria,
+  seguimiento, combo, privacidad, términos y la página de error traen el mismo
+  menú de la portada, aunque se abran directamente desde Google o un enlace.
+- **Tu nombre y tu carrito en cualquier página:** la barra muestra con qué
+  cuenta entraste y cuántas galletas llevas. «Acceso» lleva al cuadro de
+  inicio de sesión de la portada.
+- **Torre flotante a la derecha:** ◐ **Tema** y ♫ **Música** salen del
+  encabezado y flotan encima de **Pixelito** y **WhatsApp**, acompañándote al
+  bajar. Al pasar el mouse muestran su etiqueta («Tema: claro u oscuro»,
+  «Música: sonido de fondo»).
+- **Pixelito y WhatsApp también en las páginas sueltas.**
+- **Encabezado ordenado:** se acabaron los botones que caían en filas propias
+  y empujaban la página. «Acceso» vuelve al menú junto al Carrito, y el menú
+  ocupa todo el ancho.
+- La barra usa la misma letra en todas las páginas, y la pantalla de título ya
+  no tapa las páginas sueltas.
+
+---
+
 ## 1.13.3 · Parche «Candado nuevo»
 *24 de noviembre de 2026*
 
