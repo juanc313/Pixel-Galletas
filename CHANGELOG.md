@@ -6,6 +6,50 @@ parches (1.10.1, 1.10.2…).
 
 ---
 
+## 1.14.9 · Parche «Cielo para todos»
+*27 de noviembre de 2026*
+
+- **Los dibujitos flotantes llegan a todas las páginas:** la moneda, la
+  estrella, la galleta, el fantasma, la gema y el rayo que flotan a los lados
+  de la portada (con su cielo de estrellitas) ahora también acompañan a las
+  páginas sueltas. Como en la portada, solo aparecen en pantallas anchas.
+- **Pie más limpio:** sale el letrero gigante «PIXEL GALLETAS».
+- **«Inserte moneda» más grande:** el texto y sus dibujitos crecen un poco y
+  pasan a ser el remate del pie.
+
+## 1.14.8 · Parche «Pie de página»
+*27 de noviembre de 2026*
+
+- **Todas las páginas tienen pie:** privacidad, términos, historia,
+  preguntas, memoria, seguimiento, combo y la página de error traen el mismo
+  pie de la portada, con los enlaces a todas las secciones y páginas,
+  WhatsApp, Instagram y la ubicación, el letrero «PIXEL GALLETAS», la franja
+  «Inserte moneda» y el aviso de seguridad. Antes terminaban de golpe.
+- **El pie se ve igual en cualquier página:** misma letra y mismos tamaños que
+  en la portada, aunque la página use letra pixel para todo lo demás.
+- El botón «Mis logros» queda solo en la portada, que es donde funciona.
+
+## 1.14.7 · Parche «Respiro»
+*27 de noviembre de 2026*
+
+- **Privacidad y términos más fáciles de leer:** el texto a todo el ancho se
+  veía como una pared de letras. Ahora tiene más espacio entre líneas y entre
+  párrafos, y los títulos de cada apartado ya no se ven pegados.
+- **La fecha de vigencia** conserva su letra pixel, pero ya no va pegada al
+  título y deja aire antes del texto.
+- **El índice** separa más sus opciones.
+- **Los capítulos de la historia** también ganan aire entre líneas.
+
+## 1.14.6 · Parche «Sin columnas»
+*27 de noviembre de 2026*
+
+- **Las páginas sueltas usan todo el ancho:** privacidad, términos, historia,
+  preguntas, memoria y seguimiento ahora tienen el mismo ancho que la barra de
+  arriba. El texto empieza donde empieza el logo y termina donde termina
+  «Acceso», y desaparecen las dos columnas vacías que quedaban a los lados.
+- **Preguntas gamer más amplia:** la lista de preguntas ya no queda angosta a
+  la izquierda. En la portada conserva su tamaño de siempre.
+
 ## 1.14.5 · Parche «Voz propia»
 *27 de noviembre de 2026*
 

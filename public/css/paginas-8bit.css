@@ -15,12 +15,18 @@ body.pagina-8bit h1 {
   text-shadow: 4px 4px 0 var(--tinta);
 }
 body.pagina-8bit h2 { font-size: var(--t-xl); color: var(--crema); }
-body.pagina-8bit p, body.pagina-8bit li, body.pagina-8bit .faq-item p { font-size: var(--t-md); }
+/* El texto grande es para el contenido de la página; el pie (igual al de la
+   portada) conserva sus propios tamaños. */
+body.pagina-8bit main p, body.pagina-8bit main li, body.pagina-8bit .faq-item p { font-size: var(--t-md); }
+body.pagina-8bit .pie { font-size: var(--t-base); }
 body.pagina-8bit .faq-item summary { font-family: var(--titulos); font-size: var(--t-md); }
 body.pagina-8bit #form-estado input { font-family: var(--titulos); font-size: var(--t-md); }
 body.pagina-8bit .estado-resultado { font-family: var(--titulos); }
 
-.retro-pagina { max-width: 68rem; min-width: 0; width: 100%; margin: 0 auto; padding: var(--s-6) var(--gutter) var(--s-9); }
+/* Mismo ancho que la barra de arriba (72rem de contenido más el margen de cada
+   lado): el texto empieza donde empieza el logo y termina donde termina
+   Acceso. Antes era más angosto y dejaba dos columnas vacías a los lados. */
+.retro-pagina { max-width: calc(var(--ancho) + 2 * var(--gutter)); min-width: 0; width: 100%; margin: 0 auto; padding: var(--s-6) var(--gutter) var(--s-9); }
 .retro-volver { display: inline-block; margin-bottom: var(--s-5); color: var(--diamante); text-decoration: none; }
 .retro-volver:hover { color: var(--masa-clara); }
 .retro-caja { background: var(--pantalla); box-shadow: var(--sombra-caja); padding: var(--s-6); margin-bottom: var(--s-6); }
@@ -41,24 +47,34 @@ body.pagina-8bit .estado-resultado { font-family: var(--titulos); }
 .retro-capitulo { border-left: 6px solid var(--masa); padding-left: var(--s-5); margin-bottom: var(--s-7); }
 .retro-capitulo h2 { color: var(--masa); font-size: var(--t-lg); }
 .retro-capitulo-numero { color: var(--diamante); font-size: var(--t-sm); margin: 0; }
-.retro-capitulo p, .retro-capitulo li { font-family: var(--texto); letter-spacing: .01em; text-transform: none; line-height: 1.6; }
+.retro-capitulo p, .retro-capitulo li { font-family: var(--texto); letter-spacing: .01em; text-transform: none; line-height: 1.8; }
+.retro-capitulo p { margin-bottom: var(--s-4); }
 
 /* Páginas legales (privacidad y términos): títulos en letra pixel, pero el
    texto largo en letra normal para que se lea cómodo, como en la historia. */
-.legal { max-width: 52rem; }
-.legal h2 { margin: var(--s-7) 0 var(--s-3); font-size: var(--t-lg); color: var(--masa); scroll-margin-top: var(--s-6); }
-.legal p, .legal li { font-family: var(--texto); letter-spacing: .01em; line-height: 1.65; color: var(--crema); }
+.legal { max-width: calc(var(--ancho) + 2 * var(--gutter)); }
+/* En «Preguntas gamer» la lista usa todo el ancho de la página (en la portada
+   conserva su límite de 48rem, que va junto a otros bloques). */
+.retro-pagina .faq { max-width: none; }
+/* Aire para leer: el texto a todo el ancho se veía como una pared de letras.
+   Más interlineado, más espacio entre párrafos y títulos menos pegados. */
+body.pagina-8bit .legal h1 { margin-bottom: var(--s-4); }
+.legal h2 { margin: var(--s-8) 0 var(--s-4); font-size: var(--t-lg); line-height: 1.35; color: var(--masa); scroll-margin-top: var(--s-6); }
+.legal p, .legal li { font-family: var(--texto); letter-spacing: .01em; line-height: 1.85; color: var(--crema); }
+.legal p { margin-bottom: var(--s-5); }
 body.pagina-8bit .legal p, body.pagina-8bit .legal li { font-size: var(--t-md); }
 .legal ul, .legal ol { padding-left: 1.3rem; }
-.legal li { margin-bottom: var(--s-2); }
+.legal li { margin-bottom: var(--s-3); }
 .legal a { color: var(--diamante); text-underline-offset: .2em; overflow-wrap: anywhere; }
 .legal a:hover { color: var(--masa-clara); }
-.legal-vigencia { margin-top: calc(var(--s-3) * -1); }
-body.pagina-8bit .legal .legal-vigencia { font-family: var(--titulos); font-size: var(--t-sm); color: var(--suave); }
-.legal-indice { margin: var(--s-6) 0; padding: var(--s-4) var(--s-5); background: var(--pantalla); box-shadow: var(--sombra-caja); }
-.legal-indice ol { margin: 0; columns: 2 16rem; column-gap: var(--s-6); }
-.legal-indice li { break-inside: avoid; }
-.legal-pie { margin-top: var(--s-8); padding-top: var(--s-5); border-top: 3px dashed var(--linea-suave); }
+/* La fecha de vigencia conserva su letra pixel, pero ya no va pegada al
+   título (antes tenía margen negativo) y deja aire antes del texto. */
+body.pagina-8bit .legal .legal-vigencia { margin: 0 0 var(--s-7); font-family: var(--titulos); font-size: var(--t-sm);
+  line-height: 1.8; color: var(--suave); }
+.legal-indice { margin: var(--s-7) 0 var(--s-8); padding: var(--s-5) var(--s-6); background: var(--pantalla); box-shadow: var(--sombra-caja); }
+.legal-indice ol { margin: 0; columns: 2 16rem; column-gap: var(--s-8); }
+.legal-indice li { break-inside: avoid; margin-bottom: var(--s-3); }
+.legal-pie { margin-top: var(--s-9); padding-top: var(--s-5); border-top: 3px dashed var(--linea-suave); }
 
 @media (max-width: 34rem) {
   .memoria-tablero { gap: var(--s-2); }

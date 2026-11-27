@@ -99,6 +99,18 @@ test("Barra: cada página suelta trae la barra completa de la portada", () => {
     assert.ok(html.includes('id="link-whatsapp-fijo-barra" class="barra-whatsapp"'), `${pagina}: falta WhatsApp`);
     assert.match(html, /<script type="module" src="\/js\/contacto\.js"><\/script>/, `${pagina}: falta contacto.js (número de WhatsApp)`);
     assert.match(html, /<script type="module" src="\/js\/pixelito\.js"><\/script>/, `${pagina}: falta Pixelito`);
+    // El mismo pie de la portada, con los dibujitos de «Inserte moneda»
+    // definidos en la página (sin style en línea) y sin «Mis logros».
+    assert.ok(html.includes('<footer class="pie">'), `${pagina}: falta el pie de página`);
+    for (const id of ["galleta-pixel", "moneda-pixel", "estrella-pixel", "corazon-pixel", "gema-pixel", "fantasma-pixel", "rayo-pixel"]) {
+      assert.ok(html.includes(`<symbol id="${id}"`), `${pagina}: falta el dibujito ${id}`);
+    }
+    // Los dibujitos que flotan a los lados, como en la portada; y sin el
+    // letrero gigante «PIXEL GALLETAS», que salió del pie.
+    assert.ok(html.includes("<div class=\"ambiente\" aria-hidden=\"true\">"), `${pagina}: faltan los dibujitos flotantes`);
+    assert.ok(!html.includes("pie-wordmark"), `${pagina}: el pie ya no lleva el letrero gigante`);
+    assert.ok(html.includes('<svg class="sprites-pixel"'), `${pagina}: los dibujitos van en el bloque oculto`);
+    assert.ok(!html.includes("data-logros"), `${pagina}: «Mis logros» solo funciona en la portada`);
   }
 });
 

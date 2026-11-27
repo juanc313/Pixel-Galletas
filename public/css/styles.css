@@ -1526,9 +1526,15 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .barra-whatsapp:active { transform: translateY(3px); }
 
 /* ===== Pie ===== */
+/* Bloque oculto con los dibujitos pixel que usa el pie («Inserte moneda») en
+   las páginas sueltas: no ocupa lugar. Va aquí y no como style en el HTML,
+   por la CSP. */
+.sprites-pixel { position: absolute; }
 .pie { margin-top: auto; padding: var(--s-8) var(--gutter) var(--s-8);
   background: linear-gradient(180deg, rgba(12, 5, 53, .35), var(--tinta));
-  border-top: 4px solid var(--pantalla-alta); }
+  border-top: 4px solid var(--pantalla-alta);
+  /* Misma letra en todas las páginas: las 8-bit ponen letra pixel al body. */
+  font-family: var(--texto); letter-spacing: normal; }
 /* Reserva al final del pie para que lo flotante no tape las últimas líneas.
    Antes era siempre de 152 px y dejaba un hueco vacío bajo el código Konami.
    Ahora: 48 px donde nada flotante toca el texto; 80 px donde WhatsApp sí lo
@@ -1924,15 +1930,6 @@ section > h2 { font-size: var(--t-2xl); }
 .mini-carrito-resumen { color: var(--suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mini-carrito-cta { flex: none; padding: var(--s-1) var(--s-3); background: var(--masa); color: var(--noche); }
 
-/* --- 9. Palabra gigante en el pie ---
-   El remate editorial de las marcas premium: el nombre a todo el ancho,
-   en contorno, con relleno degradado naranja hacia arriba. Decorativa. */
-.pie-wordmark { max-width: var(--ancho); margin: var(--s-7) auto 0; text-align: center;
-  font-family: var(--titulos); font-weight: 700; line-height: .95; letter-spacing: .02em;
-  text-transform: uppercase; font-size: clamp(1.7rem, 8.4vw, 6.6rem);
-  color: transparent; -webkit-text-stroke: 2px rgba(255, 243, 220, .22);
-  background: linear-gradient(180deg, rgba(245, 144, 47, .55), rgba(245, 144, 47, 0) 78%);
-  -webkit-background-clip: text; background-clip: text; }
 
 /* Ajustes de la capa premium en pantallas angostas: el chip del carrito
    se queda con texto + acción y el sello encoge para no desbordar la foto. */
@@ -2145,12 +2142,6 @@ img[data-zoom], #lista-productos img { cursor: zoom-in; }
     @keyframes num-listo {
       from { opacity: .4; text-shadow: none; }
       to { opacity: 1; } }
-    /* La palabra gigante del pie deriva un poco con el scroll: el remate
-       editorial deja de estar pegado al fondo. */
-    .js-anim .pie-wordmark {
-      animation: marca-deriva linear both; animation-timeline: view();
-      animation-range: entry 0% exit 100%; }
-    @keyframes marca-deriva { from { translate: 0 2.5rem; } to { translate: 0 -1.5rem; } }
   }
 }
 
@@ -2746,10 +2737,12 @@ main > section { position: relative; }
 /* --- 5. Franja arcade del pie --- */
 .pie-maquina { max-width: var(--ancho); margin: var(--s-5) auto 0;
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--s-3);
-  font-family: var(--titulos); font-size: var(--t-xs); letter-spacing: .3em;
+  font-family: var(--titulos); font-size: var(--t-base); letter-spacing: .3em;
   text-transform: uppercase; color: var(--masa); }
+/* Un poco más grande desde que el pie ya no lleva el letrero «PIXEL GALLETAS»:
+   ahora la franja es el remate del pie. */
 .pie-maquina-sprite { line-height: 0; opacity: .8; }
-.pie-maquina-sprite svg { display: block; width: 1.1rem; height: 1.1rem; }
+.pie-maquina-sprite svg { display: block; width: 1.5rem; height: 1.5rem; }
 .pie-maquina-texto { animation: maquina-parpadeo 1.4s steps(2) infinite; }
 @keyframes maquina-parpadeo { 50% { opacity: .25; } }
 
@@ -3222,7 +3215,6 @@ main > .divisor:has(+ section[hidden]) { display: none; }
   .pie-maquina { display: none; }
 
   /* --- Pie: enlaces en dos columnas y menos relleno --- */
-  .pie-wordmark { display: none; }
   .pie { padding-top: var(--s-6); padding-bottom: calc(var(--s-5) + 3.5rem); }
   body:has(.mini-carrito.activo) .pie { padding-bottom: calc(var(--s-5) + 6rem); }
   .pie-cols { gap: var(--s-5); margin-bottom: var(--s-4); }
