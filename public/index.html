@@ -339,21 +339,30 @@
       </div>
     </div>
 
-    <button type="button" class="musica-boton musica-boton-barra" aria-label="Abrir reproductor de música" aria-expanded="false" aria-controls="musica-panel" title="Abrir reproductor"><span aria-hidden="true">♫</span></button>
-
-    <!-- Menú móvil: el botón lo abre y cierra efectos.js -->
-    <div class="tema-selector">
-      <button type="button" class="tema-boton" id="tema-boton" aria-expanded="false" aria-controls="tema-panel" aria-label="Cambiar tema" title="Cambiar tema"><span aria-hidden="true">◐</span></button>
-      <div class="tema-panel" id="tema-panel" hidden>
-        <p class="tema-titulo">Tema</p>
-        <button type="button" class="tema-op" data-tema="oscuro" aria-pressed="true">Oscuro</button>
-        <button type="button" class="tema-op" data-tema="claro" aria-pressed="false">Claro</button>
+    <!-- Botones de la derecha, siempre en la fila del logo: acceso, música,
+         tema y (en celular) la hamburguesa. La etiqueta de cada botón es solo
+         visual (aria-hidden): el aria-label empieza con las mismas palabras. -->
+    <div class="barra-utiles">
+      <button type="button" id="btn-acceso" aria-expanded="false" aria-controls="acceso">Acceso</button>
+      <div class="barra-util">
+        <button type="button" class="musica-boton musica-boton-barra" aria-label="Música: sonido de fondo. Abrir reproductor" aria-expanded="false" aria-controls="musica-panel" title="Abrir reproductor"><span aria-hidden="true">♫</span></button>
+        <span class="barra-util-etiqueta" aria-hidden="true"><b>Música</b><small>Sonido de fondo</small></span>
       </div>
+      <div class="tema-selector barra-util">
+        <button type="button" class="tema-boton" id="tema-boton" aria-expanded="false" aria-controls="tema-panel" aria-label="Tema: claro u oscuro. Cambiar tema" title="Cambiar tema"><span aria-hidden="true">◐</span></button>
+        <span class="barra-util-etiqueta" aria-hidden="true"><b>Tema</b><small>Claro u oscuro</small></span>
+        <div class="tema-panel" id="tema-panel" hidden>
+          <p class="tema-titulo">Tema</p>
+          <button type="button" class="tema-op" data-tema="oscuro" aria-pressed="true">Oscuro</button>
+          <button type="button" class="tema-op" data-tema="claro" aria-pressed="false">Claro</button>
+        </div>
+      </div>
+      <!-- Menú móvil: el botón lo abre y cierra arranque.js -->
+      <button type="button" class="btn-menu" id="btn-menu" aria-expanded="false" aria-controls="menu-principal">
+        <span aria-hidden="true" class="btn-menu-barras"><i></i><i></i><i></i></span>
+        <span class="btn-menu-texto">Menú</span>
+      </button>
     </div>
-    <button type="button" class="btn-menu" id="btn-menu" aria-expanded="false" aria-controls="menu-principal">
-      <span aria-hidden="true" class="btn-menu-barras"><i></i><i></i><i></i></span>
-      <span class="btn-menu-texto">Menú</span>
-    </button>
 
     <nav class="menu" id="menu-principal" aria-label="Principal">
       <a href="#catalogo">Galletas</a>
@@ -365,7 +374,6 @@
       <a href="#estado">Estado</a>
       <a href="#contacto">Contacto</a>
       <a class="carrito-icono" href="#pedido" title="Ver mi carrito">Carrito <span id="carrito-contador" aria-live="polite" aria-atomic="true">0</span></a>
-      <button type="button" id="btn-acceso" aria-expanded="false" aria-controls="acceso">Acceso</button>
     </nav>
     <!-- Barra de progreso de lectura (la mueve efectos.js) -->
     <span class="progreso-lectura" aria-hidden="true"></span>

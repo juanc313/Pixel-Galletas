@@ -349,7 +349,7 @@ h3 { font-size: var(--t-lg); }
   text-shadow: 2px 2px 0 var(--texto-sombra-suave); }
 .marca small { display: block; font-size: var(--t-sm); font-weight: 500; color: var(--masa); }
 /* En escritorio el menú cabe en una sola fila: sin wrap la barra no crece. */
-@media (min-width: 62.01rem) { .menu { flex-wrap: nowrap; } }
+@media (min-width: 62.01rem) { .menu { flex-wrap: nowrap; flex-basis: 100%; } }
 .menu { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2) var(--s-1); }
 .menu a { padding: var(--s-2) var(--s-2); color: var(--crema); font-weight: 500; font-size: var(--t-sm);
   text-decoration: none; border-bottom: 3px solid transparent;
@@ -370,6 +370,26 @@ h3 { font-size: var(--t-lg); }
 .tema-titulo { margin: 0; font-family: var(--titulos); font-size: var(--t-xs); }
 .tema-op { padding: var(--s-2) var(--s-3); font: inherit; text-align: left; color: var(--crema); background: var(--tinta); border: 0; cursor: pointer; }
 .tema-op[aria-pressed="true"] { color: var(--diamante); box-shadow: inset 0 0 0 2px var(--diamante); }
+/* Botones de la derecha (acceso, música, tema y hamburguesa) en un solo grupo,
+   siempre en la fila del logo. Antes eran piezas sueltas de la barra flexible:
+   cuando no cabían, cada una caía a una fila propia y empujaba la página. */
+.barra-utiles { display: flex; align-items: center; gap: var(--s-3); margin-left: auto; min-width: 0; }
+.barra-util { display: flex; align-items: center; gap: var(--s-2); }
+.barra-utiles .musica-boton-barra { order: 0; margin-left: 0; }
+#btn-acceso { flex: 0 1 auto; min-width: 0; max-width: 9rem; }
+/* Etiqueta visible junto a ◐ y ♫: nombre en letra pixel y una descripción
+   corta. Es solo visual (aria-hidden): el aria-label dice lo mismo. Solo se
+   muestra donde cabe sin chocar con el indicador de nivel. */
+.barra-util-etiqueta { display: none; line-height: 1.2; white-space: nowrap; }
+.barra-util-etiqueta b { font-family: var(--titulos); font-size: .75rem; font-weight: 700; color: var(--masa); }
+/* Letra fija: las páginas 8-bit ponen letra pixel a todo el body, y heredada
+   la descripción se ensanchaba hasta chocar con el indicador de nivel. */
+.barra-util-etiqueta small { font-family: var(--texto); font-size: .75rem; letter-spacing: normal; color: var(--crema); opacity: .8; }
+@media (min-width: 75rem) { .barra-util-etiqueta { display: grid; } }
+/* En las páginas 8-bit el menú hereda letra pixel con espacio extra entre
+   letras, y entre 62 y 75rem el «Carrito» caía a una tercera fila. */
+.barra .menu { letter-spacing: normal; }
+@media (min-width: 62.01rem) and (max-width: 74.99rem) { .menu a { padding-inline: var(--s-1); } }
 .btn-menu { display: none; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-4); }
 .btn-menu-barras { display: grid; gap: var(--s-1); width: 1.15rem; }
 .btn-menu-barras i { display: block; height: 3px; background: currentColor; transition: transform var(--d-ui) ease, opacity var(--d-ui) ease; }
@@ -1705,7 +1725,17 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 15; pointer-event
   .menu a, .menu button { padding: var(--s-3) var(--s-3); border-bottom: 1px solid rgba(255, 243, 220, .12);
     text-align: left; font-size: var(--t-md); }
   .menu a.carrito-icono { margin: var(--s-2) 0 0; justify-content: center; border-bottom: 0; }
-  .menu #btn-acceso { margin-top: var(--s-2); text-align: center; }
+}
+/* En celular la fila del logo lleva cuatro botones: la hamburguesa se queda
+   solo con su ícono. La palabra "Menú" sigue ahí para lectores de pantalla. */
+@media (max-width: 48rem) {
+  .barra-utiles { gap: var(--s-2); }
+  .btn-menu { padding: var(--s-2) var(--s-3); min-height: 2.75rem; }
+  .btn-menu-texto { position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; }
+  /* Un nombre largo se corta con "…" para que todo quepa en 375 px. En
+     pantallas aún más angostas el grupo baja entero a una segunda fila. */
+  #btn-acceso { max-width: 7.5rem; padding-inline: var(--s-3); }
 }
 
 @media (max-width: 40rem) {
@@ -2762,6 +2792,9 @@ body:has(.menu.abierto) .actualizar-aviso { visibility: hidden; }
   .nivel-hud.nivel-hud-fuera { translate: -50% -1rem; }
   .nivel-mapa { top: calc(100% + var(--s-3)); bottom: auto; }
 }
+/* Desde 75rem los botones ◐ y ♫ llevan etiqueta y el grupo de la derecha
+   crece: el HUD se centra en el hueco entre el logo y esos botones. */
+@media (min-width: 75rem) { .nivel-hud { left: calc(50% - 4.5rem); } }
 
 /* --- WhatsApp fijo: solo el icono mientras el texto no quepa en el margen, y
    fuera de la vista en «Tu pedido», donde se ponía sobre el formulario. --- */
