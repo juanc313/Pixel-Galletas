@@ -1526,9 +1526,16 @@ section:not(.tarjeta) > .etiqueta::after { content: ""; flex: 1 1 auto; height: 
 .barra-whatsapp:active { transform: translateY(3px); }
 
 /* ===== Pie ===== */
-.pie { margin-top: auto; padding: var(--s-8) var(--gutter) calc(var(--s-5) + 8rem);
+.pie { margin-top: auto; padding: var(--s-8) var(--gutter) var(--s-8);
   background: linear-gradient(180deg, rgba(12, 5, 53, .35), var(--tinta));
   border-top: 4px solid var(--pantalla-alta); }
+/* Reserva al final del pie para que lo flotante no tape las últimas líneas.
+   Antes era siempre de 152 px y dejaba un hueco vacío bajo el código Konami.
+   Ahora: 48 px donde nada flotante toca el texto; 80 px donde WhatsApp sí lo
+   alcanza (ventanas más angostas), y la reserva grande solo cuando el carrito
+   flotante (abajo a la izquierda) se muestra porque tiene galletas. */
+@media (max-width: 80rem) { .pie { padding-bottom: calc(var(--s-5) + 3.5rem); } }
+body:has(.mini-carrito.activo) .pie { padding-bottom: calc(var(--s-5) + 8rem); }
 .pie-cols { max-width: var(--ancho); margin: 0 auto var(--s-6); display: grid; gap: var(--gap-col); align-items: start; }
 @media (min-width: 52rem) { .pie-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); column-gap: var(--s-8); } }
 .pie-marca { display: flex; gap: var(--s-4); align-items: flex-start; }
@@ -3214,7 +3221,8 @@ main > .divisor:has(+ section[hidden]) { display: none; }
 
   /* --- Pie: enlaces en dos columnas y menos relleno --- */
   .pie-wordmark { display: none; }
-  .pie { padding-top: var(--s-6); padding-bottom: calc(var(--s-5) + 6rem); }
+  .pie { padding-top: var(--s-6); padding-bottom: calc(var(--s-5) + 3.5rem); }
+  body:has(.mini-carrito.activo) .pie { padding-bottom: calc(var(--s-5) + 6rem); }
   .pie-cols { gap: var(--s-5); margin-bottom: var(--s-4); }
   .pie-links { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-4); }
 }
