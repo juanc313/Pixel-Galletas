@@ -364,6 +364,16 @@ h3 { font-size: var(--t-lg); }
 #carrito-contador { min-width: 1.7rem; padding: 0 .4rem; text-align: center;
   font-family: var(--titulos); font-weight: 700; background: var(--corazon); color: #fff; }
 #btn-acceso { max-width: 12rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Botón de idioma, junto a Acceso y con su mismo estilo: «ES EN», con el
+   idioma actual en naranja. Lo maneja idioma.js. */
+.btn-idioma { display: inline-flex; align-items: center; gap: var(--s-2); padding-inline: var(--s-4);
+  font-family: var(--titulos); white-space: nowrap; }
+.btn-idioma span { opacity: .5; }
+.btn-idioma[data-actual="es"] span[lang="es"], .btn-idioma[data-actual="en"] span[lang="en"] { opacity: 1; color: var(--masa); }
+.btn-idioma span + span { padding-left: var(--s-2); border-left: 2px solid var(--linea-suave); }
+/* Mientras llega el diccionario de inglés la página no se muestra: así no se
+   ve el español un instante y luego el salto (idioma.js lo quita en 1,5 s). */
+html.traduciendo body { visibility: hidden; }
 
 /* Botón de menú móvil: solo aparece bajo 62rem */
 .tema-selector { position: relative; display: flex; align-items: center; }
@@ -418,7 +428,14 @@ body:has(.menu.abierto) .ajustes-flotantes { opacity: 0; pointer-events: none; }
 /* En las páginas 8-bit el menú hereda letra pixel con espacio extra entre
    letras, y entre 62 y 75rem el «Carrito» caía a una tercera fila. */
 .barra .menu { letter-spacing: normal; }
-@media (min-width: 62.01rem) and (max-width: 74.99rem) { .menu a { padding-inline: var(--s-1); } }
+@media (min-width: 62.01rem) and (max-width: 74.99rem) {
+  .menu a { padding-inline: var(--s-1); }
+  /* Con el botón de idioma la fila se llenaba justo antes de 64rem: menos
+     relleno interno en Acceso y en ES/EN (el texto no cambia de tamaño). */
+  #btn-acceso { padding-inline: var(--s-4); }
+  .btn-idioma { padding-inline: var(--s-2); gap: var(--s-1); }
+  .btn-idioma span + span { padding-left: var(--s-1); }
+}
 .btn-menu { display: none; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-4); }
 .btn-menu-barras { display: grid; gap: var(--s-1); width: 1.15rem; }
 .btn-menu-barras i { display: block; height: 3px; background: currentColor; transition: transform var(--d-ui) ease, opacity var(--d-ui) ease; }
@@ -470,13 +487,13 @@ button:disabled { cursor: not-allowed; opacity: 1; filter: none;
 @keyframes brillo { 0% { left: -70%; opacity: 1; } 100% { left: 130%; opacity: 1; } }
 
 /* Botones secundarios: contorno en lugar de relleno */
-button.secundario, #btn-acceso, .pestanas button:not(.activa), .acciones button, .controles button[data-accion="quitar"] {
+button.secundario, #btn-acceso, .btn-idioma, .pestanas button:not(.activa), .acciones button, .controles button[data-accion="quitar"] {
   color: var(--crema); background: transparent;
   box-shadow: var(--px-3);
 }
-button.secundario:hover:not(:disabled), #btn-acceso:hover, .pestanas button:not(.activa):hover,
+button.secundario:hover:not(:disabled), #btn-acceso:hover, .btn-idioma:hover, .pestanas button:not(.activa):hover,
 .acciones button:hover:not(:disabled), .controles button[data-accion="quitar"]:hover { background: var(--deshabilitado); filter: none; }
-button.secundario:active:not(:disabled), #btn-acceso:active, .acciones button:active:not(:disabled) {
+button.secundario:active:not(:disabled), #btn-acceso:active, .btn-idioma:active, .acciones button:active:not(:disabled) {
   box-shadow: var(--px-3);
 }
 
@@ -1769,6 +1786,7 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 15; pointer-event
   .menu a.carrito-icono { margin: var(--s-2) 0 0; justify-content: center; border-bottom: 0; }
   /* En el panel del celular, Acceso ocupa el mismo ancho que Carrito. */
   .menu #btn-acceso { margin-top: var(--s-2); text-align: center; max-width: none; }
+  .menu .btn-idioma { margin-top: var(--s-2); justify-content: center; }
 }
 /* En celular la fila del logo lleva cuatro botones: la hamburguesa se queda
    solo con su ícono. La palabra "Menú" sigue ahí para lectores de pantalla. */

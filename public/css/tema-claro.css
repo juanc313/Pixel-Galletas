@@ -96,6 +96,7 @@
 :root[data-tema="claro"] .boton-grande:hover { background: #C05E06; }
 :root[data-tema="claro"] button.secundario:hover:not(:disabled),
 :root[data-tema="claro"] #btn-acceso:hover,
+:root[data-tema="claro"] .btn-idioma:hover,
 :root[data-tema="claro"] .acciones button:hover:not(:disabled) { background: #FBEEDA; }
 :root[data-tema="claro"] .boton-whatsapp {
   color: #FFFFFF;
@@ -105,6 +106,7 @@
 :root[data-tema="claro"] .boton-whatsapp:hover { background: #0F7D3C; }
 :root[data-tema="claro"] button.secundario,
 :root[data-tema="claro"] #btn-acceso,
+:root[data-tema="claro"] .btn-idioma,
 :root[data-tema="claro"] .pestanas button:not(.activa),
 :root[data-tema="claro"] .acciones button,
 :root[data-tema="claro"] .controles button[data-accion="quitar"] {
@@ -402,3 +404,8 @@
 :root[data-tema="claro"] #pixelito-bot .pixelito-opcion:hover { background: #FFF3DF; }
 :root[data-tema="claro"] #pixelito-bot .pixelito-cerrar,
 :root[data-tema="claro"] #pixelito-bot .pixelito-burbuja-cerrar { color: #4A3B68; }
+
+/* Botón de idioma: el idioma activo en naranja oscuro (el claro no contrasta
+   sobre el blanco del botón). */
+:root[data-tema="claro"] .btn-idioma[data-actual="es"] span[lang="es"],
+:root[data-tema="claro"] .btn-idioma[data-actual="en"] span[lang="en"] { color: #B4470A; }

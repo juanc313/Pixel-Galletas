@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/tema-claro.css">
   <script src="/js/arranque.js"></script>
+  <script src="/js/idioma.js"></script>
 </head>
 <body>
   <!-- Ambiente: cielo de estrellas y dibujitos flotando a los lados, como en
@@ -73,6 +74,8 @@
       <a href="/#contacto">Contacto</a>
       <a class="carrito-icono" href="/#pedido" title="Ver mi carrito">Carrito <span id="carrito-contador" aria-live="polite" aria-atomic="true">0</span></a>
       <button type="button" id="btn-acceso" aria-expanded="false" aria-controls="acceso">Acceso</button>
+      <!-- Idioma: español o inglés. Lo maneja idioma.js (translate="no": el botón no se traduce). -->
+      <button type="button" class="btn-idioma" data-idioma-boton data-actual="es" translate="no" aria-label="Idioma: español. Cambiar a inglés" title="Switch to English"><span lang="es">ES</span><span lang="en">EN</span></button>
     </nav>
     <!-- Barra de progreso de lectura (la mueve efectos.js) -->
     <span class="progreso-lectura" aria-hidden="true"></span>
